@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, MapPin, Plus, Users } from "lucide-react";
+import logo from "@/assets/bird-co-logo.png";
 
 interface Opportunity {
   id: string;
@@ -145,8 +146,8 @@ const Admin = () => {
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card">
         <div className="container mx-auto px-4 py-6 flex items-center justify-between">
-          <div>
-            <h1 className="font-heading text-4xl font-black">BIRD & CO</h1>
+          <div className="flex items-center gap-3">
+            <img src={logo} alt="Bird & Co" className="h-12" />
             <p className="text-sm text-muted-foreground">Admin Panel</p>
           </div>
           <div className="flex items-center gap-4">
