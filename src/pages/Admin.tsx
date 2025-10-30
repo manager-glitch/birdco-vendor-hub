@@ -1,0 +1,308 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/components/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { Calendar, MapPin, Plus, Users } from "lucide-react";
+
+interface Opportunity {
+  id: string;
+  title: string;
+  description: string;
+  event_date: string;
+  location: string;
+  details: string;
+  status: string;
+}
+
+interface ApplicationWithProfile {
+  id: string;
+  status: string;
+  message: string;
+  created_at: string;
+  profiles: {
+    full_name: string;
+    company_name: string;
+    phone: string;
+  };
+  opportunities: {
+    title: string;
+  };
+}
+
+const Admin = () => {
+  const { user, isAdmin, loading: authLoading, signOut } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
+  const [applications, setApplications] = useState<ApplicationWithProfile[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    event_date: "",
+    location: "",
+    details: "",
+  });
+
+  useEffect(() => {
+    if (!authLoading && (!user || !isAdmin)) {
+      navigate("/dashboard");
+    }
+  }, [user, isAdmin, authLoading, navigate]);
+
+  useEffect(() => {
+    if (user && isAdmin) {
+      fetchData();
+    }
+  }, [user, isAdmin]);
+
+  const fetchData = async () => {
+    try {
+      const [oppsResult, appsResult] = await Promise.all([
+        supabase.from("opportunities").select("*").order("created_at", { ascending: false }),
+        supabase
+          .from("applications")
+          .select(
+            `
+            id,
+            status,
+            message,
+            created_at,
+            profiles (
+              full_name,
+              company_name,
+              phone
+            ),
+            opportunities (
+              title
+            )
+          `
+          )
+          .order("created_at", { ascending: false }),
+      ]);
+
+      if (oppsResult.data) setOpportunities(oppsResult.data);
+      if (appsResult.data) setApplications(appsResult.data as any);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const { error } = await supabase.from("opportunities").insert({
+        ...formData,
+        created_by: user!.id,
+        status: "open",
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Opportunity created!",
+        description: "Vendors can now view and apply.",
+      });
+
+      setFormData({
+        title: "",
+        description: "",
+        event_date: "",
+        location: "",
+        details: "",
+      });
+      setIsDialogOpen(false);
+      fetchData();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  if (authLoading || loading || !isAdmin) {
+    return null;
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      <header className="border-b bg-card">
+        <div className="container mx-auto px-4 py-6 flex items-center justify-between">
+          <div>
+            <h1 className="font-heading text-4xl font-black">BIRD & CO</h1>
+            <p className="text-sm text-muted-foreground">Admin Panel</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <Button variant="outline" onClick={() => navigate("/dashboard")}>
+              Vendor View
+            </Button>
+            <Button variant="outline" onClick={signOut}>
+              Sign Out
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      <main className="container mx-auto px-4 py-8">
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h2 className="font-heading text-3xl font-bold mb-2">Manage Opportunities</h2>
+            <p className="text-muted-foreground">Create and manage event opportunities</p>
+          </div>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="font-heading font-bold">
+                <Plus className="mr-2 h-4 w-4" />
+                New Opportunity
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle className="font-heading text-2xl">Create New Opportunity</DialogTitle>
+                <DialogDescription>Add a new event opportunity for vendors</DialogDescription>
+              </DialogHeader>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="title">Event Title</Label>
+                  <Input
+                    id="title"
+                    value={formData.title}
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                    required
+                    placeholder="Summer Music Festival 2025"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="description">Short Description</Label>
+                  <Input
+                    id="description"
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    required
+                    placeholder="A vibrant outdoor music festival"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="event_date">Event Date</Label>
+                    <Input
+                      id="event_date"
+                      type="date"
+                      value={formData.event_date}
+                      onChange={(e) => setFormData({ ...formData, event_date: e.target.value })}
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="location">Location</Label>
+                    <Input
+                      id="location"
+                      value={formData.location}
+                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                      required
+                      placeholder="Central Park, NYC"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="details">Additional Details</Label>
+                  <Textarea
+                    id="details"
+                    value={formData.details}
+                    onChange={(e) => setFormData({ ...formData, details: e.target.value })}
+                    placeholder="Looking for catering vendors, photographers, and equipment rental..."
+                    rows={4}
+                  />
+                </div>
+
+                <Button type="submit" className="w-full font-heading font-bold">
+                  Create Opportunity
+                </Button>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        <div className="grid gap-8 lg:grid-cols-2">
+          <div>
+            <h3 className="font-heading text-2xl font-bold mb-4">Active Opportunities</h3>
+            <div className="space-y-4">
+              {opportunities.map((opp) => (
+                <Card key={opp.id} className="border-2">
+                  <CardHeader>
+                    <CardTitle className="font-heading">{opp.title}</CardTitle>
+                    <CardDescription>{opp.description}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-2 text-sm">
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Calendar className="h-4 w-4" />
+                      <span>{new Date(opp.event_date).toLocaleDateString()}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <MapPin className="h-4 w-4" />
+                      <span>{opp.location}</span>
+                    </div>
+                    <Badge variant={opp.status === "open" ? "default" : "secondary"}>{opp.status}</Badge>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <h3 className="font-heading text-2xl font-bold mb-4">Vendor Applications</h3>
+            <div className="space-y-4">
+              {applications.map((app) => (
+                <Card key={app.id} className="border-2">
+                  <CardHeader>
+                    <CardTitle className="font-heading text-lg">{app.profiles?.full_name || "Unknown Vendor"}</CardTitle>
+                    <CardDescription>{app.opportunities?.title}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-2 text-sm">
+                    {app.profiles?.company_name && (
+                      <p className="text-muted-foreground">Company: {app.profiles.company_name}</p>
+                    )}
+                    {app.profiles?.phone && <p className="text-muted-foreground">Phone: {app.profiles.phone}</p>}
+                    <p className="text-xs text-muted-foreground">Applied: {new Date(app.created_at).toLocaleDateString()}</p>
+                    <Badge variant="secondary">{app.status}</Badge>
+                  </CardContent>
+                </Card>
+              ))}
+              {applications.length === 0 && (
+                <Card>
+                  <CardContent className="py-8 text-center">
+                    <Users className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                    <p className="text-muted-foreground">No applications yet</p>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default Admin;
