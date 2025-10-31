@@ -1,35 +1,22 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/components/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/use-toast";
-import { Calendar, MapPin, Loader2 } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Loader2, Menu, FileText, Calendar, MessageCircle, Phone, Users, CheckCircle } from "lucide-react";
+import logo from "@/assets/bird-co-logo.png";
 
-interface Opportunity {
-  id: string;
-  title: string;
-  description: string;
-  event_date: string;
-  location: string;
-  details: string;
-  created_at: string;
-}
-
-interface Application {
-  opportunity_id: string;
-  status: string;
-}
+const navigationCards = [
+  { title: "Registration & Documents", icon: FileText },
+  { title: "Availability & Shifts", icon: Calendar },
+  { title: "Chat", icon: MessageCircle },
+  { title: "Contact Us", icon: Phone },
+  { title: "Refer a Friend", icon: Users },
+  { title: "Completed Events", icon: CheckCircle },
+];
 
 const Dashboard = () => {
-  const { user, isAdmin, loading: authLoading, signOut } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
-  const [applications, setApplications] = useState<Application[]>([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -37,141 +24,57 @@ const Dashboard = () => {
     }
   }, [user, authLoading, navigate]);
 
-  useEffect(() => {
-    if (user) {
-      fetchData();
-    }
-  }, [user]);
-
-  const fetchData = async () => {
-    try {
-      const [oppsResult, appsResult] = await Promise.all([
-        supabase.from("opportunities").select("*").eq("status", "open").order("event_date", { ascending: true }),
-        supabase.from("applications").select("opportunity_id, status").eq("vendor_id", user!.id),
-      ]);
-
-      if (oppsResult.data) setOpportunities(oppsResult.data);
-      if (appsResult.data) setApplications(appsResult.data);
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleApply = async (opportunityId: string) => {
-    try {
-      const { error } = await supabase.from("applications").insert({
-        opportunity_id: opportunityId,
-        vendor_id: user!.id,
-        status: "pending",
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: "Application submitted!",
-        description: "We'll notify you when there's an update.",
-      });
-
-      fetchData();
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
-
-  const hasApplied = (opportunityId: string) => {
-    return applications.some((app) => app.opportunity_id === opportunityId);
-  };
-
-  if (authLoading || loading) {
+  if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b bg-card">
-        <div className="container mx-auto px-4 py-6 flex items-center justify-between">
-          <div>
-            <h1 className="font-heading text-4xl font-black">BIRD & CO</h1>
-            <p className="text-sm text-muted-foreground">Vendor Portal</p>
-          </div>
-          <div className="flex items-center gap-4">
-            {isAdmin && (
-              <Button variant="outline" onClick={() => navigate("/admin")}>
-                Admin Panel
-              </Button>
-            )}
-            <Button variant="outline" onClick={signOut}>
-              Sign Out
-            </Button>
-          </div>
-        </div>
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Header */}
+      <header className="bg-black text-white px-6 py-4">
+        <button className="p-2">
+          <Menu className="h-6 w-6" />
+        </button>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h2 className="font-heading text-3xl font-bold mb-2">Available Opportunities</h2>
-          <p className="text-muted-foreground">Browse and apply to new event opportunities</p>
+      {/* Main Content */}
+      <main className="flex-1 px-6 py-8">
+        <div className="max-w-2xl mx-auto grid grid-cols-2 gap-4">
+          {navigationCards.map((card) => (
+            <Card
+              key={card.title}
+              className="aspect-square flex items-end p-6 bg-muted hover:bg-muted/80 transition-colors cursor-pointer border-0"
+            >
+              <h2 className="font-heading text-xl font-bold leading-tight">{card.title}</h2>
+            </Card>
+          ))}
         </div>
-
-        {opportunities.length === 0 ? (
-          <Card>
-            <CardContent className="py-16 text-center">
-              <p className="text-muted-foreground">No opportunities available at the moment.</p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {opportunities.map((opp) => (
-              <Card key={opp.id} className="border-2 hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <CardTitle className="font-heading text-xl">{opp.title}</CardTitle>
-                  <CardDescription className="line-clamp-2">{opp.description}</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Calendar className="h-4 w-4" />
-                      <span>{new Date(opp.event_date).toLocaleDateString()}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <MapPin className="h-4 w-4" />
-                      <span>{opp.location}</span>
-                    </div>
-                  </div>
-
-                  {opp.details && (
-                    <p className="text-sm text-muted-foreground line-clamp-3">{opp.details}</p>
-                  )}
-
-                  {hasApplied(opp.id) ? (
-                    <Badge variant="secondary" className="w-full justify-center py-2">
-                      Applied
-                    </Badge>
-                  ) : (
-                    <Button onClick={() => handleApply(opp.id)} className="w-full font-heading font-bold">
-                      Express Interest
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
       </main>
+
+      {/* Footer */}
+      <footer className="bg-black text-white py-4">
+        <div className="max-w-2xl mx-auto grid grid-cols-3">
+          <button className="flex flex-col items-center gap-1 py-2">
+            <Phone className="h-6 w-6" />
+            <span className="text-sm font-medium">Call Us</span>
+          </button>
+          <button className="flex flex-col items-center gap-1 py-2">
+            <MessageCircle className="h-6 w-6" />
+            <span className="text-sm font-medium">Messages</span>
+          </button>
+          <button className="flex flex-col items-center gap-1 py-2">
+            <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="3" />
+              <path d="M12 1v6m0 6v6m-9-9h6m6 0h6" />
+            </svg>
+            <span className="text-sm font-medium">Settings</span>
+          </button>
+        </div>
+      </footer>
     </div>
   );
 };
