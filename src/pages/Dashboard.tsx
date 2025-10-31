@@ -4,36 +4,42 @@ import { useAuth } from "@/components/AuthContext";
 import { Card } from "@/components/ui/card";
 import { Loader2, Menu, FileText, Calendar, MessageCircle, Phone, Users, CheckCircle } from "lucide-react";
 import logo from "@/assets/bird-co-logo.png";
-
-const navigationCards = [
-  { title: "Registration & Documents", icon: FileText },
-  { title: "Availability & Shifts", icon: Calendar },
-  { title: "Chat", icon: MessageCircle },
-  { title: "Contact Us", icon: Phone },
-  { title: "Refer a Friend", icon: Users },
-  { title: "Completed Events", icon: CheckCircle },
-];
-
+const navigationCards = [{
+  title: "Registration & Documents",
+  icon: FileText
+}, {
+  title: "Availability & Shifts",
+  icon: Calendar
+}, {
+  title: "Chat",
+  icon: MessageCircle
+}, {
+  title: "Contact Us",
+  icon: Phone
+}, {
+  title: "Refer a Friend",
+  icon: Users
+}, {
+  title: "Completed Events",
+  icon: CheckCircle
+}];
 const Dashboard = () => {
-  const { user, loading: authLoading } = useAuth();
+  const {
+    user,
+    loading: authLoading
+  } = useAuth();
   const navigate = useNavigate();
-
   useEffect(() => {
     if (!authLoading && !user) {
       navigate("/auth");
     }
   }, [user, authLoading, navigate]);
-
   if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+    return <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="min-h-screen bg-background flex flex-col">
+  return <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="bg-black text-white px-6 py-4">
         <button className="p-2">
@@ -44,14 +50,9 @@ const Dashboard = () => {
       {/* Main Content */}
       <main className="flex-1 px-6 py-8">
         <div className="max-w-2xl mx-auto grid grid-cols-2 gap-4">
-          {navigationCards.map((card) => (
-            <Card
-              key={card.title}
-              className="aspect-square flex items-end p-6 bg-muted hover:bg-muted/80 transition-colors cursor-pointer border-0"
-            >
-              <h2 className="font-heading text-xl font-bold leading-tight">{card.title}</h2>
-            </Card>
-          ))}
+          {navigationCards.map(card => <Card key={card.title} className="aspect-square flex items-end p-6 bg-muted hover:bg-muted/80 transition-colors cursor-pointer border-0">
+              <h2 className="font-heading font-bold leading-tight text-lg">{card.title}</h2>
+            </Card>)}
         </div>
       </main>
 
@@ -75,8 +76,6 @@ const Dashboard = () => {
           </button>
         </div>
       </footer>
-    </div>
-  );
+    </div>;
 };
-
 export default Dashboard;
