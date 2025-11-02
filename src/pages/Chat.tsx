@@ -1,0 +1,273 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/components/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ArrowLeft, Send, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { formatDistanceToNow } from "date-fns";
+
+interface Message {
+  id: string;
+  content: string;
+  sender_id: string;
+  created_at: string;
+  profiles?: {
+    full_name: string | null;
+  };
+}
+
+interface Conversation {
+  id: string;
+  vendor_id: string;
+  last_message_at: string;
+  profiles?: {
+    full_name: string | null;
+    company_name: string | null;
+  };
+}
+
+const Chat = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [newMessage, setNewMessage] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [sending, setSending] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    loadConversations();
+  }, [user]);
+
+  useEffect(() => {
+    if (!selectedConversation) return;
+    loadMessages(selectedConversation);
+    
+    // Subscribe to real-time messages
+    const channel = supabase
+      .channel(`messages:${selectedConversation}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `conversation_id=eq.${selectedConversation}`
+        },
+        (payload) => {
+          setMessages(prev => [...prev, payload.new as Message]);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [selectedConversation]);
+
+  const loadConversations = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('conversations')
+        .select(`
+          id,
+          vendor_id,
+          last_message_at,
+          profiles:vendor_id (full_name, company_name)
+        `)
+        .order('last_message_at', { ascending: false });
+
+      if (error) throw error;
+      setConversations(data || []);
+    } catch (error) {
+      console.error('Error loading conversations:', error);
+      toast.error('Failed to load conversations');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadMessages = async (conversationId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('messages')
+        .select(`
+          id,
+          content,
+          sender_id,
+          created_at,
+          profiles:sender_id (full_name)
+        `)
+        .eq('conversation_id', conversationId)
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+      setMessages(data || []);
+    } catch (error) {
+      console.error('Error loading messages:', error);
+      toast.error('Failed to load messages');
+    }
+  };
+
+  const handleSendMessage = async () => {
+    if (!newMessage.trim() || !selectedConversation || !user) return;
+
+    setSending(true);
+    try {
+      const { error } = await supabase
+        .from('messages')
+        .insert({
+          conversation_id: selectedConversation,
+          sender_id: user.id,
+          content: newMessage.trim()
+        });
+
+      if (error) throw error;
+      
+      setNewMessage("");
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast.error('Failed to send message');
+    } finally {
+      setSending(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="bg-black text-white px-6 py-4 flex items-center gap-4">
+        <button onClick={() => navigate("/dashboard")} className="p-2">
+          <ArrowLeft className="h-6 w-6" />
+        </button>
+        <h1 className="font-heading font-bold text-xl">Chat</h1>
+      </header>
+
+      <main className="max-w-7xl mx-auto p-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-[calc(100vh-120px)]">
+          {/* Conversations List */}
+          <Card className="p-4 col-span-1">
+            <h2 className="font-heading font-bold text-lg mb-4">Conversations</h2>
+            <ScrollArea className="h-[calc(100%-3rem)]">
+              <div className="space-y-2">
+                {conversations.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-8">
+                    No conversations yet
+                  </p>
+                ) : (
+                  conversations.map((conv) => (
+                    <button
+                      key={conv.id}
+                      onClick={() => setSelectedConversation(conv.id)}
+                      className={`w-full p-3 rounded-lg text-left transition-colors ${
+                        selectedConversation === conv.id
+                          ? 'bg-primary text-primary-foreground'
+                          : 'hover:bg-muted'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Avatar>
+                          <AvatarFallback>
+                            {conv.profiles?.full_name?.[0] || 'V'}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium truncate">
+                            {conv.profiles?.full_name || 'Vendor'}
+                          </p>
+                          {conv.profiles?.company_name && (
+                            <p className="text-xs opacity-80 truncate">
+                              {conv.profiles.company_name}
+                            </p>
+                          )}
+                          <p className="text-xs opacity-60">
+                            {formatDistanceToNow(new Date(conv.last_message_at), { addSuffix: true })}
+                          </p>
+                        </div>
+                      </div>
+                    </button>
+                  ))
+                )}
+              </div>
+            </ScrollArea>
+          </Card>
+
+          {/* Messages Area */}
+          <Card className="p-4 col-span-1 md:col-span-2 flex flex-col">
+            {selectedConversation ? (
+              <>
+                <ScrollArea className="flex-1 pr-4">
+                  <div className="space-y-4">
+                    {messages.map((message) => (
+                      <div
+                        key={message.id}
+                        className={`flex ${
+                          message.sender_id === user?.id ? 'justify-end' : 'justify-start'
+                        }`}
+                      >
+                        <div
+                          className={`max-w-[70%] p-3 rounded-lg ${
+                            message.sender_id === user?.id
+                              ? 'bg-primary text-primary-foreground'
+                              : 'bg-muted'
+                          }`}
+                        >
+                          <p className="text-sm">{message.content}</p>
+                          <p className="text-xs opacity-60 mt-1">
+                            {formatDistanceToNow(new Date(message.created_at), { addSuffix: true })}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+
+                <div className="flex gap-2 mt-4 pt-4 border-t">
+                  <Input
+                    placeholder="Type a message..."
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                    disabled={sending}
+                  />
+                  <Button
+                    onClick={handleSendMessage}
+                    disabled={!newMessage.trim() || sending}
+                    size="icon"
+                  >
+                    {sending ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Send className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <div className="flex-1 flex items-center justify-center text-muted-foreground">
+                Select a conversation to start messaging
+              </div>
+            )}
+          </Card>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default Chat;
