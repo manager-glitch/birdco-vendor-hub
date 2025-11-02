@@ -50,7 +50,15 @@ const Dashboard = () => {
       {/* Main Content */}
       <main className="flex-1 px-6 py-8">
         <div className="max-w-2xl mx-auto grid grid-cols-2 gap-4">
-          {navigationCards.map(card => <Card key={card.title} className="aspect-square flex items-end p-6 bg-muted hover:bg-muted/80 transition-colors cursor-pointer border-0">
+          {navigationCards.map(card => <Card 
+              key={card.title} 
+              className="aspect-square flex items-end p-6 bg-muted hover:bg-muted/80 transition-colors cursor-pointer border-0"
+              onClick={() => {
+                if (card.title === "Availability & Shifts") {
+                  navigate("/availability-shifts");
+                }
+              }}
+            >
               <h2 className="font-heading font-bold leading-tight text-lg">{card.title}</h2>
             </Card>)}
         </div>
