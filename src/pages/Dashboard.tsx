@@ -29,16 +29,18 @@ const Dashboard = () => {
     loading: authLoading
   } = useAuth();
   const navigate = useNavigate();
-  useEffect(() => {
-    if (!authLoading && !user) {
-      navigate("/auth");
-    }
-  }, [user, authLoading, navigate]);
-  if (authLoading) {
-    return <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>;
-  }
+  // Authentication check disabled - remove comments to re-enable
+  // useEffect(() => {
+  //   if (!authLoading && !user) {
+  //     navigate("/auth");
+  //   }
+  // }, [user, authLoading, navigate]);
+  
+  // if (authLoading) {
+  //   return <div className="min-h-screen flex items-center justify-center bg-background">
+  //       <Loader2 className="h-8 w-8 animate-spin" />
+  //     </div>;
+  // }
   return <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="bg-black text-white px-6 py-4">
