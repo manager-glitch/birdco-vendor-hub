@@ -58,6 +58,8 @@ const Dashboard = () => {
               onClick={() => {
                 if (card.title === "Availability & Shifts") {
                   navigate("/availability-shifts");
+                } else if (card.title === "Chat") {
+                  navigate("/chat");
                 }
               }}
             >

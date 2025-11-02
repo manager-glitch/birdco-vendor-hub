@@ -16,19 +16,12 @@ interface Message {
   content: string;
   sender_id: string;
   created_at: string;
-  profiles?: {
-    full_name: string | null;
-  };
 }
 
 interface Conversation {
   id: string;
   vendor_id: string;
   last_message_at: string;
-  profiles?: {
-    full_name: string | null;
-    company_name: string | null;
-  };
 }
 
 const Chat = () => {
@@ -76,12 +69,7 @@ const Chat = () => {
     try {
       const { data, error } = await supabase
         .from('conversations')
-        .select(`
-          id,
-          vendor_id,
-          last_message_at,
-          profiles:vendor_id (full_name, company_name)
-        `)
+        .select('*')
         .order('last_message_at', { ascending: false });
 
       if (error) throw error;
@@ -98,13 +86,7 @@ const Chat = () => {
     try {
       const { data, error } = await supabase
         .from('messages')
-        .select(`
-          id,
-          content,
-          sender_id,
-          created_at,
-          profiles:sender_id (full_name)
-        `)
+        .select('*')
         .eq('conversation_id', conversationId)
         .order('created_at', { ascending: true });
 
@@ -182,19 +164,10 @@ const Chat = () => {
                     >
                       <div className="flex items-center gap-3">
                         <Avatar>
-                          <AvatarFallback>
-                            {conv.profiles?.full_name?.[0] || 'V'}
-                          </AvatarFallback>
+                          <AvatarFallback>BC</AvatarFallback>
                         </Avatar>
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium truncate">
-                            {conv.profiles?.full_name || 'Vendor'}
-                          </p>
-                          {conv.profiles?.company_name && (
-                            <p className="text-xs opacity-80 truncate">
-                              {conv.profiles.company_name}
-                            </p>
-                          )}
+                          <p className="font-medium truncate">Bird & Co Team</p>
                           <p className="text-xs opacity-60">
                             {formatDistanceToNow(new Date(conv.last_message_at), { addSuffix: true })}
                           </p>
