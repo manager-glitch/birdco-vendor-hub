@@ -58,15 +58,17 @@ const Dashboard = () => {
               <Card 
                 key={card.title} 
                 className="aspect-square flex flex-col items-start justify-between p-6 bg-muted hover:bg-muted/80 transition-colors cursor-pointer border-0"
-                onClick={() => {
-                  if (card.title === "Availability & Shifts") {
-                    navigate("/availability-shifts");
-                  } else if (card.title === "Chat") {
-                    navigate("/chat");
-                  } else if (card.title === "Refer a Friend") {
-                    navigate("/refer");
-                  }
-                }}
+              onClick={() => {
+                if (card.title === "Availability & Shifts") {
+                  navigate("/availability-shifts");
+                } else if (card.title === "Chat") {
+                  navigate("/chat");
+                } else if (card.title === "Refer a Friend") {
+                  navigate("/refer");
+                } else if (card.title === "Contact Us") {
+                  navigate("/contact");
+                }
+              }}
               >
                 <IconComponent className="h-8 w-8 mb-2" />
                 <h2 className="font-heading font-bold leading-tight text-lg">{card.title}</h2>
