@@ -52,21 +52,27 @@ const Dashboard = () => {
       {/* Main Content */}
       <main className="flex-1 px-6 py-8">
         <div className="max-w-2xl mx-auto grid grid-cols-2 gap-4">
-          {navigationCards.map(card => <Card 
-              key={card.title} 
-              className="aspect-square flex items-end p-6 bg-muted hover:bg-muted/80 transition-colors cursor-pointer border-0"
-              onClick={() => {
-                if (card.title === "Availability & Shifts") {
-                  navigate("/availability-shifts");
-                } else if (card.title === "Chat") {
-                  navigate("/chat");
-                } else if (card.title === "Refer a Friend") {
-                  navigate("/refer");
-                }
-              }}
-            >
-              <h2 className="font-heading font-bold leading-tight text-lg">{card.title}</h2>
-            </Card>)}
+          {navigationCards.map(card => {
+            const IconComponent = card.icon;
+            return (
+              <Card 
+                key={card.title} 
+                className="aspect-square flex flex-col items-start justify-between p-6 bg-muted hover:bg-muted/80 transition-colors cursor-pointer border-0"
+                onClick={() => {
+                  if (card.title === "Availability & Shifts") {
+                    navigate("/availability-shifts");
+                  } else if (card.title === "Chat") {
+                    navigate("/chat");
+                  } else if (card.title === "Refer a Friend") {
+                    navigate("/refer");
+                  }
+                }}
+              >
+                <IconComponent className="h-8 w-8 mb-2" />
+                <h2 className="font-heading font-bold leading-tight text-lg">{card.title}</h2>
+              </Card>
+            );
+          })}
         </div>
       </main>
 
