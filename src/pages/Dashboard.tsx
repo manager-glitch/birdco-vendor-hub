@@ -15,10 +15,12 @@ const navigationCards = [{
   icon: MessageCircle
 }, {
   title: "Contact Us",
-  icon: Phone
+  icon: Phone,
+  path: "/contact"
 }, {
   title: "Refer a Friend",
-  icon: Users
+  icon: Users,
+  path: "/refer"
 }, {
   title: "Completed Events",
   icon: CheckCircle

@@ -9,13 +9,6 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
-import { z } from "zod";
-
-const contactSchema = z.object({
-  name: z.string().trim().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
-  email: z.string().trim().email("Invalid email address").max(255, "Email must be less than 255 characters"),
-  message: z.string().trim().min(1, "Message is required").max(1000, "Message must be less than 1000 characters")
-});
 
 const ContactUs = () => {
   const navigate = useNavigate();
@@ -35,14 +28,16 @@ const ContactUs = () => {
       return;
     }
 
-    // Validate form data
-    try {
-      contactSchema.parse(formData);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        toast.error(error.errors[0].message);
-        return;
-      }
+    if (!formData.name || !formData.email || !formData.message) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      toast.error("Please enter a valid email address");
+      return;
     }
 
     setLoading(true);
@@ -60,7 +55,22 @@ const ContactUs = () => {
 
       if (dbError) throw dbError;
 
-      toast.success("Message sent successfully! We'll get back to you soon.");
+      // Send email notification
+      const { error: emailError } = await supabase.functions.invoke('send-contact-email', {
+        body: {
+          name: formData.name,
+          email: formData.email,
+          message: formData.message
+        }
+      });
+
+      if (emailError) {
+        console.error("Email sending error:", emailError);
+        toast.warning("Message saved, but email notification failed");
+      } else {
+        toast.success("Message sent successfully!");
+      }
+
       setFormData({
         name: "",
         email: "",
@@ -90,7 +100,7 @@ const ContactUs = () => {
           <CardHeader>
             <CardTitle>Contact Us</CardTitle>
             <CardDescription>
-              Have a question or need help? Send us a message and we'll get back to you as soon as possible.
+              Have a question or need help? Send us a message and we'll get back to you soon.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -101,8 +111,7 @@ const ContactUs = () => {
                   id="name"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="Enter your name"
-                  maxLength={100}
+                  placeholder="Your name"
                   required
                 />
               </div>
@@ -114,8 +123,7 @@ const ContactUs = () => {
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  placeholder="Enter your email"
-                  maxLength={255}
+                  placeholder="your.email@example.com"
                   required
                 />
               </div>
@@ -126,14 +134,10 @@ const ContactUs = () => {
                   id="message"
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  placeholder="Tell us how we can help..."
+                  placeholder="How can we help you?"
                   rows={6}
-                  maxLength={1000}
                   required
                 />
-                <p className="text-sm text-muted-foreground">
-                  {formData.message.length}/1000 characters
-                </p>
               </div>
 
               <Button type="submit" className="w-full" disabled={loading}>
