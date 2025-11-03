@@ -174,6 +174,42 @@ export type Database = {
         }
         Relationships: []
       }
+      referrals: {
+        Row: {
+          business_name: string
+          contact_info: string
+          created_at: string
+          id: string
+          name: string
+          notes: string | null
+          status: string
+          updated_at: string
+          vendor_id: string
+        }
+        Insert: {
+          business_name: string
+          contact_info: string
+          created_at?: string
+          id?: string
+          name: string
+          notes?: string | null
+          status?: string
+          updated_at?: string
+          vendor_id: string
+        }
+        Update: {
+          business_name?: string
+          contact_info?: string
+          created_at?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          status?: string
+          updated_at?: string
+          vendor_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string

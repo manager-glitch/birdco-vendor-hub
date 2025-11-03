@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import Admin from "./pages/Admin";
 import AvailabilityShifts from "./pages/AvailabilityShifts";
 import Chat from "./pages/Chat";
+import ReferAFriend from "./pages/ReferAFriend";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
             <Route path="/admin" element={<Admin />} />
             <Route path="/availability-shifts" element={<AvailabilityShifts />} />
             <Route path="/chat" element={<Chat />} />
+            <Route path="/refer" element={<ReferAFriend />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
