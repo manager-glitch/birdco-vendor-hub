@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/components/AuthContext";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar } from "@/components/ui/calendar";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, MapPin, Clock, Phone, Calendar as CalendarIcon } from "lucide-react";
+import { Loader2, ArrowLeft, MapPin, Clock, Phone, Calendar as CalendarIcon } from "lucide-react";
 import logo from "@/assets/bird-co-logo.png";
 
 interface Event {
@@ -24,9 +25,22 @@ interface Event {
 
 const AvailabilityShifts = () => {
   const navigate = useNavigate();
+  const { user, loading: authLoading, registrationComplete, approvalStatus } = useAuth();
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [availabilityDate, setAvailabilityDate] = useState<Date | undefined>(new Date());
   const [availabilityNotes, setAvailabilityNotes] = useState("");
+
+  useEffect(() => {
+    if (!authLoading && (!user || !registrationComplete || approvalStatus !== "approved")) {
+      navigate("/dashboard");
+    }
+  }, [user, authLoading, registrationComplete, approvalStatus, navigate]);
+
+  if (authLoading) {
+    return <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>;
+  }
 
   // Mock data - replace with actual data from Supabase
   const confirmedEvents: Event[] = [

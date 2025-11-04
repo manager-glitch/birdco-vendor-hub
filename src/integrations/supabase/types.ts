@@ -176,31 +176,52 @@ export type Database = {
       }
       profiles: {
         Row: {
+          approval_status: string | null
+          approved_at: string | null
+          approved_by: string | null
           bio: string | null
+          business_type: string | null
           company_name: string | null
           created_at: string | null
           full_name: string | null
           id: string
           phone: string | null
+          registration_completed: boolean | null
+          service_category: string | null
           website: string | null
+          years_in_business: number | null
         }
         Insert: {
+          approval_status?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
           bio?: string | null
+          business_type?: string | null
           company_name?: string | null
           created_at?: string | null
           full_name?: string | null
           id: string
           phone?: string | null
+          registration_completed?: boolean | null
+          service_category?: string | null
           website?: string | null
+          years_in_business?: number | null
         }
         Update: {
+          approval_status?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
           bio?: string | null
+          business_type?: string | null
           company_name?: string | null
           created_at?: string | null
           full_name?: string | null
           id?: string
           phone?: string | null
+          registration_completed?: boolean | null
+          service_category?: string | null
           website?: string | null
+          years_in_business?: number | null
         }
         Relationships: []
       }
@@ -258,6 +279,45 @@ export type Database = {
         }
         Relationships: []
       }
+      vendor_documents: {
+        Row: {
+          document_type: string
+          file_name: string
+          file_path: string
+          id: string
+          notes: string | null
+          status: string | null
+          uploaded_at: string | null
+          vendor_id: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          document_type: string
+          file_name: string
+          file_path: string
+          id?: string
+          notes?: string | null
+          status?: string | null
+          uploaded_at?: string | null
+          vendor_id: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          document_type?: string
+          file_name?: string
+          file_path?: string
+          id?: string
+          notes?: string | null
+          status?: string | null
+          uploaded_at?: string | null
+          vendor_id?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -268,6 +328,10 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      is_registration_complete: {
+        Args: { vendor_uuid: string }
         Returns: boolean
       }
     }

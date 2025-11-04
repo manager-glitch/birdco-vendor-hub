@@ -8,6 +8,8 @@ interface AuthContextType {
   session: Session | null;
   isAdmin: boolean;
   loading: boolean;
+  registrationComplete: boolean;
+  approvalStatus: string | null;
   signOut: () => Promise<void>;
 }
 
@@ -16,6 +18,8 @@ const AuthContext = createContext<AuthContextType>({
   session: null,
   isAdmin: false,
   loading: true,
+  registrationComplete: false,
+  approvalStatus: null,
   signOut: async () => {},
 });
 
@@ -26,6 +30,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [registrationComplete, setRegistrationComplete] = useState(false);
+  const [approvalStatus, setApprovalStatus] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -37,9 +43,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (session?.user) {
           setTimeout(() => {
             checkAdminStatus(session.user.id);
+            checkRegistrationStatus(session.user.id);
           }, 0);
         } else {
           setIsAdmin(false);
+          setRegistrationComplete(false);
+          setApprovalStatus(null);
         }
       }
     );
@@ -49,6 +58,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(session?.user ?? null);
       if (session?.user) {
         checkAdminStatus(session.user.id);
+        checkRegistrationStatus(session.user.id);
       }
       setLoading(false);
     });
@@ -68,16 +78,31 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setLoading(false);
   };
 
+  const checkRegistrationStatus = async (userId: string) => {
+    const { data } = await supabase
+      .from("profiles")
+      .select("registration_completed, approval_status")
+      .eq("id", userId)
+      .maybeSingle();
+    
+    if (data) {
+      setRegistrationComplete(data.registration_completed || false);
+      setApprovalStatus(data.approval_status || "pending");
+    }
+  };
+
   const signOut = async () => {
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);
     setIsAdmin(false);
+    setRegistrationComplete(false);
+    setApprovalStatus(null);
     navigate("/auth");
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, isAdmin, loading, signOut }}>
+    <AuthContext.Provider value={{ user, session, isAdmin, loading, registrationComplete, approvalStatus, signOut }}>
       {children}
     </AuthContext.Provider>
   );

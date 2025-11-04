@@ -12,6 +12,8 @@ import AvailabilityShifts from "./pages/AvailabilityShifts";
 import Chat from "./pages/Chat";
 import ReferAFriend from "./pages/ReferAFriend";
 import ContactUs from "./pages/ContactUs";
+import CompleteRegistration from "./pages/CompleteRegistration";
+import RegistrationAndDocuments from "./pages/RegistrationAndDocuments";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +34,8 @@ const App = () => (
             <Route path="/chat" element={<Chat />} />
             <Route path="/refer" element={<ReferAFriend />} />
             <Route path="/contact" element={<ContactUs />} />
+            <Route path="/complete-registration" element={<CompleteRegistration />} />
+            <Route path="/registration-documents" element={<RegistrationAndDocuments />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
