@@ -1,12 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
-
 const Index = () => {
   const navigate = useNavigate();
-
-  return (
-    <div className="min-h-screen bg-background flex flex-col">
+  return <div className="min-h-screen bg-background flex flex-col">
       <header className="border-b bg-card">
         <div className="container mx-auto px-4 py-6 flex items-center justify-between">
           <div>
@@ -22,33 +19,24 @@ const Index = () => {
       <main className="flex-1 flex items-center justify-center px-4">
         <div className="max-w-4xl mx-auto text-center space-y-8">
           <div className="space-y-4">
-            <h2 className="font-heading text-6xl md:text-8xl font-black leading-tight">
+            <h2 className="font-heading md:text-8xl font-black leading-tight text-4xl">
               CREATIVE
               <br />
               EVENT
               <br />
               PRODUCTION
             </h2>
-            <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto">
+            <p className="md:text-2xl text-muted-foreground max-w-2xl mx-auto text-base">
               Join our network of trusted vendors and access exclusive event opportunities
             </p>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button
-              onClick={() => navigate("/auth")}
-              size="lg"
-              className="font-heading font-bold text-lg px-8"
-            >
+            <Button onClick={() => navigate("/auth")} size="lg" className="font-heading font-bold text-lg px-8">
               Get Started
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
-            <Button
-              onClick={() => navigate("/auth")}
-              size="lg"
-              variant="outline"
-              className="font-heading font-bold text-lg px-8"
-            >
+            <Button onClick={() => navigate("/auth")} size="lg" variant="outline" className="font-heading font-bold text-lg px-8">
               Learn More
             </Button>
           </div>
@@ -92,8 +80,6 @@ const Index = () => {
           <p>&copy; 2025 Bird & Co Events. All rights reserved.</p>
         </div>
       </footer>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
