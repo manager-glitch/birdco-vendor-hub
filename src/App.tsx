@@ -14,6 +14,7 @@ import ReferAFriend from "./pages/ReferAFriend";
 import ContactUs from "./pages/ContactUs";
 import CompleteRegistration from "./pages/CompleteRegistration";
 import RegistrationAndDocuments from "./pages/RegistrationAndDocuments";
+import CompletedEvents from "./pages/CompletedEvents";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const App = () => (
             <Route path="/contact" element={<ContactUs />} />
             <Route path="/complete-registration" element={<CompleteRegistration />} />
             <Route path="/registration-documents" element={<RegistrationAndDocuments />} />
+            <Route path="/completed-events" element={<CompletedEvents />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

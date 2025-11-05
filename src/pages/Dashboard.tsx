@@ -119,6 +119,8 @@ const Dashboard = () => {
                   navigate("/refer");
                 } else if (card.title === "Contact Us") {
                   navigate("/contact");
+                } else if (card.title === "Completed Events") {
+                  navigate("/completed-events");
                 }
               }}
               >

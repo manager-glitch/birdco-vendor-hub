@@ -49,6 +49,45 @@ export type Database = {
           },
         ]
       }
+      completed_events: {
+        Row: {
+          client_name: string
+          created_at: string
+          event_date: string
+          event_name: string
+          event_type: string | null
+          id: string
+          notes: string | null
+          opportunity_id: string | null
+          updated_at: string
+          vendor_id: string
+        }
+        Insert: {
+          client_name: string
+          created_at?: string
+          event_date: string
+          event_name: string
+          event_type?: string | null
+          id?: string
+          notes?: string | null
+          opportunity_id?: string | null
+          updated_at?: string
+          vendor_id: string
+        }
+        Update: {
+          client_name?: string
+          created_at?: string
+          event_date?: string
+          event_name?: string
+          event_type?: string | null
+          id?: string
+          notes?: string | null
+          opportunity_id?: string | null
+          updated_at?: string
+          vendor_id?: string
+        }
+        Relationships: []
+      }
       contact_submissions: {
         Row: {
           created_at: string
