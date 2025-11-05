@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2, Menu, FileText, Calendar, MessageCircle, Phone, Users, CheckCircle, Clock, XCircle } from "lucide-react";
 import logo from "@/assets/bird-co-logo.png";
+import { DEV_CONFIG } from "@/config/dev";
 const navigationCards = [{
   title: "Registration & Documents",
   icon: FileText
@@ -36,6 +37,11 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Skip registration checks in development mode
+    if (DEV_CONFIG.bypassRegistrationChecks) {
+      return;
+    }
+    
     if (!authLoading && user && !registrationComplete) {
       navigate("/complete-registration");
     }
@@ -47,8 +53,8 @@ const Dashboard = () => {
       </div>;
   }
 
-  // Show approval pending message
-  if (registrationComplete && approvalStatus === "pending") {
+  // Show approval pending message (skip in dev mode)
+  if (!DEV_CONFIG.bypassRegistrationChecks && registrationComplete && approvalStatus === "pending") {
     return <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <Card className="max-w-md w-full">
           <CardContent className="pt-6">
@@ -70,8 +76,8 @@ const Dashboard = () => {
       </div>;
   }
 
-  // Show rejected message
-  if (approvalStatus === "rejected") {
+  // Show rejected message (skip in dev mode)
+  if (!DEV_CONFIG.bypassRegistrationChecks && approvalStatus === "rejected") {
     return <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <Card className="max-w-md w-full">
           <CardContent className="pt-6">

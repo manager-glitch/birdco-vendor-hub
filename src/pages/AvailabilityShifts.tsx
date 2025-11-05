@@ -8,6 +8,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, ArrowLeft, MapPin, Clock, Phone, Calendar as CalendarIcon } from "lucide-react";
 import logo from "@/assets/bird-co-logo.png";
+import { DEV_CONFIG } from "@/config/dev";
 
 interface Event {
   id: string;
@@ -31,6 +32,11 @@ const AvailabilityShifts = () => {
   const [availabilityNotes, setAvailabilityNotes] = useState("");
 
   useEffect(() => {
+    // Skip registration checks in development mode
+    if (DEV_CONFIG.bypassRegistrationChecks) {
+      return;
+    }
+    
     if (!authLoading && (!user || !registrationComplete || approvalStatus !== "approved")) {
       navigate("/dashboard");
     }

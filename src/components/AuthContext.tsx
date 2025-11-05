@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { DEV_CONFIG } from "@/config/dev";
 
 interface AuthContextType {
   user: User | null;
@@ -79,6 +80,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const checkRegistrationStatus = async (userId: string) => {
+    // Bypass registration checks in development mode
+    if (DEV_CONFIG.bypassRegistrationChecks) {
+      setRegistrationComplete(true);
+      setApprovalStatus("approved");
+      return;
+    }
+
     const { data } = await supabase
       .from("profiles")
       .select("registration_completed, approval_status")
