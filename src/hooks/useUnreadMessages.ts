@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthContext";
 
@@ -12,12 +12,10 @@ export const useUnreadMessages = () => {
     const fetchUnreadCount = async () => {
       try {
         // Get all conversations for this user
-        const { data: conversations, error: convError } = await supabase
+        const { data: conversations } = await supabase
           .from('conversations')
           .select('id')
           .eq('vendor_id', user.id);
-
-        if (convError) throw convError;
 
         if (!conversations || conversations.length === 0) {
           setUnreadCount(0);
@@ -26,15 +24,13 @@ export const useUnreadMessages = () => {
 
         const conversationIds = conversations.map(c => c.id);
 
-        // Count unread messages in these conversations (messages not sent by user and not read)
-        const { count, error: countError } = await supabase
+        // Count unread messages (messages not sent by user and not read)
+        const { count } = await supabase
           .from('messages')
           .select('*', { count: 'exact', head: true })
           .in('conversation_id', conversationIds)
           .neq('sender_id', user.id)
           .is('read_at', null);
-
-        if (countError) throw countError;
 
         setUnreadCount(count || 0);
       } catch (error) {
@@ -44,15 +40,26 @@ export const useUnreadMessages = () => {
 
     fetchUnreadCount();
 
-    // Subscribe to real-time message updates
+    // Subscribe to new messages
     const channel = supabase
       .channel('unread-messages')
       .on(
         'postgres_changes',
         {
-          event: '*',
+          event: 'INSERT',
           schema: 'public',
-          table: 'messages',
+          table: 'messages'
+        },
+        () => {
+          fetchUnreadCount();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'messages'
         },
         () => {
           fetchUnreadCount();

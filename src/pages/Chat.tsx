@@ -40,8 +40,23 @@ const Chat = () => {
   }, [user]);
 
   useEffect(() => {
-    if (!selectedConversation) return;
+    if (!selectedConversation || !user) return;
     loadMessages(selectedConversation);
+    
+    // Mark messages as read when viewing conversation
+    const markAsRead = async () => {
+      try {
+        const { error } = await supabase.rpc('mark_messages_as_read', {
+          conversation_uuid: selectedConversation,
+          user_uuid: user.id
+        });
+        if (error) console.error('Error marking messages as read:', error);
+      } catch (error) {
+        console.error('Error marking messages as read:', error);
+      }
+    };
+    
+    markAsRead();
     
     // Subscribe to real-time messages
     const channel = supabase
@@ -56,6 +71,10 @@ const Chat = () => {
         },
         (payload) => {
           setMessages(prev => [...prev, payload.new as Message]);
+          // Mark new messages as read immediately if they're not from the current user
+          if (payload.new.sender_id !== user.id) {
+            markAsRead();
+          }
         }
       )
       .subscribe();
@@ -63,7 +82,7 @@ const Chat = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [selectedConversation]);
+  }, [selectedConversation, user]);
 
   const loadConversations = async () => {
     try {

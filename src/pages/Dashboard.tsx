@@ -4,6 +4,7 @@ import { useAuth } from "@/components/AuthContext";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,7 +18,6 @@ import {
 import { Loader2, Menu, FileText, Calendar, MessageCircle, Phone, Users, CheckCircle, Clock, XCircle } from "lucide-react";
 import logo from "@/assets/bird-co-logo.png";
 import { DEV_CONFIG } from "@/config/dev";
-import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 const navigationCards = [{
   title: "Registration & Documents",
   icon: FileText
