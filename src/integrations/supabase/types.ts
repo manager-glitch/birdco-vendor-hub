@@ -148,6 +148,7 @@ export type Database = {
           conversation_id: string
           created_at: string | null
           id: string
+          read_at: string | null
           sender_id: string
         }
         Insert: {
@@ -155,6 +156,7 @@ export type Database = {
           conversation_id: string
           created_at?: string | null
           id?: string
+          read_at?: string | null
           sender_id: string
         }
         Update: {
@@ -162,6 +164,7 @@ export type Database = {
           conversation_id?: string
           created_at?: string | null
           id?: string
+          read_at?: string | null
           sender_id?: string
         }
         Relationships: [
@@ -372,6 +375,10 @@ export type Database = {
       is_registration_complete: {
         Args: { vendor_uuid: string }
         Returns: boolean
+      }
+      mark_messages_as_read: {
+        Args: { conversation_uuid: string; user_uuid: string }
+        Returns: undefined
       }
     }
     Enums: {
