@@ -92,6 +92,14 @@ const Chat = () => {
 
       if (error) throw error;
       setMessages(data || []);
+
+      // Mark messages as read
+      if (user) {
+        await supabase.rpc('mark_messages_as_read', {
+          conversation_uuid: conversationId,
+          user_uuid: user.id
+        });
+      }
     } catch (error) {
       console.error('Error loading messages:', error);
       toast.error('Failed to load messages');

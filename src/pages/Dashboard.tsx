@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/components/AuthContext";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,6 +17,7 @@ import {
 import { Loader2, Menu, FileText, Calendar, MessageCircle, Phone, Users, CheckCircle, Clock, XCircle } from "lucide-react";
 import logo from "@/assets/bird-co-logo.png";
 import { DEV_CONFIG } from "@/config/dev";
+import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 const navigationCards = [{
   title: "Registration & Documents",
   icon: FileText
@@ -45,6 +47,7 @@ const Dashboard = () => {
     approvalStatus
   } = useAuth();
   const navigate = useNavigate();
+  const unreadCount = useUnreadMessages();
   const [showStickyBar, setShowStickyBar] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [showCallDialog, setShowCallDialog] = useState(false);
@@ -194,10 +197,19 @@ const Dashboard = () => {
             </Button>
             <Button
               variant="ghost"
-              className="flex flex-col items-center gap-1 py-2 text-white hover:bg-white/10"
+              className="flex flex-col items-center gap-1 py-2 text-white hover:bg-white/10 relative"
               onClick={() => navigate("/chat")}
             >
-              <MessageCircle className="h-6 w-6" />
+              <div className="relative">
+                <MessageCircle className="h-6 w-6" />
+                {unreadCount > 0 && (
+                  <Badge 
+                    className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 bg-red-500 text-white text-xs border-2 border-black"
+                  >
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </Badge>
+                )}
+              </div>
               <span className="text-sm font-medium">Messages</span>
             </Button>
             <Button
