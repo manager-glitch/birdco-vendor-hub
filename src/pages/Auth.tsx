@@ -108,9 +108,6 @@ const Auth = () => {
                         <RadioGroupItem value="vendor" id="vendor" className="sr-only" />
                         <Truck className="h-8 w-8 mb-2" />
                         <span className="font-heading font-bold">Vendor</span>
-                        <span className="text-xs text-muted-foreground text-center mt-1">
-                          Food trucks, catering, equipment
-                        </span>
                       </Label>
                       <Label
                         htmlFor="chef"
@@ -123,9 +120,6 @@ const Auth = () => {
                         <RadioGroupItem value="chef" id="chef" className="sr-only" />
                         <ChefHat className="h-8 w-8 mb-2" />
                         <span className="font-heading font-bold">Chef</span>
-                        <span className="text-xs text-muted-foreground text-center mt-1">
-                          Professional cooking services
-                        </span>
                       </Label>
                     </RadioGroup>
                   </div>
