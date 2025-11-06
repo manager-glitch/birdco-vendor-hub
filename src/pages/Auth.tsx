@@ -6,12 +6,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Truck, ChefHat } from "lucide-react";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [role, setRole] = useState<"vendor" | "chef">("vendor");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -42,6 +45,7 @@ const Auth = () => {
             emailRedirectTo: `${window.location.origin}/dashboard`,
             data: {
               full_name: fullName,
+              role: role,
             },
           },
         });
@@ -89,17 +93,55 @@ const Auth = () => {
           <CardContent>
             <form onSubmit={handleAuth} className="space-y-4">
               {!isLogin && (
-                <div className="space-y-2">
-                  <Label htmlFor="fullName">Full Name</Label>
-                  <Input
-                    id="fullName"
-                    type="text"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    required={!isLogin}
-                    placeholder="John Doe"
-                  />
-                </div>
+                <>
+                  <div className="space-y-4">
+                    <Label>Join as</Label>
+                    <RadioGroup value={role} onValueChange={(value) => setRole(value as "vendor" | "chef")} className="grid grid-cols-2 gap-4">
+                      <Label
+                        htmlFor="vendor"
+                        className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-all ${
+                          role === "vendor" 
+                            ? "border-primary bg-primary/5" 
+                            : "border-muted hover:border-primary/50"
+                        }`}
+                      >
+                        <RadioGroupItem value="vendor" id="vendor" className="sr-only" />
+                        <Truck className="h-8 w-8 mb-2" />
+                        <span className="font-heading font-bold">Vendor</span>
+                        <span className="text-xs text-muted-foreground text-center mt-1">
+                          Food trucks, catering, equipment
+                        </span>
+                      </Label>
+                      <Label
+                        htmlFor="chef"
+                        className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-all ${
+                          role === "chef" 
+                            ? "border-primary bg-primary/5" 
+                            : "border-muted hover:border-primary/50"
+                        }`}
+                      >
+                        <RadioGroupItem value="chef" id="chef" className="sr-only" />
+                        <ChefHat className="h-8 w-8 mb-2" />
+                        <span className="font-heading font-bold">Chef</span>
+                        <span className="text-xs text-muted-foreground text-center mt-1">
+                          Professional cooking services
+                        </span>
+                      </Label>
+                    </RadioGroup>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="fullName">Full Name</Label>
+                    <Input
+                      id="fullName"
+                      type="text"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      required={!isLogin}
+                      placeholder="John Doe"
+                    />
+                  </div>
+                </>
               )}
 
               <div className="space-y-2">
