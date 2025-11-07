@@ -37,6 +37,13 @@ const Chat = () => {
   useEffect(() => {
     if (!user) return;
     loadConversations();
+
+    // Check for conversation parameter in URL
+    const params = new URLSearchParams(window.location.search);
+    const conversationId = params.get('conversation');
+    if (conversationId) {
+      setSelectedConversation(conversationId);
+    }
   }, [user]);
 
   useEffect(() => {
@@ -85,19 +92,53 @@ const Chat = () => {
   }, [selectedConversation, user]);
 
   const loadConversations = async () => {
+    if (!user) return;
+    
     try {
       const { data, error } = await supabase
         .from('conversations')
         .select('*')
+        .eq('vendor_id', user.id)
         .order('last_message_at', { ascending: false });
 
       if (error) throw error;
-      setConversations(data || []);
+      
+      // If no conversations exist, create one automatically
+      if (!data || data.length === 0) {
+        await createNewConversation();
+      } else {
+        setConversations(data);
+      }
     } catch (error) {
       console.error('Error loading conversations:', error);
       toast.error('Failed to load conversations');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const createNewConversation = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('conversations')
+        .insert({
+          vendor_id: user.id
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      
+      if (data) {
+        setConversations([data]);
+        setSelectedConversation(data.id);
+        toast.success('Started new conversation with Bird & Co');
+      }
+    } catch (error) {
+      console.error('Error creating conversation:', error);
+      toast.error('Failed to start conversation');
     }
   };
 

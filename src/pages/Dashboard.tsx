@@ -186,22 +186,25 @@ const Dashboard = () => {
         }`}
       >
         <div className="max-w-2xl mx-auto px-6 py-4">
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-4 gap-3">
             <Button
               variant="ghost"
               className="flex flex-col items-center gap-1 py-2 text-white hover:bg-white/10"
               onClick={() => setShowCallDialog(true)}
             >
-              <Phone className="h-6 w-6" />
-              <span className="text-sm font-medium">Call Us</span>
+              <Phone className="h-5 w-5" />
+              <span className="text-xs font-medium">Call Us</span>
             </Button>
             <Button
               variant="ghost"
               className="flex flex-col items-center gap-1 py-2 text-white hover:bg-white/10 relative"
-              onClick={() => navigate("/chat")}
+              onClick={() => navigate("/notifications")}
             >
               <div className="relative">
-                <MessageCircle className="h-6 w-6" />
+                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                </svg>
                 {unreadCount > 0 && (
                   <Badge 
                     className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 bg-red-500 text-white text-xs border-2 border-black"
@@ -210,17 +213,25 @@ const Dashboard = () => {
                   </Badge>
                 )}
               </div>
-              <span className="text-sm font-medium">Messages</span>
+              <span className="text-xs font-medium">Notifications</span>
+            </Button>
+            <Button
+              variant="ghost"
+              className="flex flex-col items-center gap-1 py-2 text-white hover:bg-white/10"
+              onClick={() => navigate("/chat")}
+            >
+              <MessageCircle className="h-5 w-5" />
+              <span className="text-xs font-medium">Messages</span>
             </Button>
             <Button
               variant="ghost"
               className="flex flex-col items-center gap-1 py-2 text-white hover:bg-white/10"
             >
-              <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <circle cx="12" cy="12" r="3" />
                 <path d="M12 1v6m0 6v6m-9-9h6m6 0h6" />
               </svg>
-              <span className="text-sm font-medium">Settings</span>
+              <span className="text-xs font-medium">Settings</span>
             </Button>
           </div>
         </div>

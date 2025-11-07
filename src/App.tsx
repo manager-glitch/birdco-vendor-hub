@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import Admin from "./pages/Admin";
 import AvailabilityShifts from "./pages/AvailabilityShifts";
 import Chat from "./pages/Chat";
+import Notifications from "./pages/Notifications";
 import ReferAFriend from "./pages/ReferAFriend";
 import ContactUs from "./pages/ContactUs";
 import CompleteRegistration from "./pages/CompleteRegistration";
@@ -33,6 +34,7 @@ const App = () => (
             <Route path="/admin" element={<Admin />} />
             <Route path="/availability-shifts" element={<AvailabilityShifts />} />
             <Route path="/chat" element={<Chat />} />
+            <Route path="/notifications" element={<Notifications />} />
             <Route path="/refer" element={<ReferAFriend />} />
             <Route path="/contact" element={<ContactUs />} />
             <Route path="/complete-registration" element={<CompleteRegistration />} />
