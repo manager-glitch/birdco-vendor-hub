@@ -1,5 +1,7 @@
 {
   "imports": {
-    "supabase": "jsr:@supabase/supabase-js@^2.48.0"
-  }
+    "supabase": "jsr:@supabase/supabase-js@^2.48.0",
+    "resend": "npm:resend@2.0.0"
+  },
+  "nodeModulesDir": "auto"
 }
