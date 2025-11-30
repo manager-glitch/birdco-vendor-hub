@@ -134,35 +134,37 @@ const Auth = () => {
             <form onSubmit={handleAuth} className="space-y-4">
               {!isLogin && (
                 <>
-                  <div className="space-y-4">
-                    <Label>Join as</Label>
-                    <RadioGroup value={role} onValueChange={(value) => setRole(value as "vendor" | "chef" | "admin")} className="grid grid-cols-2 gap-4">
-                      <Label
-                        htmlFor="vendor"
-                        className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-all ${
-                          role === "vendor" 
-                            ? "border-primary bg-primary/5" 
-                            : "border-muted hover:border-primary/50"
-                        }`}
-                      >
-                        <RadioGroupItem value="vendor" id="vendor" className="sr-only" />
-                        <Truck className="h-8 w-8 mb-2" />
-                        <span className="font-heading font-bold text-sm">Vendor</span>
-                      </Label>
-                      <Label
-                        htmlFor="chef"
-                        className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-all ${
-                          role === "chef" 
-                            ? "border-primary bg-primary/5" 
-                            : "border-muted hover:border-primary/50"
-                        }`}
-                      >
-                        <RadioGroupItem value="chef" id="chef" className="sr-only" />
-                        <ChefHat className="h-8 w-8 mb-2" />
-                        <span className="font-heading font-bold text-sm">Chef</span>
-                      </Label>
-                    </RadioGroup>
-                  </div>
+                  {role !== 'admin' && (
+                    <div className="space-y-4">
+                      <Label>Join as</Label>
+                      <RadioGroup value={role} onValueChange={(value) => setRole(value as "vendor" | "chef" | "admin")} className="grid grid-cols-2 gap-4">
+                        <Label
+                          htmlFor="vendor"
+                          className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-all ${
+                            role === "vendor" 
+                              ? "border-primary bg-primary/5" 
+                              : "border-muted hover:border-primary/50"
+                          }`}
+                        >
+                          <RadioGroupItem value="vendor" id="vendor" className="sr-only" />
+                          <Truck className="h-8 w-8 mb-2" />
+                          <span className="font-heading font-bold text-sm">Vendor</span>
+                        </Label>
+                        <Label
+                          htmlFor="chef"
+                          className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-all ${
+                            role === "chef" 
+                              ? "border-primary bg-primary/5" 
+                              : "border-muted hover:border-primary/50"
+                          }`}
+                        >
+                          <RadioGroupItem value="chef" id="chef" className="sr-only" />
+                          <ChefHat className="h-8 w-8 mb-2" />
+                          <span className="font-heading font-bold text-sm">Chef</span>
+                        </Label>
+                      </RadioGroup>
+                    </div>
+                  )}
                   
                   <div className="space-y-2">
                     <Label htmlFor="fullName">Full Name</Label>
