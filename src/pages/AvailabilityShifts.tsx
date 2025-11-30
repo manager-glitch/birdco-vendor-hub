@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar } from "@/components/ui/calendar";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, ArrowLeft, MapPin, Clock, Phone, Calendar as CalendarIcon, CheckCircle } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import logo from "@/assets/bird-co-logo.png";
 import { DEV_CONFIG } from "@/config/dev";
 import { format, parse } from "date-fns";
@@ -36,6 +37,8 @@ const AvailabilityShifts = () => {
   const [availableOpportunities, setAvailableOpportunities] = useState<any[]>([]);
   const [appliedOpportunities, setAppliedOpportunities] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
+  const [mapDialogOpen, setMapDialogOpen] = useState(false);
+  const [selectedAddress, setSelectedAddress] = useState("");
 
   // Helper function to format dates in British format (DD/MM/YYYY)
   const formatDateBritish = (dateString: string) => {
@@ -115,7 +118,7 @@ const AvailabilityShifts = () => {
       address: "123 Main St, City, State 12345",
       status: "Booked & Confirmed",
       role: "Food Vendor",
-      payRate: "$500",
+      payRate: "£500",
       notes: "Setup at 1:00 PM. Client requests vegetarian options."
     },
     {
@@ -127,7 +130,7 @@ const AvailabilityShifts = () => {
       address: "456 Event Ave, City, State 12345",
       status: "Booked & Confirmed",
       role: "Beverage Vendor",
-      payRate: "$600",
+      payRate: "£600",
       notes: "Black tie event. 200 guests expected."
     }
   ];
@@ -171,7 +174,23 @@ const AvailabilityShifts = () => {
   };
 
   const handleGetDirections = (address: string) => {
-    window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`, '_blank');
+    setSelectedAddress(address);
+    setMapDialogOpen(true);
+  };
+
+  const openInGoogleMaps = () => {
+    window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedAddress)}`, '_blank');
+    setMapDialogOpen(false);
+  };
+
+  const openInWaze = () => {
+    window.open(`https://waze.com/ul?q=${encodeURIComponent(selectedAddress)}`, '_blank');
+    setMapDialogOpen(false);
+  };
+
+  const openInAppleMaps = () => {
+    window.open(`http://maps.apple.com/?q=${encodeURIComponent(selectedAddress)}`, '_blank');
+    setMapDialogOpen(false);
   };
 
   const handleApplyToEvent = async (opportunityId: string) => {
@@ -290,6 +309,44 @@ const AvailabilityShifts = () => {
             </div>
           </div>
         </main>
+
+        {/* Map Selection Dialog */}
+        <Dialog open={mapDialogOpen} onOpenChange={setMapDialogOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Choose Map App</DialogTitle>
+              <DialogDescription>
+                Select which app to use for directions
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex flex-col gap-3 mt-4">
+              <Button
+                variant="outline"
+                className="w-full justify-start"
+                onClick={openInGoogleMaps}
+              >
+                <MapPin className="h-4 w-4 mr-2" />
+                Google Maps
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full justify-start"
+                onClick={openInWaze}
+              >
+                <MapPin className="h-4 w-4 mr-2" />
+                Waze
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full justify-start"
+                onClick={openInAppleMaps}
+              >
+                <MapPin className="h-4 w-4 mr-2" />
+                Apple Maps
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
