@@ -122,12 +122,12 @@ const Auth = () => {
         <Card className="border-2">
           <CardHeader>
             <CardTitle className="font-heading text-2xl">
-              {isLogin ? "Welcome Back" : "Join Our Network"}
+              {isLogin ? "Welcome Back" : role === 'admin' ? "Admin Access" : "Join Our Network"}
             </CardTitle>
             <CardDescription>
               {isLogin
                 ? role === 'admin' ? "Access administrative dashboard" : "Sign in to view new opportunities"
-                : "Create an account to access vendor opportunities"}
+                : role === 'admin' ? "Create administrator account" : "Create an account to access vendor opportunities"}
             </CardDescription>
           </CardHeader>
           <CardContent>
