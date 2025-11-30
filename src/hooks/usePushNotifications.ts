@@ -1,9 +1,15 @@
 import { useEffect } from 'react';
 import { PushNotifications } from '@capacitor/push-notifications';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/components/AuthContext';
 
 export const usePushNotifications = () => {
+  const { user } = useAuth();
+
   useEffect(() => {
+    if (!user) return;
+
     // Request permission and register for push notifications
     const initializePushNotifications = async () => {
       try {
@@ -23,10 +29,32 @@ export const usePushNotifications = () => {
     };
 
     // Listen for registration success
-    PushNotifications.addListener('registration', (token) => {
+    PushNotifications.addListener('registration', async (token) => {
       console.log('Push registration success, token: ' + token.value);
-      // TODO: Send this token to your backend to store it for this user
-      // You'll need this token to send notifications to this specific device
+      
+      // Determine platform
+      const platform = /iPhone|iPad|iPod/.test(navigator.userAgent) ? 'ios' : 'android';
+      
+      // Save token to database
+      try {
+        const { error } = await supabase
+          .from('push_tokens')
+          .upsert({
+            user_id: user.id,
+            token: token.value,
+            platform: platform
+          }, {
+            onConflict: 'user_id,token'
+          });
+
+        if (error) {
+          console.error('Error saving push token:', error);
+        } else {
+          console.log('Push token saved successfully');
+        }
+      } catch (error) {
+        console.error('Error saving push token to database:', error);
+      }
     });
 
     // Listen for registration errors
@@ -50,6 +78,12 @@ export const usePushNotifications = () => {
       
       // TODO: Navigate to appropriate screen based on notification data
       // For example, if it's a new job notification, navigate to available events
+      const data = notification.notification.data;
+      if (data?.type === 'new_opportunity') {
+        window.location.href = '/availability-shifts';
+      } else if (data?.type === 'application_accepted') {
+        window.location.href = '/availability-shifts';
+      }
     });
 
     initializePushNotifications();
@@ -58,5 +92,5 @@ export const usePushNotifications = () => {
     return () => {
       PushNotifications.removeAllListeners();
     };
-  }, []);
+  }, [user]);
 };
