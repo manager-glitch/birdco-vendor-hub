@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,17 +7,26 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Truck, ChefHat } from "lucide-react";
+import { Truck, ChefHat, Shield } from "lucide-react";
 
 const Auth = () => {
+  const [searchParams] = useSearchParams();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
-  const [role, setRole] = useState<"vendor" | "chef">("vendor");
+  const [role, setRole] = useState<"vendor" | "chef" | "admin">("vendor");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  useEffect(() => {
+    const roleParam = searchParams.get('role');
+    if (roleParam === 'vendor' || roleParam === 'chef' || roleParam === 'admin') {
+      setRole(roleParam);
+      setIsLogin(false); // Switch to signup mode when coming from home page
+    }
+  }, [searchParams]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,7 +105,7 @@ const Auth = () => {
                 <>
                   <div className="space-y-4">
                     <Label>Join as</Label>
-                    <RadioGroup value={role} onValueChange={(value) => setRole(value as "vendor" | "chef")} className="grid grid-cols-2 gap-4">
+                    <RadioGroup value={role} onValueChange={(value) => setRole(value as "vendor" | "chef" | "admin")} className="grid grid-cols-3 gap-4">
                       <Label
                         htmlFor="vendor"
                         className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-all ${
@@ -107,7 +116,7 @@ const Auth = () => {
                       >
                         <RadioGroupItem value="vendor" id="vendor" className="sr-only" />
                         <Truck className="h-8 w-8 mb-2" />
-                        <span className="font-heading font-bold">Vendor</span>
+                        <span className="font-heading font-bold text-sm">Vendor</span>
                       </Label>
                       <Label
                         htmlFor="chef"
@@ -119,7 +128,19 @@ const Auth = () => {
                       >
                         <RadioGroupItem value="chef" id="chef" className="sr-only" />
                         <ChefHat className="h-8 w-8 mb-2" />
-                        <span className="font-heading font-bold">Chef</span>
+                        <span className="font-heading font-bold text-sm">Chef</span>
+                      </Label>
+                      <Label
+                        htmlFor="admin"
+                        className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-all ${
+                          role === "admin" 
+                            ? "border-primary bg-primary/5" 
+                            : "border-muted hover:border-primary/50"
+                        }`}
+                      >
+                        <RadioGroupItem value="admin" id="admin" className="sr-only" />
+                        <Shield className="h-8 w-8 mb-2" />
+                        <span className="font-heading font-bold text-sm">Admin</span>
                       </Label>
                     </RadioGroup>
                   </div>
