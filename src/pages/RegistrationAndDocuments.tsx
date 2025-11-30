@@ -323,7 +323,7 @@ const RegistrationAndDocuments = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="business_type">Business Type</Label>
+                      <Label htmlFor="business_type">{userRole === 'chef' ? 'Chef Type' : 'Business Type'}</Label>
                       <Select value={profileData.business_type} onValueChange={value => setProfileData({
                       ...profileData,
                       business_type: value
@@ -332,17 +332,29 @@ const RegistrationAndDocuments = () => {
                           <SelectValue placeholder="Select type" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="food_truck">Food Truck</SelectItem>
-                          <SelectItem value="catering">Catering Service</SelectItem>
-                          <SelectItem value="pop_up">Pop-up Restaurant</SelectItem>
-                          <SelectItem value="vendor_stall">Vendor Stall</SelectItem>
-                          <SelectItem value="other">Other</SelectItem>
+                          {userRole === 'chef' ? (
+                            <>
+                              <SelectItem value="private_chef">Private Chef</SelectItem>
+                              <SelectItem value="freelance_chef">Freelance Chef</SelectItem>
+                              <SelectItem value="catering_chef">Catering Chef</SelectItem>
+                              <SelectItem value="sous_chef">Sous Chef</SelectItem>
+                              <SelectItem value="other">Other</SelectItem>
+                            </>
+                          ) : (
+                            <>
+                              <SelectItem value="food_truck">Food Truck</SelectItem>
+                              <SelectItem value="catering">Catering Service</SelectItem>
+                              <SelectItem value="pop_up">Pop-up Restaurant</SelectItem>
+                              <SelectItem value="vendor_stall">Vendor Stall</SelectItem>
+                              <SelectItem value="other">Other</SelectItem>
+                            </>
+                          )}
                         </SelectContent>
                       </Select>
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="service_category">Service Category</Label>
+                      <Label htmlFor="service_category">{userRole === 'chef' ? 'Speciality' : 'Service Category'}</Label>
                       <Select value={profileData.service_category} onValueChange={value => setProfileData({
                       ...profileData,
                       service_category: value
@@ -351,11 +363,25 @@ const RegistrationAndDocuments = () => {
                           <SelectValue placeholder="Select category" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="street_food">Street Food</SelectItem>
-                          <SelectItem value="desserts">Desserts</SelectItem>
-                          <SelectItem value="beverages">Beverages</SelectItem>
-                          <SelectItem value="specialty">Specialty Cuisine</SelectItem>
-                          <SelectItem value="other">Other</SelectItem>
+                          {userRole === 'chef' ? (
+                            <>
+                              <SelectItem value="fine_dining">Fine Dining</SelectItem>
+                              <SelectItem value="home_cooking">Home Cooking</SelectItem>
+                              <SelectItem value="meal_prep">Meal Prep</SelectItem>
+                              <SelectItem value="dietary_specialist">Dietary Specialist</SelectItem>
+                              <SelectItem value="international">International Cuisine</SelectItem>
+                              <SelectItem value="pastry">Pastry & Desserts</SelectItem>
+                              <SelectItem value="other">Other</SelectItem>
+                            </>
+                          ) : (
+                            <>
+                              <SelectItem value="street_food">Street Food</SelectItem>
+                              <SelectItem value="desserts">Desserts</SelectItem>
+                              <SelectItem value="beverages">Beverages</SelectItem>
+                              <SelectItem value="specialty">Specialty Cuisine</SelectItem>
+                              <SelectItem value="other">Other</SelectItem>
+                            </>
+                          )}
                         </SelectContent>
                       </Select>
                     </div>
