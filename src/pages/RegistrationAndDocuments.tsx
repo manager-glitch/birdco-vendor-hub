@@ -40,7 +40,7 @@ const RegistrationAndDocuments = () => {
   };
 
   const chefDocumentLabels: Record<string, string> = {
-    food_safety_certificate: "Food Safety Certificate",
+    food_safety_certificate: "Level 3 Hygiene Cert",
     right_to_work: "Right to Work Documentation",
     dbs_certificate: "DBS Certificate",
     public_liability_insurance: "Public Liability Insurance"
