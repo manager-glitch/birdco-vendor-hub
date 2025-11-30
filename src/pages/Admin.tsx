@@ -11,8 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, MapPin, Plus, Users, Edit, Eye, Phone } from "lucide-react";
-import logo from "@/assets/bird-co-logo.png";
+import { Calendar, MapPin, Plus, Users, Edit, Eye, Phone, ArrowLeft } from "lucide-react";
 
 interface Opportunity {
   id: string;
@@ -41,7 +40,7 @@ interface ApplicationWithProfile {
 }
 
 const Admin = () => {
-  const { user, isAdmin, loading: authLoading, signOut } = useAuth();
+  const { user, isAdmin, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
@@ -270,31 +269,19 @@ const Admin = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b bg-card">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")}>
-              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M19 12H5M12 19l-7-7 7-7"/>
-              </svg>
+      <main className="container mx-auto py-8 px-4 max-w-7xl">
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+          <div className="flex-1">
+            <Button
+              variant="ghost"
+              onClick={() => navigate("/dashboard")}
+              className="mb-4"
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Dashboard
             </Button>
-            <img src={logo} alt="Bird & Co" className="h-10" />
-            <div className="hidden sm:block">
-              <p className="text-sm font-medium">Admin Panel</p>
-              <p className="text-xs text-muted-foreground">Opportunities Management</p>
-            </div>
-          </div>
-          <Button variant="outline" size="sm" onClick={signOut} className="hidden sm:flex">
-            Sign Out
-          </Button>
-        </div>
-      </header>
-
-      <main className="container mx-auto px-4 py-6">
-        <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h2 className="font-heading text-2xl sm:text-3xl font-bold mb-1">Manage Opportunities</h2>
-            <p className="text-sm text-muted-foreground">Create and manage event opportunities</p>
+            <h1 className="text-4xl font-bold mb-2">Opportunities Management</h1>
+            <p className="text-muted-foreground">Create and manage event opportunities</p>
           </div>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
