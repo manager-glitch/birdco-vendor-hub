@@ -68,6 +68,24 @@ const chefNavigationCards = [{
   title: "Completed Events",
   icon: CheckCircle
 }];
+
+const adminNavigationCards = [{
+  title: "Registrations & Documents",
+  icon: FileText,
+  path: "/admin/registrations"
+}, {
+  title: "Opportunities Management",
+  icon: Calendar,
+  path: "/admin"
+}, {
+  title: "Vendor Messages",
+  icon: MessageCircle,
+  path: "/admin/chat"
+}, {
+  title: "Completed Events",
+  icon: CheckCircle,
+  path: "/completed-events"
+}];
 const Dashboard = () => {
   const {
     user,
@@ -228,14 +246,17 @@ const Dashboard = () => {
       {/* Main Content */}
       <main className="flex-1 px-6 py-8">
         <div className="max-w-2xl mx-auto grid grid-cols-2 gap-4">
-          {(effectiveRole === 'chef' ? chefNavigationCards : vendorNavigationCards).map(card => {
+          {(effectiveRole === 'admin' ? adminNavigationCards : effectiveRole === 'chef' ? chefNavigationCards : vendorNavigationCards).map(card => {
             const IconComponent = card.icon;
             return (
               <Card 
                 key={card.title} 
                 className="aspect-square flex flex-col items-start justify-between p-6 bg-muted hover:bg-muted/80 transition-colors cursor-pointer border-0"
               onClick={() => {
-                if (card.title === "Registration & Documents") {
+                // Use card.path if it exists, otherwise use title-based navigation
+                if (card.path) {
+                  navigate(card.path);
+                } else if (card.title === "Registration & Documents") {
                   navigate("/registration-documents");
                 } else if (card.title === "Availability & Shifts") {
                   navigate("/availability-shifts");
