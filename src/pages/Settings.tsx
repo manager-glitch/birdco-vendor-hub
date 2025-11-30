@@ -3,9 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/components/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { ArrowLeft, Key, Trash2, LogOut } from "lucide-react";
+import { ArrowLeft, Key, Trash2, LogOut, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 
 const Settings = () => {
@@ -13,25 +15,38 @@ const Settings = () => {
   const { user, signOut } = useAuth();
   const [loading, setLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const handleResetPassword = async () => {
-    if (!user?.email) {
-      toast.error("No email address found");
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (newPassword.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      toast.error("Passwords do not match");
       return;
     }
 
     setLoading(true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
-        redirectTo: `${window.location.origin}/auth`,
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
       });
 
       if (error) throw error;
 
-      toast.success("Password reset email sent! Check your inbox.");
+      toast.success("Password changed successfully!");
+      setNewPassword("");
+      setConfirmPassword("");
     } catch (error: any) {
-      console.error("Error sending reset email:", error);
-      toast.error("Failed to send reset email. Please try again.");
+      console.error("Error changing password:", error);
+      toast.error("Failed to change password. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -106,25 +121,79 @@ const Settings = () => {
             </CardContent>
           </Card>
 
-          {/* Reset Password */}
+          {/* Change Password */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Key className="h-5 w-5" />
-                Reset Password
+                Change Password
               </CardTitle>
               <CardDescription>
-                Send a password reset email to your registered address
+                Update your account password
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button
-                onClick={handleResetPassword}
-                disabled={loading}
-                variant="outline"
-              >
-                {loading ? "Sending..." : "Send Reset Email"}
-              </Button>
+              <form onSubmit={handleChangePassword} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="new-password">New Password</Label>
+                  <div className="relative">
+                    <Input
+                      id="new-password"
+                      type={showNewPassword ? "text" : "password"}
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="Enter new password"
+                      required
+                      minLength={6}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                    >
+                      {showNewPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="confirm-password">Confirm New Password</Label>
+                  <div className="relative">
+                    <Input
+                      id="confirm-password"
+                      type={showConfirmPassword ? "text" : "password"}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Confirm new password"
+                      required
+                      minLength={6}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+
+                <Button type="submit" disabled={loading}>
+                  {loading ? "Changing..." : "Change Password"}
+                </Button>
+              </form>
             </CardContent>
           </Card>
 
