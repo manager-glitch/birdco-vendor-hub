@@ -325,6 +325,12 @@ const AvailabilityShifts = () => {
                     selected={availabilityDate}
                     onSelect={setAvailabilityDate}
                     className="rounded-md"
+                    modifiers={{
+                      booked: confirmedEvents.map(event => parse(event.date, "yyyy-MM-dd", new Date()))
+                    }}
+                    modifiersClassNames={{
+                      booked: "relative after:content-[''] after:absolute after:bottom-1 after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:bg-foreground after:rounded-full"
+                    }}
                   />
                 </Card>
               </div>
