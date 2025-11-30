@@ -179,7 +179,16 @@ const AvailabilityShifts = () => {
     setMapDialogOpen(true);
   };
 
-  // Map URLs are now handled directly in the JSX with anchor tags
+  // Copy address to clipboard
+  const handleCopyAddress = async () => {
+    try {
+      await navigator.clipboard.writeText(selectedAddress);
+      toast.success("Address copied to clipboard!");
+      setMapDialogOpen(false);
+    } catch (err) {
+      toast.error("Failed to copy address");
+    }
+  };
 
   const handleApplyToEvent = async (opportunityId: string) => {
     if (!user) return;
@@ -302,15 +311,33 @@ const AvailabilityShifts = () => {
         <Dialog open={mapDialogOpen} onOpenChange={setMapDialogOpen}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>Choose Map App</DialogTitle>
-              <DialogDescription>
-                Select which app to use for directions to: {selectedAddress}
+              <DialogTitle>Get Directions</DialogTitle>
+              <DialogDescription className="break-words">
+                <strong>Address:</strong> {selectedAddress}
               </DialogDescription>
             </DialogHeader>
             <div className="flex flex-col gap-3 mt-4">
+              <Button
+                variant="default"
+                className="w-full justify-start"
+                onClick={handleCopyAddress}
+              >
+                <MapPin className="h-4 w-4 mr-2" />
+                Copy Address
+              </Button>
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">
+                    Or open in
+                  </span>
+                </div>
+              </div>
               <a
                 href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedAddress)}`}
-                target="_top"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-start w-full h-10 px-4 py-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-md text-sm font-medium transition-colors"
               >
@@ -319,7 +346,7 @@ const AvailabilityShifts = () => {
               </a>
               <a
                 href={`https://www.waze.com/ul?q=${encodeURIComponent(selectedAddress)}`}
-                target="_top"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-start w-full h-10 px-4 py-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-md text-sm font-medium transition-colors"
               >
@@ -328,7 +355,7 @@ const AvailabilityShifts = () => {
               </a>
               <a
                 href={`https://maps.apple.com/?q=${encodeURIComponent(selectedAddress)}`}
-                target="_top"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-start w-full h-10 px-4 py-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-md text-sm font-medium transition-colors"
               >
