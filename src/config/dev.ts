@@ -6,4 +6,8 @@ export const DEV_CONFIG = {
   
   // Set this to false when going live
   isDevelopment: true,
+  
+  // Override role for development (set to null to use actual user role)
+  // Options: 'vendor' | 'chef' | 'admin' | null
+  overrideRole: null as 'vendor' | 'chef' | 'admin' | null,
 };
