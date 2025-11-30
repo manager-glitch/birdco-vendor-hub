@@ -28,7 +28,6 @@ export default function CompletedEvents() {
   const [filteredEvents, setFilteredEvents] = useState<CompletedEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterType, setFilterType] = useState("all");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
   useEffect(() => {
@@ -37,11 +36,32 @@ export default function CompletedEvents() {
       return;
     }
     fetchCompletedEvents();
+
+    // Set up realtime subscription for new completed events
+    const channel = supabase
+      .channel('completed-events-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'completed_events',
+          filter: `vendor_id=eq.${user.id}`
+        },
+        () => {
+          fetchCompletedEvents();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user, navigate]);
 
   useEffect(() => {
     filterAndSortEvents();
-  }, [events, searchTerm, filterType, sortOrder]);
+  }, [events, searchTerm, sortOrder]);
 
   const fetchCompletedEvents = async () => {
     try {
@@ -75,11 +95,6 @@ export default function CompletedEvents() {
       );
     }
 
-    // Apply type filter
-    if (filterType !== "all") {
-      filtered = filtered.filter((event) => event.event_type === filterType);
-    }
-
     // Apply sort
     filtered.sort((a, b) => {
       const dateA = new Date(a.event_date).getTime();
@@ -89,8 +104,6 @@ export default function CompletedEvents() {
 
     setFilteredEvents(filtered);
   };
-
-  const eventTypes = Array.from(new Set(events.map((e) => e.event_type).filter(Boolean)));
 
   if (loading) {
     return (
@@ -126,7 +139,7 @@ export default function CompletedEvents() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="text-sm font-medium mb-2 block">Search</label>
               <Input
@@ -134,22 +147,6 @@ export default function CompletedEvents() {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
-            </div>
-            <div>
-              <label className="text-sm font-medium mb-2 block">Event Type</label>
-              <Select value={filterType} onValueChange={setFilterType}>
-                <SelectTrigger>
-                  <SelectValue placeholder="All types" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
-                  {eventTypes.map((type) => (
-                    <SelectItem key={type} value={type!}>
-                      {type}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
             <div>
               <label className="text-sm font-medium mb-2 block">Sort by Date</label>
@@ -168,25 +165,13 @@ export default function CompletedEvents() {
       </Card>
 
       {/* Stats Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div className="mb-6">
         <Card>
           <CardContent className="pt-6">
-            <div className="text-2xl font-bold">{events.length}</div>
-            <p className="text-sm text-muted-foreground">Total Events</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-2xl font-bold">{eventTypes.length}</div>
-            <p className="text-sm text-muted-foreground">Event Types</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-2xl font-bold">
-              {new Set(events.map((e) => e.client_name)).size}
+            <div className="text-center">
+              <div className="text-4xl font-bold mb-2">{events.length}</div>
+              <p className="text-sm text-muted-foreground">Total Completed Events</p>
             </div>
-            <p className="text-sm text-muted-foreground">Unique Clients</p>
           </CardContent>
         </Card>
       </div>
@@ -198,9 +183,9 @@ export default function CompletedEvents() {
             <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
             <h3 className="text-lg font-semibold mb-2">No completed events found</h3>
             <p className="text-muted-foreground mb-4">
-              {searchTerm || filterType !== "all"
-                ? "Try adjusting your filters"
-                : "Start adding your completed events to build your work history"}
+              {searchTerm
+                ? "Try adjusting your search"
+                : "Your completed events will appear here once admin marks them as complete"}
             </p>
           </CardContent>
         </Card>
