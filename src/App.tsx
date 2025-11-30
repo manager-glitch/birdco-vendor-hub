@@ -18,6 +18,7 @@ import ContactUs from "./pages/ContactUs";
 import CompleteRegistration from "./pages/CompleteRegistration";
 import RegistrationAndDocuments from "./pages/RegistrationAndDocuments";
 import CompletedEvents from "./pages/CompletedEvents";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -41,6 +42,7 @@ const AppContent = () => {
       <Route path="/complete-registration" element={<CompleteRegistration />} />
       <Route path="/registration-documents" element={<RegistrationAndDocuments />} />
       <Route path="/completed-events" element={<CompletedEvents />} />
+      <Route path="/settings" element={<Settings />} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
     </Routes>
