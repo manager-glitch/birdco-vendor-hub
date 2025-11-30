@@ -364,7 +364,7 @@ const Dashboard = () => {
               <div>
                 <p className="font-medium text-sm mb-1">Instagram</p>
                 <a 
-                  href="https://instagram.com/birdandcoevents"
+                  href="https://www.instagram.com/birdandcoevents"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm text-primary hover:underline"
