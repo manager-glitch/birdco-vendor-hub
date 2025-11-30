@@ -82,11 +82,15 @@ const Dashboard = () => {
   const [lastScrollY, setLastScrollY] = useState(0);
   const [showCallDialog, setShowCallDialog] = useState(false);
   const [showContactSheet, setShowContactSheet] = useState(false);
-  const [devRole, setDevRole] = useState<'vendor' | 'chef'>(() => {
+  const [devRole, setDevRole] = useState<'vendor' | 'chef' | 'admin'>(() => {
     return DEV_CONFIG.getDevRole() || 'vendor';
   });
   
-  const handleDevRoleChange = (role: 'vendor' | 'chef') => {
+  const handleDevRoleChange = (role: 'vendor' | 'chef' | 'admin') => {
+    if (role === 'admin') {
+      navigate('/admin');
+      return;
+    }
     setDevRole(role);
     DEV_CONFIG.setDevRole(role);
     // Dispatch event to trigger auth context refresh
@@ -207,6 +211,14 @@ const Dashboard = () => {
               }`}
             >
               Chef
+            </button>
+            <button
+              onClick={() => handleDevRoleChange('admin')}
+              className={`text-xs px-3 py-1 rounded-full transition-colors ${
+                effectiveRole === 'admin' ? 'bg-white text-black' : 'hover:bg-white/20'
+              }`}
+            >
+              Admin
             </button>
           </div>
         )}
