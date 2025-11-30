@@ -112,10 +112,10 @@ const Auth = () => {
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
           <h1 className="font-heading text-5xl font-black mb-2">
-            BIRD & CO
+            BIRD & CO EVENTS
           </h1>
           <p className="text-muted-foreground">
-            {role === 'admin' ? 'Admin Portal' : 'Events Vendor Portal'}
+            {role === 'admin' ? 'Admin Portal' : 'Vendor Portal'}
           </p>
         </div>
 
