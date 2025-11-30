@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +22,7 @@ interface Opportunity {
   location: string;
   details: string;
   status: string;
+  role: string;
 }
 
 interface ApplicationWithProfile {
@@ -52,6 +54,7 @@ const Admin = () => {
     event_date: "",
     location: "",
     details: "",
+    role: "vendor" as "vendor" | "chef",
   });
 
   useEffect(() => {
@@ -147,6 +150,7 @@ const Admin = () => {
         event_date: "",
         location: "",
         details: "",
+        role: "vendor",
       });
       setIsDialogOpen(false);
       fetchData();
@@ -229,6 +233,22 @@ const Admin = () => {
                     required
                     placeholder="A vibrant outdoor music festival"
                   />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="role">Opportunity Type</Label>
+                  <Select
+                    value={formData.role}
+                    onValueChange={(value: "vendor" | "chef") => setFormData({ ...formData, role: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="vendor">Vendor Opportunity</SelectItem>
+                      <SelectItem value="chef">Chef Opportunity</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">

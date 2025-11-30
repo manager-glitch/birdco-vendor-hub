@@ -186,6 +186,7 @@ export type Database = {
           event_date: string | null
           id: string
           location: string | null
+          role: Database["public"]["Enums"]["app_role"]
           status: string | null
           title: string
           updated_at: string | null
@@ -198,6 +199,7 @@ export type Database = {
           event_date?: string | null
           id?: string
           location?: string | null
+          role: Database["public"]["Enums"]["app_role"]
           status?: string | null
           title: string
           updated_at?: string | null
@@ -210,6 +212,7 @@ export type Database = {
           event_date?: string | null
           id?: string
           location?: string | null
+          role?: Database["public"]["Enums"]["app_role"]
           status?: string | null
           title?: string
           updated_at?: string | null

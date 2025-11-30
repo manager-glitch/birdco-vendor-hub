@@ -31,7 +31,7 @@ interface Event {
 
 const AvailabilityShifts = () => {
   const navigate = useNavigate();
-  const { user, loading: authLoading, registrationComplete, approvalStatus } = useAuth();
+  const { user, loading: authLoading, registrationComplete, approvalStatus, userRole } = useAuth();
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [availabilityDate, setAvailabilityDate] = useState<Date | undefined>(new Date());
   const [availabilityNotes, setAvailabilityNotes] = useState("");
@@ -54,18 +54,21 @@ const AvailabilityShifts = () => {
   };
 
   useEffect(() => {
-    if (user) {
+    if (user && userRole) {
       loadOpportunities();
       loadUserApplications();
     }
-  }, [user]);
+  }, [user, userRole]);
 
   const loadOpportunities = async () => {
+    if (!userRole) return;
+    
     try {
       const { data, error } = await supabase
         .from("opportunities")
         .select("*")
         .eq("status", "open")
+        .eq("role", userRole)
         .order("event_date", { ascending: true });
 
       if (error) throw error;
