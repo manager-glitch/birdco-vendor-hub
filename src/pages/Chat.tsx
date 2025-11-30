@@ -221,13 +221,23 @@ const Chat = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-[calc(100vh-120px)]">
           {/* Conversations List */}
           <Card className="p-4 col-span-1">
-            <h2 className="font-heading font-bold text-lg mb-4">Conversations</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-heading font-bold text-lg">Conversations</h2>
+              <Button onClick={createNewConversation} size="sm">
+                New Chat
+              </Button>
+            </div>
             <ScrollArea className="h-[calc(100%-3rem)]">
               <div className="space-y-2">
                 {conversations.length === 0 ? (
-                  <p className="text-sm text-muted-foreground text-center py-8">
-                    No conversations yet
-                  </p>
+                  <div className="text-center py-8">
+                    <p className="text-sm text-muted-foreground mb-4">
+                      No conversations yet
+                    </p>
+                    <Button onClick={createNewConversation} variant="outline">
+                      Start Live Chat
+                    </Button>
+                  </div>
                 ) : (
                   conversations.map((conv) => (
                     <button
