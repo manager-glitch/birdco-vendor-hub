@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Canvas as FabricCanvas } from "fabric";
+import { Canvas as FabricCanvas, PencilBrush } from "fabric";
 import { Button } from "@/components/ui/button";
 import { Eraser } from "lucide-react";
 
@@ -23,60 +23,51 @@ export const SignatureCanvas = ({ onSignatureComplete }: SignatureCanvasProps) =
       
       // Get container width for responsive sizing
       const containerWidth = containerRef.current.offsetWidth;
-      const canvasWidth = Math.min(containerWidth - 32, 600); // Max 600px, with padding
+      const canvasWidth = Math.min(containerWidth - 32, 600);
       const canvasHeight = 250;
 
+      // Create canvas WITHOUT drawing mode first
       const canvas = new FabricCanvas(canvasRef.current, {
         width: canvasWidth,
         height: canvasHeight,
         backgroundColor: "#ffffff",
-        isDrawingMode: true,
+        isDrawingMode: false,
       });
 
-      // Force brush settings
-      if (canvas.freeDrawingBrush) {
-        canvas.freeDrawingBrush.color = "#000000";
-        canvas.freeDrawingBrush.width = 4;
-        console.log("Brush configured:", {
-          color: canvas.freeDrawingBrush.color,
-          width: canvas.freeDrawingBrush.width
-        });
-      } else {
-        console.error("freeDrawingBrush is not available!");
-      }
+      // Create and configure the brush explicitly
+      const brush = new PencilBrush(canvas);
+      brush.color = "#000000";
+      brush.width = 4;
+      canvas.freeDrawingBrush = brush;
+
+      console.log("Brush created:", {
+        color: brush.color,
+        width: brush.width,
+        brushType: brush.constructor.name
+      });
+
+      // NOW enable drawing mode
+      canvas.isDrawingMode = true;
+
+      console.log("Drawing mode enabled:", canvas.isDrawingMode);
 
       // Log drawing events
       canvas.on('path:created', (e) => {
-        console.log("Path created event fired!", e);
+        console.log("Path created!", e);
       });
 
-      canvas.on('mouse:down', (e) => {
-        console.log("Mouse down on canvas", e);
-      });
-
-      canvas.on('mouse:move', (e) => {
-        console.log("Mouse move on canvas");
-      });
-
-      // Enable touch scrolling prevention only during drawing
+      // Enable touch scrolling prevention
       const canvasElement = canvasRef.current;
       const preventScroll = (e: TouchEvent) => {
         console.log("Touch event:", e.type);
-        if (canvas.isDrawingMode) {
-          e.preventDefault();
-        }
+        e.preventDefault();
       };
       
       canvasElement.addEventListener('touchstart', preventScroll, { passive: false });
       canvasElement.addEventListener('touchmove', preventScroll, { passive: false });
 
       setFabricCanvas(canvas);
-      console.log("Fabric canvas initialized successfully", { 
-        canvasWidth, 
-        canvasHeight,
-        isDrawingMode: canvas.isDrawingMode,
-        hasBrush: !!canvas.freeDrawingBrush
-      });
+      console.log("Canvas ready for drawing");
 
       // Handle window resize
       const handleResize = () => {
