@@ -352,7 +352,7 @@ const RegistrationAndDocuments = () => {
                   return (
                     <div key={key} className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="flex items-center gap-3">
-                        <FileText className="h-5 w-5 text-muted-foreground" />
+                        <FileText className="h-5 w-5 text-muted-foreground shrink-0" />
                         <div>
                           <p className="font-medium">{label}</p>
                           {doc && (
@@ -363,14 +363,14 @@ const RegistrationAndDocuments = () => {
                           )}
                         </div>
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 shrink-0">
                         {doc && (
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => downloadDocument(doc.file_path, doc.file_name)}
                           >
-                            <Download className="h-4 w-4" />
+                            <Download className="h-4 w-4 shrink-0" />
                           </Button>
                         )}
                         <Button
@@ -388,7 +388,7 @@ const RegistrationAndDocuments = () => {
                           }}
                           disabled={loading}
                         >
-                          <Upload className="h-4 w-4 mr-2" />
+                          <Upload className="h-4 w-4 shrink-0 mr-2" />
                           {doc ? "Replace" : "Upload"}
                         </Button>
                       </div>
