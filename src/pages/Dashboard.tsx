@@ -87,14 +87,15 @@ const Dashboard = () => {
   });
   
   const handleDevRoleChange = (role: 'vendor' | 'chef' | 'admin') => {
-    if (role === 'admin') {
-      navigate('/admin');
-      return;
-    }
     setDevRole(role);
     DEV_CONFIG.setDevRole(role);
     // Dispatch event to trigger auth context refresh
     window.dispatchEvent(new Event('devRoleChange'));
+    
+    if (role === 'admin') {
+      // Small delay to ensure state is updated before navigation
+      setTimeout(() => navigate('/admin'), 50);
+    }
   };
   
   const effectiveRole = userRole;
