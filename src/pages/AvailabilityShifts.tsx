@@ -161,6 +161,21 @@ const AvailabilityShifts = () => {
     setSelectedEvent(event);
   };
 
+  const handleReadMoreOpportunity = (opportunity: any) => {
+    // Convert opportunity to Event format for display
+    const eventData: Event = {
+      id: opportunity.id,
+      eventName: opportunity.title,
+      date: opportunity.event_date || "",
+      time: "TBC",
+      location: opportunity.location || "TBC",
+      address: opportunity.location || "",
+      status: opportunity.status || "Open",
+      notes: opportunity.details || opportunity.description || ""
+    };
+    setSelectedEvent(eventData);
+  };
+
   const handleBack = () => {
     setSelectedEvent(null);
   };
@@ -245,6 +260,8 @@ const AvailabilityShifts = () => {
   };
 
   if (selectedEvent) {
+    const isOpportunity = !selectedEvent.clientName; // If no clientName, it's an opportunity
+    
     return (
       <div className="min-h-screen bg-background flex flex-col">
         {/* Header */}
@@ -259,23 +276,27 @@ const AvailabilityShifts = () => {
         <main className="flex-1 px-6 py-8">
           <div className="max-w-2xl mx-auto space-y-6">
             <Card className="p-6 space-y-4">
-              <h2 className="font-heading text-2xl font-bold">{selectedEvent.clientName}</h2>
+              <h2 className="font-heading text-2xl font-bold">
+                {selectedEvent.clientName || selectedEvent.eventName}
+              </h2>
               
               <div className="space-y-3">
-                <div className="flex items-start gap-3">
-                  <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
-                  <div className="flex-1">
-                    <p className="font-medium">Event Address</p>
-                    <p className="text-muted-foreground">{selectedEvent.address}</p>
-                    <Button 
-                      variant="link" 
-                      className="p-0 h-auto mt-1"
-                      onClick={() => handleGetDirections(selectedEvent.address!)}
-                    >
-                      Get Directions
-                    </Button>
+                {selectedEvent.address && (
+                  <div className="flex items-start gap-3">
+                    <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
+                    <div className="flex-1">
+                      <p className="font-medium">Event Address</p>
+                      <p className="text-muted-foreground">{selectedEvent.address}</p>
+                      <Button 
+                        variant="link" 
+                        className="p-0 h-auto mt-1"
+                        onClick={() => handleGetDirections(selectedEvent.address!)}
+                      >
+                        Get Directions
+                      </Button>
+                    </div>
                   </div>
-                </div>
+                )}
 
                 <div className="flex items-start gap-3">
                   <Clock className="h-5 w-5 text-muted-foreground mt-0.5" />
@@ -290,39 +311,72 @@ const AvailabilityShifts = () => {
                   <p className="text-muted-foreground">{selectedEvent.status}</p>
                 </div>
 
-                <div>
-                  <p className="font-medium">Your Role</p>
-                  <p className="text-muted-foreground">{selectedEvent.role}</p>
-                </div>
+                {selectedEvent.role && (
+                  <div>
+                    <p className="font-medium">Your Role</p>
+                    <p className="text-muted-foreground">{selectedEvent.role}</p>
+                  </div>
+                )}
 
-                <div>
-                  <p className="font-medium">Pay Rate</p>
-                  <p className="text-muted-foreground">{selectedEvent.payRate}</p>
-                </div>
+                {selectedEvent.payRate && (
+                  <div>
+                    <p className="font-medium">Pay Rate</p>
+                    <p className="text-muted-foreground">{selectedEvent.payRate}</p>
+                  </div>
+                )}
 
-                <div>
-                  <p className="font-medium">Notes</p>
-                  <p className="text-muted-foreground">{selectedEvent.notes}</p>
-                </div>
+                {selectedEvent.notes && (
+                  <div>
+                    <p className="font-medium">{isOpportunity ? "Details" : "Notes"}</p>
+                    <p className="text-muted-foreground whitespace-pre-wrap">{selectedEvent.notes}</p>
+                  </div>
+                )}
               </div>
             </Card>
 
-            <div className="flex gap-4">
-              <Button 
-                variant="destructive" 
-                className="flex-1"
-                onClick={handleCancelEvent}
-              >
-                Cancel Event
-              </Button>
-              <Button 
-                variant="default" 
-                className="flex-1"
-                onClick={handleCallUs}
-              >
-                <Phone className="h-4 w-4 mr-2" />
-                Call Us
-              </Button>
+            <div className="flex flex-col gap-3">
+              {!isOpportunity && (
+                <>
+                  <Button 
+                    variant="destructive"
+                    className="w-full"
+                    onClick={handleCancelEvent}
+                  >
+                    Cancel Event
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    className="w-full"
+                    onClick={handleCallUs}
+                  >
+                    <Phone className="h-4 w-4 mr-2" />
+                    Call Us
+                  </Button>
+                </>
+              )}
+              {isOpportunity && !appliedOpportunities.has(selectedEvent.id) && (
+                <Button 
+                  variant="default"
+                  className="w-full"
+                  onClick={() => handleApplyToEvent(selectedEvent.id)}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Applying...
+                    </>
+                  ) : (
+                    "Apply to Event"
+                  )}
+                </Button>
+              )}
+              {isOpportunity && appliedOpportunities.has(selectedEvent.id) && (
+                <div className="flex items-center justify-center gap-2 w-full p-3 bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 rounded-md">
+                  <CheckCircle className="h-5 w-5" />
+                  <span className="font-medium">Application Submitted</span>
+                </div>
+              )}
             </div>
           </div>
         </main>
@@ -483,7 +537,7 @@ const AvailabilityShifts = () => {
                       <div className="space-y-3">
                         <h3 className="font-heading text-lg font-bold">{opportunity.title}</h3>
                         {opportunity.description && (
-                          <p className="text-sm text-muted-foreground">{opportunity.description}</p>
+                          <p className="text-sm text-muted-foreground line-clamp-2">{opportunity.description}</p>
                         )}
                         {opportunity.event_date && (
                           <div className="flex items-center gap-2 text-muted-foreground">
@@ -497,28 +551,37 @@ const AvailabilityShifts = () => {
                             <span>{opportunity.location}</span>
                           </div>
                         )}
-                        {hasApplied ? (
-                          <div className="flex items-center justify-center gap-2 w-full mt-4 p-3 bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 rounded-md">
-                            <CheckCircle className="h-5 w-5" />
-                            <span className="font-medium">Application Submitted</span>
-                          </div>
-                        ) : (
+                        <div className="flex gap-2 mt-4">
                           <Button 
-                            variant="default" 
-                            className="w-full mt-4"
-                            onClick={() => handleApplyToEvent(opportunity.id)}
-                            disabled={loading}
+                            variant="outline" 
+                            className="flex-1"
+                            onClick={() => handleReadMoreOpportunity(opportunity)}
                           >
-                            {loading ? (
-                              <>
-                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                Applying...
-                              </>
-                            ) : (
-                              "Apply to Event"
-                            )}
+                            Read More
                           </Button>
-                        )}
+                          {hasApplied ? (
+                            <div className="flex items-center justify-center gap-2 flex-1 p-2 bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 rounded-md">
+                              <CheckCircle className="h-4 w-4" />
+                              <span className="text-sm font-medium">Applied</span>
+                            </div>
+                          ) : (
+                            <Button 
+                              variant="default" 
+                              className="flex-1"
+                              onClick={() => handleApplyToEvent(opportunity.id)}
+                              disabled={loading}
+                            >
+                              {loading ? (
+                                <>
+                                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                  Applying...
+                                </>
+                              ) : (
+                                "Apply"
+                              )}
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     </Card>
                   );
