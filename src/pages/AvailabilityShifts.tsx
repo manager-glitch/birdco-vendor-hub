@@ -6,10 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar } from "@/components/ui/calendar";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, ArrowLeft, MapPin, Clock, Phone, Calendar as CalendarIcon } from "lucide-react";
+import { Loader2, ArrowLeft, MapPin, Clock, Phone, Calendar as CalendarIcon, CheckCircle } from "lucide-react";
 import logo from "@/assets/bird-co-logo.png";
 import { DEV_CONFIG } from "@/config/dev";
 import { format, parse } from "date-fns";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface Event {
   id: string;
@@ -31,6 +33,9 @@ const AvailabilityShifts = () => {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [availabilityDate, setAvailabilityDate] = useState<Date | undefined>(new Date());
   const [availabilityNotes, setAvailabilityNotes] = useState("");
+  const [availableOpportunities, setAvailableOpportunities] = useState<any[]>([]);
+  const [appliedOpportunities, setAppliedOpportunities] = useState<Set<string>>(new Set());
+  const [loading, setLoading] = useState(false);
 
   // Helper function to format dates in British format (DD/MM/YYYY)
   const formatDateBritish = (dateString: string) => {
@@ -39,6 +44,46 @@ const AvailabilityShifts = () => {
       return format(date, "dd/MM/yyyy");
     } catch {
       return dateString;
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      loadOpportunities();
+      loadUserApplications();
+    }
+  }, [user]);
+
+  const loadOpportunities = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("opportunities")
+        .select("*")
+        .eq("status", "open")
+        .order("event_date", { ascending: true });
+
+      if (error) throw error;
+      setAvailableOpportunities(data || []);
+    } catch (error) {
+      console.error("Error loading opportunities:", error);
+    }
+  };
+
+  const loadUserApplications = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from("applications")
+        .select("opportunity_id")
+        .eq("vendor_id", user.id);
+
+      if (error) throw error;
+      
+      const appliedIds = new Set(data?.map(app => app.opportunity_id) || []);
+      setAppliedOpportunities(appliedIds);
+    } catch (error) {
+      console.error("Error loading applications:", error);
     }
   };
 
@@ -129,9 +174,31 @@ const AvailabilityShifts = () => {
     window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`, '_blank');
   };
 
-  const handleApplyToEvent = (eventId: string) => {
-    // Implement apply logic
-    alert(`Applied to event ${eventId}`);
+  const handleApplyToEvent = async (opportunityId: string) => {
+    if (!user) return;
+    
+    setLoading(true);
+    try {
+      const { error } = await supabase
+        .from("applications")
+        .insert({
+          vendor_id: user.id,
+          opportunity_id: opportunityId,
+          status: "pending"
+        });
+
+      if (error) throw error;
+
+      setAppliedOpportunities(prev => new Set([...prev, opportunityId]));
+      toast.success("Your interest has been noted by the Bird & Co team! We'll be in touch soon.", {
+        duration: 5000,
+      });
+    } catch (error: any) {
+      console.error("Error applying to event:", error);
+      toast.error("Failed to apply to event. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleAddAvailability = () => {
@@ -284,32 +351,59 @@ const AvailabilityShifts = () => {
             {/* Available Events */}
             <TabsContent value="available" className="space-y-4 mt-6">
               <h2 className="font-heading text-xl font-bold">Available Events</h2>
-              {availableEvents.map((event) => (
-                <Card key={event.id} className="p-6">
-                  <div className="space-y-3">
-                    <h3 className="font-heading text-lg font-bold">{event.eventName}</h3>
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <CalendarIcon className="h-4 w-4" />
-                      <span>{formatDateBritish(event.date)}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Clock className="h-4 w-4" />
-                      <span>{event.time}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <MapPin className="h-4 w-4" />
-                      <span>{event.location}</span>
-                    </div>
-                    <Button 
-                      variant="default" 
-                      className="w-full mt-4"
-                      onClick={() => handleApplyToEvent(event.id)}
-                    >
-                      Apply to Event
-                    </Button>
-                  </div>
+              {availableOpportunities.length === 0 ? (
+                <Card className="p-6">
+                  <p className="text-center text-muted-foreground">No available events at the moment. Check back soon!</p>
                 </Card>
-              ))}
+              ) : (
+                availableOpportunities.map((opportunity) => {
+                  const hasApplied = appliedOpportunities.has(opportunity.id);
+                  return (
+                    <Card key={opportunity.id} className="p-6">
+                      <div className="space-y-3">
+                        <h3 className="font-heading text-lg font-bold">{opportunity.title}</h3>
+                        {opportunity.description && (
+                          <p className="text-sm text-muted-foreground">{opportunity.description}</p>
+                        )}
+                        {opportunity.event_date && (
+                          <div className="flex items-center gap-2 text-muted-foreground">
+                            <CalendarIcon className="h-4 w-4" />
+                            <span>{formatDateBritish(opportunity.event_date)}</span>
+                          </div>
+                        )}
+                        {opportunity.location && (
+                          <div className="flex items-center gap-2 text-muted-foreground">
+                            <MapPin className="h-4 w-4" />
+                            <span>{opportunity.location}</span>
+                          </div>
+                        )}
+                        {hasApplied ? (
+                          <div className="flex items-center justify-center gap-2 w-full mt-4 p-3 bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 rounded-md">
+                            <CheckCircle className="h-5 w-5" />
+                            <span className="font-medium">Application Submitted</span>
+                          </div>
+                        ) : (
+                          <Button 
+                            variant="default" 
+                            className="w-full mt-4"
+                            onClick={() => handleApplyToEvent(opportunity.id)}
+                            disabled={loading}
+                          >
+                            {loading ? (
+                              <>
+                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                Applying...
+                              </>
+                            ) : (
+                              "Apply to Event"
+                            )}
+                          </Button>
+                        )}
+                      </div>
+                    </Card>
+                  );
+                })
+              )}
             </TabsContent>
 
             {/* My Shifts */}
