@@ -22,7 +22,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { Loader2, Menu, FileText, Calendar, MessageCircle, Phone, Users, CheckCircle, Clock, XCircle, Mail } from "lucide-react";
+import { Loader2, Menu, FileText, Calendar, MessageCircle, Phone, Users, CheckCircle, Clock, XCircle, Mail, Instagram, Globe } from "lucide-react";
 import logo from "@/assets/bird-co-logo.png";
 import { DEV_CONFIG } from "@/config/dev";
 const vendorNavigationCards = [{
@@ -326,12 +326,24 @@ const Dashboard = () => {
             <div className="flex items-start gap-3">
               <Mail className="h-5 w-5 text-muted-foreground mt-0.5" />
               <div>
-                <p className="font-medium text-sm mb-1">Email</p>
+                <p className="font-medium text-sm mb-1">Email Elise</p>
                 <a 
                   href="mailto:manager@birdandcoevents.co.uk"
                   className="text-sm text-primary hover:underline"
                 >
                   manager@birdandcoevents.co.uk
+                </a>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <Mail className="h-5 w-5 text-muted-foreground mt-0.5" />
+              <div>
+                <p className="font-medium text-sm mb-1">Email Anthony</p>
+                <a 
+                  href="mailto:founder@birdandcoevents.co.uk"
+                  className="text-sm text-primary hover:underline"
+                >
+                  founder@birdandcoevents.co.uk
                 </a>
               </div>
             </div>
@@ -344,6 +356,34 @@ const Dashboard = () => {
                   className="text-sm text-primary hover:underline"
                 >
                   07713 665891
+                </a>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <Instagram className="h-5 w-5 text-muted-foreground mt-0.5" />
+              <div>
+                <p className="font-medium text-sm mb-1">Instagram</p>
+                <a 
+                  href="https://instagram.com/birdandcoevents"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-primary hover:underline"
+                >
+                  @birdandcoevents
+                </a>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <Globe className="h-5 w-5 text-muted-foreground mt-0.5" />
+              <div>
+                <p className="font-medium text-sm mb-1">Website</p>
+                <a 
+                  href="https://birdandcoevents.co.uk"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-primary hover:underline"
+                >
+                  birdandcoevents.co.uk
                 </a>
               </div>
             </div>
