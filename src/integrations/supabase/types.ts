@@ -390,6 +390,36 @@ export type Database = {
         }
         Relationships: []
       }
+      vendor_gallery: {
+        Row: {
+          caption: string | null
+          display_order: number | null
+          id: string
+          image_path: string
+          updated_at: string | null
+          uploaded_at: string | null
+          vendor_id: string
+        }
+        Insert: {
+          caption?: string | null
+          display_order?: number | null
+          id?: string
+          image_path: string
+          updated_at?: string | null
+          uploaded_at?: string | null
+          vendor_id: string
+        }
+        Update: {
+          caption?: string | null
+          display_order?: number | null
+          id?: string
+          image_path?: string
+          updated_at?: string | null
+          uploaded_at?: string | null
+          vendor_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

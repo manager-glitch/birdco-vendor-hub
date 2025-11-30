@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { ArrowLeft, Upload, FileText, Download, CheckCircle, Clock, XCircle, PenTool } from "lucide-react";
+import { ArrowLeft, Upload, FileText, Download, CheckCircle, Clock, XCircle, PenTool, ImagePlus, Trash2 } from "lucide-react";
 import { ContractSigningDialog } from "@/components/ContractSigningDialog";
 const RegistrationAndDocuments = () => {
   const navigate = useNavigate();
@@ -33,6 +33,7 @@ const RegistrationAndDocuments = () => {
     registration_completed: false
   });
   const [documents, setDocuments] = useState<any[]>([]);
+  const [galleryImages, setGalleryImages] = useState<any[]>([]);
   const [contractDialogOpen, setContractDialogOpen] = useState(false);
   const vendorDocumentLabels: Record<string, string> = {
     public_liability_insurance: "Public Liability Insurance",
@@ -78,6 +79,14 @@ const RegistrationAndDocuments = () => {
       ascending: false
     });
     if (docs) setDocuments(docs);
+
+    // Load gallery images
+    const { data: gallery } = await supabase
+      .from("vendor_gallery")
+      .select("*")
+      .eq("vendor_id", user.id)
+      .order("display_order", { ascending: true });
+    if (gallery) setGalleryImages(gallery);
   };
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -160,6 +169,80 @@ const RegistrationAndDocuments = () => {
       toast.error("Failed to download file");
     }
   };
+
+  const handleGalleryUpload = async (file: File) => {
+    if (!user) return;
+    
+    setLoading(true);
+    try {
+      // Upload to storage
+      const fileExt = file.name.split('.').pop();
+      const filePath = `${user.id}/${Date.now()}.${fileExt}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('vendor-gallery')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      // Save to database
+      const { error: dbError } = await supabase
+        .from('vendor_gallery')
+        .insert({
+          vendor_id: user.id,
+          image_path: filePath,
+          display_order: galleryImages.length
+        });
+
+      if (dbError) throw dbError;
+
+      toast.success("Image uploaded successfully!");
+      loadData();
+    } catch (error: any) {
+      console.error('Error uploading image:', error);
+      toast.error("Failed to upload image");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteGalleryImage = async (imageId: string, imagePath: string) => {
+    if (!user) return;
+    
+    setLoading(true);
+    try {
+      // Delete from storage
+      const { error: storageError } = await supabase.storage
+        .from('vendor-gallery')
+        .remove([imagePath]);
+
+      if (storageError) throw storageError;
+
+      // Delete from database
+      const { error: dbError } = await supabase
+        .from('vendor_gallery')
+        .delete()
+        .eq('id', imageId);
+
+      if (dbError) throw dbError;
+
+      toast.success("Image deleted successfully!");
+      loadData();
+    } catch (error: any) {
+      console.error('Error deleting image:', error);
+      toast.error("Failed to delete image");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getGalleryImageUrl = (path: string) => {
+    const { data } = supabase.storage
+      .from('vendor-gallery')
+      .getPublicUrl(path);
+    return data.publicUrl;
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "approved":
@@ -186,9 +269,10 @@ const RegistrationAndDocuments = () => {
         </div>
 
         <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="profile">Profile Information</TabsTrigger>
             <TabsTrigger value="documents">Documents</TabsTrigger>
+            <TabsTrigger value="gallery">Gallery</TabsTrigger>
           </TabsList>
 
           <TabsContent value="profile">
@@ -346,6 +430,70 @@ const RegistrationAndDocuments = () => {
                       </div>
                     </div>;
               })}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="gallery">
+            <Card>
+              <CardHeader>
+                <CardTitle>Photo Gallery</CardTitle>
+                <CardDescription>
+                  Upload photos of your work to showcase on the Bird & Co website
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Upload Button */}
+                <div className="flex justify-center">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      const input = document.createElement('input');
+                      input.type = 'file';
+                      input.accept = 'image/*';
+                      input.multiple = false;
+                      input.onchange = (e: any) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleGalleryUpload(file);
+                      };
+                      input.click();
+                    }}
+                    disabled={loading}
+                  >
+                    <ImagePlus className="h-4 w-4 mr-2" />
+                    Upload Photo
+                  </Button>
+                </div>
+
+                {/* Gallery Grid */}
+                {galleryImages.length > 0 ? (
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {galleryImages.map((image) => (
+                      <div key={image.id} className="relative group aspect-square rounded-lg overflow-hidden border">
+                        <img
+                          src={getGalleryImageUrl(image.image_path)}
+                          alt="Gallery"
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <Button
+                            variant="destructive"
+                            size="icon"
+                            onClick={() => handleDeleteGalleryImage(image.id, image.image_path)}
+                            disabled={loading}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <ImagePlus className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p>No photos yet. Upload some photos to showcase your work!</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
