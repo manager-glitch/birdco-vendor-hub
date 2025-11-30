@@ -102,7 +102,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const devRole = DEV_CONFIG.getDevRole();
         if (devRole) {
           setUserRole(devRole);
-          setIsAdmin(false);
+          setIsAdmin(devRole === 'admin');
         } else {
           setUserRole(actualRole);
           setIsAdmin(actualRole === 'admin');
