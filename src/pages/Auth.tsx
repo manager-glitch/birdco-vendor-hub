@@ -26,7 +26,10 @@ const Auth = () => {
     const roleParam = searchParams.get('role');
     if (roleParam === 'vendor' || roleParam === 'chef' || roleParam === 'admin') {
       setRole(roleParam);
-      setIsLogin(false); // Switch to signup mode when coming from home page
+      // Only show signup mode for vendor/chef, admin should default to login
+      if (roleParam !== 'admin') {
+        setIsLogin(false);
+      }
     }
   }, [searchParams]);
 
@@ -131,7 +134,7 @@ const Auth = () => {
                 <>
                   <div className="space-y-4">
                     <Label>Join as</Label>
-                    <RadioGroup value={role} onValueChange={(value) => setRole(value as "vendor" | "chef" | "admin")} className="grid grid-cols-3 gap-4">
+                    <RadioGroup value={role} onValueChange={(value) => setRole(value as "vendor" | "chef" | "admin")} className="grid grid-cols-2 gap-4">
                       <Label
                         htmlFor="vendor"
                         className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-all ${
@@ -155,18 +158,6 @@ const Auth = () => {
                         <RadioGroupItem value="chef" id="chef" className="sr-only" />
                         <ChefHat className="h-8 w-8 mb-2" />
                         <span className="font-heading font-bold text-sm">Chef</span>
-                      </Label>
-                      <Label
-                        htmlFor="admin"
-                        className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-all ${
-                          role === "admin" 
-                            ? "border-primary bg-primary/5" 
-                            : "border-muted hover:border-primary/50"
-                        }`}
-                      >
-                        <RadioGroupItem value="admin" id="admin" className="sr-only" />
-                        <Shield className="h-8 w-8 mb-2" />
-                        <span className="font-heading font-bold text-sm">Admin</span>
                       </Label>
                     </RadioGroup>
                   </div>
