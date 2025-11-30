@@ -11,7 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { ArrowLeft, Upload, FileText, Download, CheckCircle, Clock, XCircle } from "lucide-react";
+import { ArrowLeft, Upload, FileText, Download, CheckCircle, Clock, XCircle, PenTool } from "lucide-react";
+import { ContractSigningDialog } from "@/components/ContractSigningDialog";
 const RegistrationAndDocuments = () => {
   const navigate = useNavigate();
   const {
@@ -32,6 +33,7 @@ const RegistrationAndDocuments = () => {
     registration_completed: false
   });
   const [documents, setDocuments] = useState<any[]>([]);
+  const [contractDialogOpen, setContractDialogOpen] = useState(false);
   const vendorDocumentLabels: Record<string, string> = {
     public_liability_insurance: "Public Liability Insurance",
     hygiene_rating: "Hygiene Rating Certificate",
@@ -321,19 +323,26 @@ const RegistrationAndDocuments = () => {
                         {doc && <Button variant="outline" size="sm" onClick={() => downloadDocument(doc.file_path, doc.file_name)}>
                             <Download className="h-4 w-4 shrink-0" />
                           </Button>}
-                        <Button variant="outline" size="sm" onClick={() => {
-                      const input = document.createElement('input');
-                      input.type = 'file';
-                      input.accept = '.pdf,.jpg,.jpeg,.png';
-                      input.onchange = (e: any) => {
-                        const file = e.target.files?.[0];
-                        if (file) handleFileUpload(key, file);
-                      };
-                      input.click();
-                    }} disabled={loading}>
-                          <Upload className="h-4 w-4 shrink-0 mr-2" />
-                          {doc ? "Replace" : "Upload"}
-                        </Button>
+                        {key === "signed_contract" ? (
+                          <Button variant="outline" size="sm" onClick={() => setContractDialogOpen(true)} disabled={loading}>
+                            <PenTool className="h-4 w-4 shrink-0 mr-2" />
+                            {doc ? "Re-sign" : "Sign"}
+                          </Button>
+                        ) : (
+                          <Button variant="outline" size="sm" onClick={() => {
+                            const input = document.createElement('input');
+                            input.type = 'file';
+                            input.accept = '.pdf,.jpg,.jpeg,.png';
+                            input.onchange = (e: any) => {
+                              const file = e.target.files?.[0];
+                              if (file) handleFileUpload(key, file);
+                            };
+                            input.click();
+                          }} disabled={loading}>
+                            <Upload className="h-4 w-4 shrink-0 mr-2" />
+                            {doc ? "Replace" : "Upload"}
+                          </Button>
+                        )}
                       </div>
                     </div>;
               })}
@@ -341,6 +350,14 @@ const RegistrationAndDocuments = () => {
             </Card>
           </TabsContent>
         </Tabs>
+
+        <ContractSigningDialog
+          open={contractDialogOpen}
+          onOpenChange={setContractDialogOpen}
+          userId={user?.id || ""}
+          userRole={userRole || ""}
+          onContractSigned={loadData}
+        />
       </div>
     </div>;
 };

@@ -1,0 +1,67 @@
+import { useEffect, useRef, useState } from "react";
+import { Canvas as FabricCanvas } from "fabric";
+import { Button } from "@/components/ui/button";
+import { Eraser, Undo2 } from "lucide-react";
+
+interface SignatureCanvasProps {
+  onSignatureComplete: (dataUrl: string) => void;
+}
+
+export const SignatureCanvas = ({ onSignatureComplete }: SignatureCanvasProps) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [fabricCanvas, setFabricCanvas] = useState<FabricCanvas | null>(null);
+
+  useEffect(() => {
+    if (!canvasRef.current) return;
+
+    const canvas = new FabricCanvas(canvasRef.current, {
+      width: 500,
+      height: 200,
+      backgroundColor: "#ffffff",
+      isDrawingMode: true,
+    });
+
+    canvas.freeDrawingBrush.color = "#000000";
+    canvas.freeDrawingBrush.width = 2;
+
+    setFabricCanvas(canvas);
+
+    return () => {
+      canvas.dispose();
+    };
+  }, []);
+
+  const handleClear = () => {
+    if (!fabricCanvas) return;
+    fabricCanvas.clear();
+    fabricCanvas.backgroundColor = "#ffffff";
+    fabricCanvas.renderAll();
+  };
+
+  const handleSave = () => {
+    if (!fabricCanvas) return;
+    const dataUrl = fabricCanvas.toDataURL({
+      format: "png",
+      quality: 1,
+      multiplier: 2,
+    });
+    onSignatureComplete(dataUrl);
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="border-2 border-muted rounded-lg overflow-hidden bg-white">
+        <canvas ref={canvasRef} />
+      </div>
+      <div className="flex gap-2 justify-end">
+        <Button variant="outline" size="sm" onClick={handleClear}>
+          <Eraser className="h-4 w-4 mr-2" />
+          Clear
+        </Button>
+        <Button size="sm" onClick={handleSave}>
+          Save Signature
+        </Button>
+      </div>
+    </div>
+  );
+};
