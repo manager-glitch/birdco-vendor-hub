@@ -269,7 +269,7 @@ const RegistrationAndDocuments = () => {
         </div>
 
         <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3 gap-2">
             <TabsTrigger value="profile">Profile Information</TabsTrigger>
             <TabsTrigger value="documents">Documents</TabsTrigger>
             <TabsTrigger value="gallery">Gallery</TabsTrigger>
