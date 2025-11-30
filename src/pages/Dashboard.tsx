@@ -32,7 +32,7 @@ const vendorNavigationCards = [{
   icon: Phone,
   path: "/contact"
 }, {
-  title: "Refer a Friend",
+  title: "Refer a Vendor",
   icon: Users,
   path: "/refer"
 }, {
@@ -49,6 +49,14 @@ const chefNavigationCards = [{
 }, {
   title: "Chat",
   icon: MessageCircle
+}, {
+  title: "Contact Us",
+  icon: Phone,
+  path: "/contact"
+}, {
+  title: "Refer a Chef",
+  icon: Users,
+  path: "/refer"
 }, {
   title: "Completed Events",
   icon: CheckCircle
