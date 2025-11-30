@@ -7,7 +7,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, CheckCircle, XCircle, Eye, FileText, Phone, Mail, Calendar } from "lucide-react";
-import logo from "@/assets/bird-co-logo.png";
 import {
   Dialog,
   DialogContent,
@@ -191,24 +190,17 @@ const AdminRegistrations = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b bg-card">
-        <div className="container mx-auto px-4 py-6 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")}>
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <img src={logo} alt="Bird & Co" className="h-12" />
-            <div>
-              <p className="text-sm font-medium">Admin Panel</p>
-              <p className="text-xs text-muted-foreground">Registration Management</p>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <main className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h2 className="font-heading text-3xl font-bold mb-2">Vendor & Chef Registrations</h2>
+      <main className="container mx-auto py-8 px-4 max-w-7xl">
+        <div className="mb-6">
+          <Button
+            variant="ghost"
+            onClick={() => navigate("/dashboard")}
+            className="mb-4"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Dashboard
+          </Button>
+          <h1 className="text-4xl font-bold mb-2">Vendor & Chef Registrations</h1>
           <p className="text-muted-foreground">Review and manage all vendor and chef registrations</p>
         </div>
 

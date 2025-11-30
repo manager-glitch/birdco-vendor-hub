@@ -206,15 +206,19 @@ const AdminChat = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-black text-white px-6 py-4 flex items-center gap-4">
-        <button onClick={() => navigate("/dashboard")} className="p-2">
-          <ArrowLeft className="h-6 w-6" />
-        </button>
-        <h1 className="font-heading font-bold text-xl">Admin Chat</h1>
-      </header>
-
-      <main className="max-w-7xl mx-auto p-6">
+      <main className="container mx-auto py-8 px-4 max-w-7xl">
+        <div className="mb-6">
+          <Button
+            variant="ghost"
+            onClick={() => navigate("/dashboard")}
+            className="mb-4"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Dashboard
+          </Button>
+          <h1 className="text-4xl font-bold mb-2">Vendor Messages</h1>
+          <p className="text-muted-foreground">Chat with vendors and manage conversations</p>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-[calc(100vh-120px)]">
           {/* Conversations List */}
           <Card className="p-4 col-span-1">
