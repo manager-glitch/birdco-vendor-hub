@@ -109,14 +109,10 @@ const Dashboard = () => {
     DEV_CONFIG.setDevRole(role);
     // Dispatch event to trigger auth context refresh
     window.dispatchEvent(new Event('devRoleChange'));
-    
-    if (role === 'admin') {
-      // Small delay to ensure state is updated before navigation
-      setTimeout(() => navigate('/admin'), 50);
-    }
   };
   
-  const effectiveRole = userRole;
+  // In dev mode, use the local devRole state for immediate UI updates
+  const effectiveRole = DEV_CONFIG.isDevelopment ? devRole : userRole;
 
   useEffect(() => {
     // Skip registration checks in development mode
