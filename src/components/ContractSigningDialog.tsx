@@ -145,13 +145,13 @@ By signing below, you acknowledge that you have read, understood, and agree to b
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh]">
+      <DialogContent className="max-w-3xl max-h-[90vh] w-[95vw] sm:w-full">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5" />
+          <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <FileText className="h-4 w-4 sm:h-5 sm:w-5" />
             {step === "review" ? "Review Contract" : "Sign Contract"}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-xs sm:text-sm">
             {step === "review"
               ? "Please read the contract carefully before signing"
               : "Draw your signature below to sign the contract"}
@@ -160,11 +160,11 @@ By signing below, you acknowledge that you have read, understood, and agree to b
 
         {step === "review" ? (
           <div className="space-y-4">
-            <ScrollArea className="h-[400px] border rounded-lg p-4">
-              <div className="whitespace-pre-wrap text-sm font-mono">{contractText}</div>
+            <ScrollArea className="h-[50vh] sm:h-[400px] border rounded-lg p-3 sm:p-4">
+              <div className="whitespace-pre-wrap text-xs sm:text-sm font-mono">{contractText}</div>
             </ScrollArea>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => onOpenChange(false)}>
+            <div className="flex flex-col sm:flex-row justify-end gap-2">
+              <Button variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto">
                 Cancel
               </Button>
               <Button 
@@ -172,6 +172,7 @@ By signing below, you acknowledge that you have read, understood, and agree to b
                   console.log("Moving to sign step");
                   setStep("sign");
                 }}
+                className="w-full sm:w-auto"
               >
                 <CheckCircle className="h-4 w-4 mr-2" />
                 I Agree, Continue to Sign
@@ -180,8 +181,8 @@ By signing below, you acknowledge that you have read, understood, and agree to b
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="border rounded-lg p-4 bg-muted/50">
-              <p className="text-sm text-muted-foreground mb-2">
+            <div className="border rounded-lg p-3 sm:p-4 bg-muted/50">
+              <p className="text-xs sm:text-sm text-muted-foreground mb-2">
                 By signing below, you confirm that you have read and agree to the terms of this contract.
               </p>
               <p className="text-xs text-muted-foreground">
@@ -190,7 +191,12 @@ By signing below, you acknowledge that you have read, understood, and agree to b
             </div>
             <SignatureCanvas onSignatureComplete={handleSignatureComplete} />
             <div className="flex justify-end">
-              <Button variant="outline" onClick={() => setStep("review")} disabled={loading}>
+              <Button 
+                variant="outline" 
+                onClick={() => setStep("review")} 
+                disabled={loading}
+                className="w-full sm:w-auto"
+              >
                 Back to Contract
               </Button>
             </div>
