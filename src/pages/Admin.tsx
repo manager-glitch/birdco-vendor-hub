@@ -100,27 +100,33 @@ const Admin = () => {
         supabase.from("opportunities").select("*").order("created_at", { ascending: false }),
         supabase
           .from("applications")
-          .select(
-            `
-            id,
-            status,
-            message,
-            created_at,
-            profiles (
-              full_name,
-              company_name,
-              phone
-            ),
-            opportunities (
-              title
-            )
-          `
-          )
+          .select("id, status, message, created_at, vendor_id, opportunity_id")
           .order("created_at", { ascending: false }),
       ]);
 
       if (oppsResult.data) setOpportunities(oppsResult.data);
-      if (appsResult.data) setApplications(appsResult.data as any);
+      
+      // Fetch profiles for applications
+      if (appsResult.data && appsResult.data.length > 0) {
+        const vendorIds = appsResult.data.map(app => app.vendor_id);
+        const oppIds = appsResult.data.map(app => app.opportunity_id);
+        
+        const [profilesResult, oppsForAppsResult] = await Promise.all([
+          supabase.from("profiles").select("id, full_name, company_name, phone").in("id", vendorIds),
+          supabase.from("opportunities").select("id, title").in("id", oppIds)
+        ]);
+
+        // Combine the data
+        const combinedApps = appsResult.data.map(app => ({
+          ...app,
+          profiles: profilesResult.data?.find(p => p.id === app.vendor_id) || null,
+          opportunities: oppsForAppsResult.data?.find(o => o.id === app.opportunity_id) || null
+        }));
+
+        setApplications(combinedApps as any);
+      } else {
+        setApplications([]);
+      }
     } catch (error: any) {
       toast({
         title: "Error",
@@ -219,27 +225,35 @@ const Admin = () => {
 
   const handleViewApplicants = async (opportunityId: string) => {
     try {
-      const { data, error } = await supabase
+      const { data: applicationsData, error: appsError } = await supabase
         .from("applications")
-        .select(
-          `
-          id,
-          status,
-          message,
-          created_at,
-          profiles (
-            full_name,
-            company_name,
-            phone
-          )
-        `
-        )
+        .select("id, status, message, created_at, vendor_id")
         .eq("opportunity_id", opportunityId)
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
+      if (appsError) throw appsError;
 
-      setOpportunityApplicants(data as any || []);
+      // Fetch vendor profiles for all applicants
+      if (applicationsData && applicationsData.length > 0) {
+        const vendorIds = applicationsData.map(app => app.vendor_id);
+        const { data: profilesData, error: profilesError } = await supabase
+          .from("profiles")
+          .select("id, full_name, company_name, phone")
+          .in("id", vendorIds);
+
+        if (profilesError) throw profilesError;
+
+        // Combine the data
+        const combinedData = applicationsData.map(app => ({
+          ...app,
+          profiles: profilesData?.find(p => p.id === app.vendor_id) || null
+        }));
+
+        setOpportunityApplicants(combinedData as any);
+      } else {
+        setOpportunityApplicants([]);
+      }
+
       setIsApplicantsDialogOpen(true);
     } catch (error: any) {
       toast({
