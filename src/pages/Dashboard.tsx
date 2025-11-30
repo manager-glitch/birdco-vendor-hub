@@ -74,12 +74,18 @@ const Dashboard = () => {
   const [showStickyBar, setShowStickyBar] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [showCallDialog, setShowCallDialog] = useState(false);
-  const [devRole, setDevRole] = useState<'vendor' | 'chef'>('vendor');
+  const [devRole, setDevRole] = useState<'vendor' | 'chef'>(() => {
+    return DEV_CONFIG.getDevRole() || 'vendor';
+  });
   
-  // Use dev role override in development mode
-  const effectiveRole = DEV_CONFIG.isDevelopment 
-    ? devRole 
-    : userRole;
+  const handleDevRoleChange = (role: 'vendor' | 'chef') => {
+    setDevRole(role);
+    DEV_CONFIG.setDevRole(role);
+    // Dispatch event to trigger auth context refresh
+    window.dispatchEvent(new Event('devRoleChange'));
+  };
+  
+  const effectiveRole = userRole;
 
   useEffect(() => {
     // Skip registration checks in development mode
@@ -179,7 +185,7 @@ const Dashboard = () => {
           <div className="flex items-center gap-2 bg-white/10 rounded-full px-3 py-1">
             <span className="text-xs">Dev Mode:</span>
             <button
-              onClick={() => setDevRole('vendor')}
+              onClick={() => handleDevRoleChange('vendor')}
               className={`text-xs px-3 py-1 rounded-full transition-colors ${
                 effectiveRole === 'vendor' ? 'bg-white text-black' : 'hover:bg-white/20'
               }`}
@@ -187,7 +193,7 @@ const Dashboard = () => {
               Vendor
             </button>
             <button
-              onClick={() => setDevRole('chef')}
+              onClick={() => handleDevRoleChange('chef')}
               className={`text-xs px-3 py-1 rounded-full transition-colors ${
                 effectiveRole === 'chef' ? 'bg-white text-black' : 'hover:bg-white/20'
               }`}
