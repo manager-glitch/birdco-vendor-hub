@@ -43,7 +43,8 @@ const RegistrationAndDocuments = () => {
     food_safety_certificate: "Level 3 Hygiene Cert",
     right_to_work: "Right to Work Documentation",
     dbs_certificate: "DBS Certificate",
-    public_liability_insurance: "Public Liability Insurance"
+    public_liability_insurance: "Public Liability Insurance",
+    signed_contract: "Signed Contract"
   };
   const documentLabels = userRole === 'chef' ? chefDocumentLabels : vendorDocumentLabels;
   useEffect(() => {
