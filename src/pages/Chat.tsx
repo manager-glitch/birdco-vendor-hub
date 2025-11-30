@@ -106,12 +106,7 @@ const Chat = () => {
 
       if (error) throw error;
       
-      // If no conversations exist, create one automatically
-      if (!data || data.length === 0) {
-        await createNewConversation();
-      } else {
-        setConversations(data);
-      }
+      setConversations(data || []);
     } catch (error) {
       console.error('Error loading conversations:', error);
       toast.error('Failed to load conversations');
@@ -195,8 +190,19 @@ const Chat = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <p className="text-lg text-muted-foreground">Start live Chat</p>
+      <div className="min-h-screen bg-background">
+        <header className="bg-black text-white px-6 py-4 flex items-center gap-4">
+          <button onClick={() => navigate("/dashboard")} className="p-2">
+            <ArrowLeft className="h-6 w-6" />
+          </button>
+          <h1 className="font-heading font-bold text-xl">Chat</h1>
+        </header>
+        <div className="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] gap-4">
+          <p className="text-lg text-muted-foreground">Start a conversation with Bird & Co</p>
+          <Button onClick={createNewConversation}>
+            Start Live Chat
+          </Button>
+        </div>
       </div>
     );
   }
