@@ -130,7 +130,7 @@ const Chat = () => {
       if (error) throw error;
       
       if (data) {
-        setConversations([data]);
+        setConversations(prev => [data, ...prev]);
         setSelectedConversation(data.id);
         toast.success('Started new conversation with Bird & Co');
       }
@@ -230,14 +230,9 @@ const Chat = () => {
             <ScrollArea className="h-[calc(100%-3rem)]">
               <div className="space-y-2">
                 {conversations.length === 0 ? (
-                  <div className="text-center py-8">
-                    <p className="text-sm text-muted-foreground mb-4">
-                      No conversations yet
-                    </p>
-                    <Button onClick={createNewConversation} variant="outline">
-                      Start Live Chat
-                    </Button>
-                  </div>
+                  <p className="text-sm text-muted-foreground text-center py-8">
+                    Click "New Chat" to start a conversation
+                  </p>
                 ) : (
                   conversations.map((conv) => (
                     <button
