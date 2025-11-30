@@ -74,6 +74,12 @@ const Dashboard = () => {
   const [showStickyBar, setShowStickyBar] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [showCallDialog, setShowCallDialog] = useState(false);
+  const [devRole, setDevRole] = useState<'vendor' | 'chef'>('vendor');
+  
+  // Use dev role override in development mode
+  const effectiveRole = DEV_CONFIG.isDevelopment 
+    ? devRole 
+    : userRole;
 
   useEffect(() => {
     // Skip registration checks in development mode
@@ -163,16 +169,39 @@ const Dashboard = () => {
   }
   return <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
-      <header className="bg-black text-white px-6 py-4">
+      <header className="bg-black text-white px-6 py-4 flex items-center justify-between">
         <button className="p-2">
           <Menu className="h-6 w-6" />
         </button>
+        
+        {/* Dev Mode Role Switcher */}
+        {DEV_CONFIG.isDevelopment && (
+          <div className="flex items-center gap-2 bg-white/10 rounded-full px-3 py-1">
+            <span className="text-xs">Dev Mode:</span>
+            <button
+              onClick={() => setDevRole('vendor')}
+              className={`text-xs px-3 py-1 rounded-full transition-colors ${
+                effectiveRole === 'vendor' ? 'bg-white text-black' : 'hover:bg-white/20'
+              }`}
+            >
+              Vendor
+            </button>
+            <button
+              onClick={() => setDevRole('chef')}
+              className={`text-xs px-3 py-1 rounded-full transition-colors ${
+                effectiveRole === 'chef' ? 'bg-white text-black' : 'hover:bg-white/20'
+              }`}
+            >
+              Chef
+            </button>
+          </div>
+        )}
       </header>
 
       {/* Main Content */}
       <main className="flex-1 px-6 py-8">
         <div className="max-w-2xl mx-auto grid grid-cols-2 gap-4">
-          {(userRole === 'chef' ? chefNavigationCards : vendorNavigationCards).map(card => {
+          {(effectiveRole === 'chef' ? chefNavigationCards : vendorNavigationCards).map(card => {
             const IconComponent = card.icon;
             return (
               <Card 
