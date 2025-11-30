@@ -220,7 +220,7 @@ const Dashboard = () => {
                   navigate("/availability-shifts");
                 } else if (card.title === "Chat") {
                   navigate("/chat");
-                } else if (card.title === "Refer a Friend") {
+                } else if (card.title === "Refer a Vendor" || card.title === "Refer a Chef") {
                   navigate("/refer");
                 } else if (card.title === "Contact Us") {
                   navigate("/contact");
