@@ -115,7 +115,7 @@ const AvailabilityShifts = () => {
     {
       id: "1",
       clientName: "Smith Wedding",
-      date: "2025-12-15",
+      date: "2025-12-01",
       time: "2:00 PM - 10:00 PM",
       location: "Grand Hotel",
       address: "1 landells road, east dulwich, Se22 9pg",
