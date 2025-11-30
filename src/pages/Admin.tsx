@@ -170,50 +170,38 @@ const Admin = () => {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card">
-        <div className="container mx-auto px-4 py-6 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src={logo} alt="Bird & Co" className="h-12" />
-            <p className="text-sm text-muted-foreground">Admin Panel</p>
-          </div>
-          <div className="flex items-center gap-4">
-            <Button variant="outline" onClick={() => navigate("/dashboard")}>
-              Vendor View
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")}>
+              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+              </svg>
             </Button>
-            <Button variant="outline" onClick={signOut}>
-              Sign Out
-            </Button>
+            <img src={logo} alt="Bird & Co" className="h-10" />
+            <div className="hidden sm:block">
+              <p className="text-sm font-medium">Admin Panel</p>
+              <p className="text-xs text-muted-foreground">Opportunities Management</p>
+            </div>
           </div>
+          <Button variant="outline" size="sm" onClick={signOut} className="hidden sm:flex">
+            Sign Out
+          </Button>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
-        <div className="mb-8 flex items-center justify-between">
+      <main className="container mx-auto px-4 py-6">
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 className="font-heading text-3xl font-bold mb-2">Manage Opportunities</h2>
-            <p className="text-muted-foreground">Create and manage event opportunities</p>
+            <h2 className="font-heading text-2xl sm:text-3xl font-bold mb-1">Manage Opportunities</h2>
+            <p className="text-sm text-muted-foreground">Create and manage event opportunities</p>
           </div>
-          <div className="flex gap-2">
-            <Button 
-              variant="outline" 
-              className="font-heading font-bold"
-              onClick={() => navigate("/admin/registrations")}
-            >
-              Registrations & Documents
-            </Button>
-            <Button 
-              variant="outline" 
-              className="font-heading font-bold"
-              onClick={() => navigate("/admin/chat")}
-            >
-              Vendor Messages
-            </Button>
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button className="font-heading font-bold">
-                  <Plus className="mr-2 h-4 w-4" />
-                  New Opportunity
-                </Button>
-              </DialogTrigger>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="font-heading font-bold w-full sm:w-auto">
+                <Plus className="mr-2 h-4 w-4" />
+                New Opportunity
+              </Button>
+            </DialogTrigger>
             <DialogContent className="max-w-2xl">
               <DialogHeader>
                 <DialogTitle className="font-heading text-2xl">Create New Opportunity</DialogTitle>
@@ -299,12 +287,11 @@ const Admin = () => {
               </form>
             </DialogContent>
           </Dialog>
-          </div>
         </div>
 
-        <div className="grid gap-8 lg:grid-cols-2">
+        <div className="space-y-8">
           <div>
-            <h3 className="font-heading text-2xl font-bold mb-4">Active Opportunities</h3>
+            <h3 className="font-heading text-xl sm:text-2xl font-bold mb-4">Active Opportunities</h3>
             <div className="space-y-4">
               {opportunities.map((opp) => (
                 <Card key={opp.id} className="border-2">
@@ -329,7 +316,7 @@ const Admin = () => {
           </div>
 
           <div>
-            <h3 className="font-heading text-2xl font-bold mb-4">Vendor Applications</h3>
+            <h3 className="font-heading text-xl sm:text-2xl font-bold mb-4">Vendor Applications</h3>
             <div className="space-y-4">
               {applications.map((app) => (
                 <Card key={app.id} className="border-2">
