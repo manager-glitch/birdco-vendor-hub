@@ -10,9 +10,17 @@ const Index = () => {
             <h1 className="font-heading text-4xl font-black">BIRD & CO</h1>
             <p className="text-sm text-muted-foreground">Events</p>
           </div>
-          <Button onClick={() => navigate("/auth")} variant="outline">
-            Vendor Login
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={() => navigate("/auth?role=vendor")} variant="outline" size="sm">
+              Vendor Login
+            </Button>
+            <Button onClick={() => navigate("/auth?role=chef")} variant="outline" size="sm">
+              Chef Login
+            </Button>
+            <Button onClick={() => navigate("/auth?role=admin")} variant="outline" size="sm">
+              Admin Login
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -31,14 +39,20 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button onClick={() => navigate("/auth")} size="lg" className="font-heading font-bold text-lg px-8">
-              Get Started
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-            <Button onClick={() => navigate("/auth")} size="lg" variant="outline" className="font-heading font-bold text-lg px-8">
-              Learn More
-            </Button>
+          <div className="flex flex-col gap-6 justify-center items-center">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Button onClick={() => navigate("/auth?role=vendor")} size="lg" className="font-heading font-bold text-lg px-8">
+                Vendor Sign Up
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+              <Button onClick={() => navigate("/auth?role=chef")} size="lg" variant="outline" className="font-heading font-bold text-lg px-8">
+                Chef Sign Up
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Already have an account? Use the login buttons above
+            </p>
           </div>
 
           <div className="pt-16 grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
