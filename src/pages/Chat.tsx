@@ -116,9 +116,13 @@ const Chat = () => {
   };
 
   const createNewConversation = async () => {
-    if (!user) return;
+    if (!user) {
+      toast.error('Please log in to start a chat');
+      navigate('/auth');
+      return;
+    }
     
-    console.log('Creating new conversation...');
+    console.log('Creating new conversation for user:', user.id);
     
     try {
       const { data, error } = await supabase
@@ -129,15 +133,15 @@ const Chat = () => {
         .select()
         .single();
 
-      console.log('Conversation created:', data, error);
+      console.log('Conversation result:', { data, error });
 
       if (error) throw error;
       
       if (data) {
         setConversations(prev => [data, ...prev]);
         setSelectedConversation(data.id);
-        console.log('Selected conversation:', data.id);
-        toast.success('Started new conversation with Bird & Co');
+        console.log('Conversation selected:', data.id);
+        toast.success('Chat started with Bird & Co');
       }
     } catch (error) {
       console.error('Error creating conversation:', error);
