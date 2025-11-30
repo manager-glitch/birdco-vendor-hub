@@ -208,7 +208,7 @@ const AdminChat = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="bg-black text-white px-6 py-4 flex items-center gap-4">
-        <button onClick={() => navigate("/admin")} className="p-2">
+        <button onClick={() => navigate("/dashboard")} className="p-2">
           <ArrowLeft className="h-6 w-6" />
         </button>
         <h1 className="font-heading font-bold text-xl">Admin Chat</h1>
@@ -272,6 +272,7 @@ const AdminChat = () => {
                   <div className="space-y-4">
                     {messages.map((message) => {
                       const isAdmin = message.sender_id === user?.id;
+                      const selectedConv = conversations.find(c => c.id === selectedConversation);
                       return (
                         <div
                           key={message.id}
@@ -285,7 +286,7 @@ const AdminChat = () => {
                             }`}
                           >
                             <p className="text-xs font-medium mb-1 opacity-75">
-                              {isAdmin ? 'Bird & Co' : 'Vendor'}
+                              {isAdmin ? 'Bird & Co' : selectedConv?.vendor_name || 'Vendor'}
                             </p>
                             <p className="text-sm">{message.content}</p>
                             <p className="text-xs opacity-60 mt-1">
