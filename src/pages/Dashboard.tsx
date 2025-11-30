@@ -18,7 +18,7 @@ import {
 import { Loader2, Menu, FileText, Calendar, MessageCircle, Phone, Users, CheckCircle, Clock, XCircle } from "lucide-react";
 import logo from "@/assets/bird-co-logo.png";
 import { DEV_CONFIG } from "@/config/dev";
-const navigationCards = [{
+const vendorNavigationCards = [{
   title: "Registration & Documents",
   icon: FileText
 }, {
@@ -39,9 +39,24 @@ const navigationCards = [{
   title: "Completed Events",
   icon: CheckCircle
 }];
+
+const chefNavigationCards = [{
+  title: "Registration & Documents",
+  icon: FileText
+}, {
+  title: "Availability & Shifts",
+  icon: Calendar
+}, {
+  title: "Chat",
+  icon: MessageCircle
+}, {
+  title: "Completed Events",
+  icon: CheckCircle
+}];
 const Dashboard = () => {
   const {
     user,
+    userRole,
     loading: authLoading,
     registrationComplete,
     approvalStatus
@@ -149,7 +164,7 @@ const Dashboard = () => {
       {/* Main Content */}
       <main className="flex-1 px-6 py-8">
         <div className="max-w-2xl mx-auto grid grid-cols-2 gap-4">
-          {navigationCards.map(card => {
+          {(userRole === 'chef' ? chefNavigationCards : vendorNavigationCards).map(card => {
             const IconComponent = card.icon;
             return (
               <Card 

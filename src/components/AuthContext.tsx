@@ -8,6 +8,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   isAdmin: boolean;
+  userRole: 'vendor' | 'chef' | 'admin' | null;
   loading: boolean;
   registrationComplete: boolean;
   approvalStatus: string | null;
@@ -18,6 +19,7 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   session: null,
   isAdmin: false,
+  userRole: null,
   loading: true,
   registrationComplete: false,
   approvalStatus: null,
@@ -30,6 +32,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [userRole, setUserRole] = useState<'vendor' | 'chef' | 'admin' | null>(null);
   const [loading, setLoading] = useState(true);
   const [registrationComplete, setRegistrationComplete] = useState(false);
   const [approvalStatus, setApprovalStatus] = useState<string | null>(null);
@@ -43,11 +46,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         
         if (session?.user) {
           setTimeout(() => {
-            checkAdminStatus(session.user.id);
+            checkUserRole(session.user.id);
             checkRegistrationStatus(session.user.id);
           }, 0);
         } else {
           setIsAdmin(false);
+          setUserRole(null);
           setRegistrationComplete(false);
           setApprovalStatus(null);
         }
@@ -58,7 +62,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        checkAdminStatus(session.user.id);
+        checkUserRole(session.user.id);
         checkRegistrationStatus(session.user.id);
       }
       setLoading(false);
@@ -83,15 +87,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, []);
 
-  const checkAdminStatus = async (userId: string) => {
+  const checkUserRole = async (userId: string) => {
     const { data } = await supabase
       .from("user_roles")
       .select("role")
       .eq("user_id", userId)
-      .eq("role", "admin")
       .maybeSingle();
     
-    setIsAdmin(!!data);
+    if (data) {
+      setUserRole(data.role as 'vendor' | 'chef' | 'admin');
+      setIsAdmin(data.role === 'admin');
+    }
     setLoading(false);
   };
 
@@ -120,13 +126,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setUser(null);
     setSession(null);
     setIsAdmin(false);
+    setUserRole(null);
     setRegistrationComplete(false);
     setApprovalStatus(null);
     navigate("/auth");
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, isAdmin, loading, registrationComplete, approvalStatus, signOut }}>
+    <AuthContext.Provider value={{ user, session, isAdmin, userRole, loading, registrationComplete, approvalStatus, signOut }}>
       {children}
     </AuthContext.Provider>
   );
