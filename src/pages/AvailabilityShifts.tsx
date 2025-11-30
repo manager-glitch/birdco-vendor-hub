@@ -179,36 +179,7 @@ const AvailabilityShifts = () => {
     setMapDialogOpen(true);
   };
 
-  const openInGoogleMaps = () => {
-    console.log("Opening Google Maps with address:", selectedAddress);
-    const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedAddress)}`;
-    const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
-    if (!newWindow) {
-      // Fallback if popup blocked
-      window.location.href = url;
-    }
-    setMapDialogOpen(false);
-  };
-
-  const openInWaze = () => {
-    console.log("Opening Waze with address:", selectedAddress);
-    const url = `https://www.waze.com/ul?q=${encodeURIComponent(selectedAddress)}`;
-    const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
-    if (!newWindow) {
-      window.location.href = url;
-    }
-    setMapDialogOpen(false);
-  };
-
-  const openInAppleMaps = () => {
-    console.log("Opening Apple Maps with address:", selectedAddress);
-    const url = `https://maps.apple.com/?q=${encodeURIComponent(selectedAddress)}`;
-    const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
-    if (!newWindow) {
-      window.location.href = url;
-    }
-    setMapDialogOpen(false);
-  };
+  // Map URLs are now handled directly in the JSX with anchor tags
 
   const handleApplyToEvent = async (opportunityId: string) => {
     if (!user) return;
@@ -333,34 +304,37 @@ const AvailabilityShifts = () => {
             <DialogHeader>
               <DialogTitle>Choose Map App</DialogTitle>
               <DialogDescription>
-                Select which app to use for directions
+                Select which app to use for directions to: {selectedAddress}
               </DialogDescription>
             </DialogHeader>
             <div className="flex flex-col gap-3 mt-4">
-              <Button
-                variant="outline"
-                className="w-full justify-start"
-                onClick={openInGoogleMaps}
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedAddress)}`}
+                target="_top"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-start w-full h-10 px-4 py-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-md text-sm font-medium transition-colors"
               >
                 <MapPin className="h-4 w-4 mr-2" />
                 Google Maps
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full justify-start"
-                onClick={openInWaze}
+              </a>
+              <a
+                href={`https://www.waze.com/ul?q=${encodeURIComponent(selectedAddress)}`}
+                target="_top"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-start w-full h-10 px-4 py-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-md text-sm font-medium transition-colors"
               >
                 <MapPin className="h-4 w-4 mr-2" />
                 Waze
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full justify-start"
-                onClick={openInAppleMaps}
+              </a>
+              <a
+                href={`https://maps.apple.com/?q=${encodeURIComponent(selectedAddress)}`}
+                target="_top"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-start w-full h-10 px-4 py-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-md text-sm font-medium transition-colors"
               >
                 <MapPin className="h-4 w-4 mr-2" />
                 Apple Maps
-              </Button>
+              </a>
             </div>
           </DialogContent>
         </Dialog>
