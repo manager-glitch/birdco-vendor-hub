@@ -170,37 +170,41 @@ const RegistrationAndDocuments = () => {
     }
   };
 
-  const handleGalleryUpload = async (file: File) => {
+  const handleGalleryUpload = async (files: FileList) => {
     if (!user) return;
     
     setLoading(true);
     try {
-      // Upload to storage
-      const fileExt = file.name.split('.').pop();
-      const filePath = `${user.id}/${Date.now()}.${fileExt}`;
-      
-      const { error: uploadError } = await supabase.storage
-        .from('vendor-gallery')
-        .upload(filePath, file);
+      const uploadPromises = Array.from(files).map(async (file, index) => {
+        const fileExt = file.name.split('.').pop();
+        const filePath = `${user.id}/${Date.now()}-${index}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('vendor-gallery')
+          .upload(filePath, file);
 
-      if (uploadError) throw uploadError;
+        if (uploadError) throw uploadError;
 
-      // Save to database
-      const { error: dbError } = await supabase
-        .from('vendor_gallery')
-        .insert({
+        return {
           vendor_id: user.id,
           image_path: filePath,
-          display_order: galleryImages.length
-        });
+          display_order: galleryImages.length + index
+        };
+      });
+
+      const imageData = await Promise.all(uploadPromises);
+
+      const { error: dbError } = await supabase
+        .from('vendor_gallery')
+        .insert(imageData);
 
       if (dbError) throw dbError;
 
-      toast.success("Image uploaded successfully!");
+      toast.success(`${files.length} image(s) uploaded successfully!`);
       loadData();
     } catch (error: any) {
-      console.error('Error uploading image:', error);
-      toast.error("Failed to upload image");
+      console.error('Error uploading images:', error);
+      toast.error("Failed to upload images");
     } finally {
       setLoading(false);
     }
@@ -451,17 +455,17 @@ const RegistrationAndDocuments = () => {
                       const input = document.createElement('input');
                       input.type = 'file';
                       input.accept = 'image/*';
-                      input.multiple = false;
+                      input.multiple = true;
                       input.onchange = (e: any) => {
-                        const file = e.target.files?.[0];
-                        if (file) handleGalleryUpload(file);
+                        const files = e.target.files;
+                        if (files && files.length > 0) handleGalleryUpload(files);
                       };
                       input.click();
                     }}
                     disabled={loading}
                   >
                     <ImagePlus className="h-4 w-4 mr-2" />
-                    Upload Photo
+                    Upload Photos
                   </Button>
                 </div>
 
