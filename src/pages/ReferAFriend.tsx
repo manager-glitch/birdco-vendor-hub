@@ -12,7 +12,7 @@ import { toast } from "sonner";
 
 const ReferAFriend = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, userRole } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -78,9 +78,11 @@ const ReferAFriend = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Refer a Friend</CardTitle>
+            <CardTitle>
+              {userRole === 'chef' ? 'Refer a Chef' : 'Refer a Vendor'}
+            </CardTitle>
             <CardDescription>
-              Know someone who would be a great fit? Refer them to Bird & Co!
+              Know someone who would be a great fit? Refer them to Bird & Co and receive a £20 gift voucher once your referred {userRole === 'chef' ? 'chef' : 'vendor'} completes their first event with us!
             </CardDescription>
           </CardHeader>
           <CardContent>
