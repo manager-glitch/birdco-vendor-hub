@@ -67,6 +67,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Handle temporary sessions (when "Stay signed in" is unchecked)
+  useEffect(() => {
+    const handleBeforeUnload = async () => {
+      if (sessionStorage.getItem('tempSession') === 'true') {
+        await supabase.auth.signOut();
+        sessionStorage.removeItem('tempSession');
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
+
   const checkAdminStatus = async (userId: string) => {
     const { data } = await supabase
       .from("user_roles")
