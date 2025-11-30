@@ -8,7 +8,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-between p-8">
       {/* Main Content */}
-      <div className="flex-1 flex flex-col items-center justify-center w-full max-w-md space-y-12">
+      <div className="flex-1 flex flex-col items-center justify-center w-full max-w-md space-y-8">
         {/* Logo */}
         <div className="text-center">
           <img 
