@@ -118,6 +118,8 @@ const Chat = () => {
   const createNewConversation = async () => {
     if (!user) return;
     
+    console.log('Creating new conversation...');
+    
     try {
       const { data, error } = await supabase
         .from('conversations')
@@ -127,11 +129,14 @@ const Chat = () => {
         .select()
         .single();
 
+      console.log('Conversation created:', data, error);
+
       if (error) throw error;
       
       if (data) {
         setConversations(prev => [data, ...prev]);
         setSelectedConversation(data.id);
+        console.log('Selected conversation:', data.id);
         toast.success('Started new conversation with Bird & Co');
       }
     } catch (error) {
