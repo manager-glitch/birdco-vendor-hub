@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Loader2, ArrowLeft, MapPin, Clock, Phone, Calendar as CalendarIcon } from "lucide-react";
 import logo from "@/assets/bird-co-logo.png";
 import { DEV_CONFIG } from "@/config/dev";
+import { format, parse } from "date-fns";
 
 interface Event {
   id: string;
@@ -30,6 +31,16 @@ const AvailabilityShifts = () => {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [availabilityDate, setAvailabilityDate] = useState<Date | undefined>(new Date());
   const [availabilityNotes, setAvailabilityNotes] = useState("");
+
+  // Helper function to format dates in British format (DD/MM/YYYY)
+  const formatDateBritish = (dateString: string) => {
+    try {
+      const date = parse(dateString, "yyyy-MM-dd", new Date());
+      return format(date, "dd/MM/yyyy");
+    } catch {
+      return dateString;
+    }
+  };
 
   useEffect(() => {
     // Skip registration checks in development mode
@@ -125,7 +136,8 @@ const AvailabilityShifts = () => {
 
   const handleAddAvailability = () => {
     // Implement add availability logic
-    alert(`Availability added for ${availabilityDate?.toLocaleDateString()}`);
+    const formattedDate = availabilityDate ? format(availabilityDate, "dd/MM/yyyy") : "";
+    alert(`Availability added for ${formattedDate}`);
     setAvailabilityNotes("");
   };
 
@@ -247,7 +259,7 @@ const AvailabilityShifts = () => {
                     <h3 className="font-heading text-lg font-bold">{event.clientName}</h3>
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <CalendarIcon className="h-4 w-4" />
-                      <span>{event.date}</span>
+                      <span>{formatDateBritish(event.date)}</span>
                     </div>
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <Clock className="h-4 w-4" />
@@ -278,7 +290,7 @@ const AvailabilityShifts = () => {
                     <h3 className="font-heading text-lg font-bold">{event.eventName}</h3>
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <CalendarIcon className="h-4 w-4" />
-                      <span>{event.date}</span>
+                      <span>{formatDateBritish(event.date)}</span>
                     </div>
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <Clock className="h-4 w-4" />
@@ -325,7 +337,7 @@ const AvailabilityShifts = () => {
                     <div className="flex justify-between items-center">
                       <div>
                         <p className="font-medium">{event.clientName}</p>
-                        <p className="text-sm text-muted-foreground">{event.date} • {event.time}</p>
+                        <p className="text-sm text-muted-foreground">{formatDateBritish(event.date)} • {event.time}</p>
                       </div>
                       <span className="px-3 py-1 bg-primary text-primary-foreground rounded-full text-sm">
                         Booked
