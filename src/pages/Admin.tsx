@@ -167,13 +167,21 @@ const Admin = () => {
             <h2 className="font-heading text-3xl font-bold mb-2">Manage Opportunities</h2>
             <p className="text-muted-foreground">Create and manage event opportunities</p>
           </div>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="font-heading font-bold">
-                <Plus className="mr-2 h-4 w-4" />
-                New Opportunity
-              </Button>
-            </DialogTrigger>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              className="font-heading font-bold"
+              onClick={() => navigate("/admin/chat")}
+            >
+              Vendor Messages
+            </Button>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="font-heading font-bold">
+                  <Plus className="mr-2 h-4 w-4" />
+                  New Opportunity
+                </Button>
+              </DialogTrigger>
             <DialogContent className="max-w-2xl">
               <DialogHeader>
                 <DialogTitle className="font-heading text-2xl">Create New Opportunity</DialogTitle>
@@ -243,6 +251,7 @@ const Admin = () => {
               </form>
             </DialogContent>
           </Dialog>
+          </div>
         </div>
 
         <div className="grid gap-8 lg:grid-cols-2">
