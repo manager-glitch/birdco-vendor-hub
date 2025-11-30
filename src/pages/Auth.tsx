@@ -111,7 +111,7 @@ const Auth = () => {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
-          <h1 className="font-heading text-5xl font-black mb-2">
+          <h1 className="font-heading text-3xl font-black mb-2">
             BIRD & CO EVENTS
           </h1>
           <p className="text-muted-foreground">
