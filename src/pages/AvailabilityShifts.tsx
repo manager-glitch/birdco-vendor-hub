@@ -181,19 +181,32 @@ const AvailabilityShifts = () => {
 
   const openInGoogleMaps = () => {
     console.log("Opening Google Maps with address:", selectedAddress);
-    window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedAddress)}`, '_blank');
+    const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedAddress)}`;
+    const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
+    if (!newWindow) {
+      // Fallback if popup blocked
+      window.location.href = url;
+    }
     setMapDialogOpen(false);
   };
 
   const openInWaze = () => {
     console.log("Opening Waze with address:", selectedAddress);
-    window.open(`https://www.waze.com/ul?q=${encodeURIComponent(selectedAddress)}`, '_blank');
+    const url = `https://www.waze.com/ul?q=${encodeURIComponent(selectedAddress)}`;
+    const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
+    if (!newWindow) {
+      window.location.href = url;
+    }
     setMapDialogOpen(false);
   };
 
   const openInAppleMaps = () => {
     console.log("Opening Apple Maps with address:", selectedAddress);
-    window.open(`https://maps.apple.com/?q=${encodeURIComponent(selectedAddress)}`, '_blank');
+    const url = `https://maps.apple.com/?q=${encodeURIComponent(selectedAddress)}`;
+    const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
+    if (!newWindow) {
+      window.location.href = url;
+    }
     setMapDialogOpen(false);
   };
 
