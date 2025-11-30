@@ -11,9 +11,8 @@ const Index = () => {
         {/* Title */}
         <div className="text-center space-y-2">
           <h1 className="font-heading text-4xl font-black tracking-tight">
-            BIRD & CO
+            BIRD & CO EVENTS
           </h1>
-          <p className="text-lg text-muted-foreground">Events</p>
         </div>
 
         {/* Login Buttons */}
