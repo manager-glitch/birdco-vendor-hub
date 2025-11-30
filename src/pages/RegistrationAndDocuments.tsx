@@ -15,7 +15,7 @@ import { ArrowLeft, Upload, FileText, Download, CheckCircle, Clock, XCircle } fr
 
 const RegistrationAndDocuments = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, userRole } = useAuth();
   const [loading, setLoading] = useState(false);
   const [profileData, setProfileData] = useState({
     full_name: "",
@@ -31,13 +31,22 @@ const RegistrationAndDocuments = () => {
   });
   const [documents, setDocuments] = useState<any[]>([]);
 
-  const documentLabels: Record<string, string> = {
+  const vendorDocumentLabels: Record<string, string> = {
     public_liability_insurance: "Public Liability Insurance",
     hygiene_rating: "Hygiene Rating Certificate",
     food_safety_certificate: "Food Safety Certificate",
     allergen_information: "Allergen Information",
     signed_contract: "Signed Contract"
   };
+
+  const chefDocumentLabels: Record<string, string> = {
+    food_safety_certificate: "Food Safety Certificate",
+    right_to_work: "Right to Work Documentation",
+    dbs_certificate: "DBS Certificate",
+    public_liability_insurance: "Public Liability Insurance"
+  };
+
+  const documentLabels = userRole === 'chef' ? chefDocumentLabels : vendorDocumentLabels;
 
   useEffect(() => {
     if (!user) return;
