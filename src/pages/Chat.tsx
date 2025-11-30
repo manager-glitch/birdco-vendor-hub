@@ -35,7 +35,10 @@ const Chat = () => {
   const [sending, setSending] = useState(false);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     loadConversations();
 
     // Check for conversation parameter in URL
