@@ -196,6 +196,13 @@ const Admin = () => {
             <Button 
               variant="outline" 
               className="font-heading font-bold"
+              onClick={() => navigate("/admin/registrations")}
+            >
+              Registrations & Documents
+            </Button>
+            <Button 
+              variant="outline" 
+              className="font-heading font-bold"
               onClick={() => navigate("/admin/chat")}
             >
               Vendor Messages
