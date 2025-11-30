@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -16,6 +17,7 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [role, setRole] = useState<"vendor" | "chef" | "admin">("vendor");
+  const [staySignedIn, setStaySignedIn] = useState(true);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -40,6 +42,12 @@ const Auth = () => {
         });
 
         if (error) throw error;
+
+        // If not staying signed in, set up session to clear on browser close
+        if (!staySignedIn) {
+          // Store a flag to indicate this is a temporary session
+          sessionStorage.setItem('tempSession', 'true');
+        }
 
         // Check user role and redirect accordingly
         const { data: userRole } = await supabase
@@ -200,6 +208,20 @@ const Auth = () => {
                   placeholder="••••••••"
                   minLength={6}
                 />
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="staySignedIn" 
+                  checked={staySignedIn}
+                  onCheckedChange={(checked) => setStaySignedIn(checked as boolean)}
+                />
+                <label
+                  htmlFor="staySignedIn"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                >
+                  Stay signed in
+                </label>
               </div>
 
               <Button
