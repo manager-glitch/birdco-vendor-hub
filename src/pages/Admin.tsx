@@ -63,6 +63,27 @@ const Admin = () => {
   useEffect(() => {
     if (user && isAdmin) {
       fetchData();
+
+      // Set up realtime subscription for applications
+      const channel = supabase
+        .channel('applications-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'applications'
+          },
+          () => {
+            console.log('Application change detected, refreshing data');
+            fetchData();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
   }, [user, isAdmin]);
 
