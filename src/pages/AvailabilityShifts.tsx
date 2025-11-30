@@ -8,9 +8,10 @@ import { Calendar } from "@/components/ui/calendar";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, ArrowLeft, MapPin, Clock, Phone, Calendar as CalendarIcon, CheckCircle } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import logo from "@/assets/bird-co-logo.png";
 import { DEV_CONFIG } from "@/config/dev";
-import { format, parse } from "date-fns";
+import { format, parse, differenceInHours } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -39,6 +40,8 @@ const AvailabilityShifts = () => {
   const [loading, setLoading] = useState(false);
   const [mapDialogOpen, setMapDialogOpen] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState("");
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [isWithin48Hours, setIsWithin48Hours] = useState(false);
 
   // Helper function to format dates in British format (DD/MM/YYYY)
   const formatDateBritish = (dateString: string) => {
@@ -163,8 +166,25 @@ const AvailabilityShifts = () => {
   };
 
   const handleCancelEvent = () => {
-    // Implement cancel logic
-    alert("Cancel event functionality");
+    if (!selectedEvent) return;
+    
+    // Check if event is within 48 hours
+    try {
+      const eventDateTime = parse(selectedEvent.date + ' ' + selectedEvent.time.split(' - ')[0], 'yyyy-MM-dd h:mm a', new Date());
+      const hoursUntilEvent = differenceInHours(eventDateTime, new Date());
+      setIsWithin48Hours(hoursUntilEvent < 48 && hoursUntilEvent > 0);
+    } catch (error) {
+      console.error("Error parsing date:", error);
+      setIsWithin48Hours(false);
+    }
+    
+    setCancelDialogOpen(true);
+  };
+
+  const confirmCancelEvent = () => {
+    // Implement actual cancel logic here
+    toast.success("Event cancelled successfully");
+    setCancelDialogOpen(false);
     setSelectedEvent(null);
   };
 
@@ -365,6 +385,31 @@ const AvailabilityShifts = () => {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Cancel Event Confirmation Dialog */}
+        <AlertDialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure you want to cancel?</AlertDialogTitle>
+              <AlertDialogDescription>
+                {isWithin48Hours ? (
+                  <>
+                    <strong className="text-destructive">Warning:</strong> This event is less than 48 hours away. 
+                    If you cancel now, you will be subject to a <strong>£50 admin fee</strong>.
+                  </>
+                ) : (
+                  "You are about to cancel this event. This action cannot be undone."
+                )}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Keep Event</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmCancelEvent} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                Cancel Event
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     );
   }
