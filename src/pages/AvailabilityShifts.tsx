@@ -174,22 +174,26 @@ const AvailabilityShifts = () => {
   };
 
   const handleGetDirections = (address: string) => {
+    console.log("Opening directions for address:", address);
     setSelectedAddress(address);
     setMapDialogOpen(true);
   };
 
   const openInGoogleMaps = () => {
+    console.log("Opening Google Maps with address:", selectedAddress);
     window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedAddress)}`, '_blank');
     setMapDialogOpen(false);
   };
 
   const openInWaze = () => {
-    window.open(`https://waze.com/ul?q=${encodeURIComponent(selectedAddress)}`, '_blank');
+    console.log("Opening Waze with address:", selectedAddress);
+    window.open(`https://www.waze.com/ul?q=${encodeURIComponent(selectedAddress)}`, '_blank');
     setMapDialogOpen(false);
   };
 
   const openInAppleMaps = () => {
-    window.open(`http://maps.apple.com/?q=${encodeURIComponent(selectedAddress)}`, '_blank');
+    console.log("Opening Apple Maps with address:", selectedAddress);
+    window.open(`https://maps.apple.com/?q=${encodeURIComponent(selectedAddress)}`, '_blank');
     setMapDialogOpen(false);
   };
 
