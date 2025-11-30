@@ -276,6 +276,7 @@ const Dashboard = () => {
             <Button
               variant="ghost"
               className="flex flex-col items-center gap-1 py-2 text-white hover:bg-white/10"
+              onClick={() => navigate("/settings")}
             >
               <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <circle cx="12" cy="12" r="3" />
