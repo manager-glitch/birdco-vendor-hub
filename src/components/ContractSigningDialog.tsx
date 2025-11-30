@@ -167,7 +167,12 @@ By signing below, you acknowledge that you have read, understood, and agree to b
               <Button variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
-              <Button onClick={() => setStep("sign")}>
+              <Button 
+                onClick={() => {
+                  console.log("Moving to sign step");
+                  setStep("sign");
+                }}
+              >
                 <CheckCircle className="h-4 w-4 mr-2" />
                 I Agree, Continue to Sign
               </Button>

@@ -12,23 +12,35 @@ export const SignatureCanvas = ({ onSignatureComplete }: SignatureCanvasProps) =
   const [fabricCanvas, setFabricCanvas] = useState<FabricCanvas | null>(null);
 
   useEffect(() => {
-    if (!canvasRef.current) return;
+    if (!canvasRef.current) {
+      console.log("Canvas ref not ready");
+      return;
+    }
 
-    const canvas = new FabricCanvas(canvasRef.current, {
-      width: 500,
-      height: 200,
-      backgroundColor: "#ffffff",
-      isDrawingMode: true,
-    });
+    try {
+      console.log("Initializing Fabric canvas");
+      const canvas = new FabricCanvas(canvasRef.current, {
+        width: 500,
+        height: 200,
+        backgroundColor: "#ffffff",
+        isDrawingMode: true,
+      });
 
-    canvas.freeDrawingBrush.color = "#000000";
-    canvas.freeDrawingBrush.width = 2;
+      if (canvas.freeDrawingBrush) {
+        canvas.freeDrawingBrush.color = "#000000";
+        canvas.freeDrawingBrush.width = 2;
+      }
 
-    setFabricCanvas(canvas);
+      setFabricCanvas(canvas);
+      console.log("Fabric canvas initialized successfully");
 
-    return () => {
-      canvas.dispose();
-    };
+      return () => {
+        console.log("Disposing Fabric canvas");
+        canvas.dispose();
+      };
+    } catch (error) {
+      console.error("Error initializing Fabric canvas:", error);
+    }
   }, []);
 
   const handleClear = () => {
