@@ -8,12 +8,12 @@ export const DEV_CONFIG = {
   isDevelopment: true,
   
   // Get/Set dev role override (persisted in localStorage)
-  getDevRole: (): 'vendor' | 'chef' | null => {
+  getDevRole: (): 'vendor' | 'chef' | 'admin' | null => {
     if (typeof window === 'undefined') return null;
-    return localStorage.getItem('devRole') as 'vendor' | 'chef' | null;
+    return localStorage.getItem('devRole') as 'vendor' | 'chef' | 'admin' | null;
   },
   
-  setDevRole: (role: 'vendor' | 'chef') => {
+  setDevRole: (role: 'vendor' | 'chef' | 'admin') => {
     if (typeof window === 'undefined') return;
     localStorage.setItem('devRole', role);
   },
