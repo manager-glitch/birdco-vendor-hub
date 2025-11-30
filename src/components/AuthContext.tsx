@@ -95,8 +95,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       .maybeSingle();
     
     if (data) {
-      setUserRole(data.role as 'vendor' | 'chef' | 'admin');
-      setIsAdmin(data.role === 'admin');
+      const actualRole = data.role as 'vendor' | 'chef' | 'admin';
+      
+      // In development mode, check for dev role override
+      if (DEV_CONFIG.isDevelopment) {
+        const devRole = DEV_CONFIG.getDevRole();
+        if (devRole) {
+          setUserRole(devRole);
+          setIsAdmin(false);
+        } else {
+          setUserRole(actualRole);
+          setIsAdmin(actualRole === 'admin');
+        }
+      } else {
+        setUserRole(actualRole);
+        setIsAdmin(actualRole === 'admin');
+      }
     }
     setLoading(false);
   };
@@ -131,6 +145,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setApprovalStatus(null);
     navigate("/auth");
   };
+
+  // Listen for dev role changes in development mode
+  useEffect(() => {
+    if (!DEV_CONFIG.isDevelopment) return;
+    
+    const handleDevRoleChange = () => {
+      if (user) {
+        checkUserRole(user.id);
+      }
+    };
+    
+    window.addEventListener('devRoleChange', handleDevRoleChange);
+    return () => window.removeEventListener('devRoleChange', handleDevRoleChange);
+  }, [user]);
 
   return (
     <AuthContext.Provider value={{ user, session, isAdmin, userRole, loading, registrationComplete, approvalStatus, signOut }}>

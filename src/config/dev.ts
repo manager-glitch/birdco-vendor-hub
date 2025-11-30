@@ -7,7 +7,14 @@ export const DEV_CONFIG = {
   // Set this to false when going live
   isDevelopment: true,
   
-  // Override role for development (set to null to use actual user role)
-  // Options: 'vendor' | 'chef' | 'admin' | null
-  overrideRole: null as 'vendor' | 'chef' | 'admin' | null,
+  // Get/Set dev role override (persisted in localStorage)
+  getDevRole: (): 'vendor' | 'chef' | null => {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem('devRole') as 'vendor' | 'chef' | null;
+  },
+  
+  setDevRole: (role: 'vendor' | 'chef') => {
+    if (typeof window === 'undefined') return;
+    localStorage.setItem('devRole', role);
+  },
 };
