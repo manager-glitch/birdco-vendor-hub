@@ -114,7 +114,9 @@ const Auth = () => {
           <h1 className="font-heading text-5xl font-black mb-2">
             BIRD & CO
           </h1>
-          <p className="text-muted-foreground">Events Vendor Portal</p>
+          <p className="text-muted-foreground">
+            {role === 'admin' ? 'Admin Portal' : 'Events Vendor Portal'}
+          </p>
         </div>
 
         <Card className="border-2">
@@ -124,7 +126,7 @@ const Auth = () => {
             </CardTitle>
             <CardDescription>
               {isLogin
-                ? "Sign in to view new opportunities"
+                ? role === 'admin' ? "Access administrative dashboard" : "Sign in to view new opportunities"
                 : "Create an account to access vendor opportunities"}
             </CardDescription>
           </CardHeader>
