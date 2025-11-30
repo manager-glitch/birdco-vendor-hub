@@ -38,6 +38,17 @@ export const SignatureCanvas = ({ onSignatureComplete }: SignatureCanvasProps) =
         canvas.freeDrawingBrush.width = 3;
       }
 
+      // Enable touch scrolling prevention only during drawing
+      const canvasElement = canvasRef.current;
+      const preventScroll = (e: TouchEvent) => {
+        if (canvas.isDrawingMode) {
+          e.preventDefault();
+        }
+      };
+      
+      canvasElement.addEventListener('touchstart', preventScroll, { passive: false });
+      canvasElement.addEventListener('touchmove', preventScroll, { passive: false });
+
       setFabricCanvas(canvas);
       console.log("Fabric canvas initialized successfully", { canvasWidth, canvasHeight });
 
@@ -54,6 +65,8 @@ export const SignatureCanvas = ({ onSignatureComplete }: SignatureCanvasProps) =
       return () => {
         console.log("Disposing Fabric canvas");
         window.removeEventListener('resize', handleResize);
+        canvasElement.removeEventListener('touchstart', preventScroll);
+        canvasElement.removeEventListener('touchmove', preventScroll);
         canvas.dispose();
       };
     } catch (error) {
@@ -85,8 +98,8 @@ export const SignatureCanvas = ({ onSignatureComplete }: SignatureCanvasProps) =
           Sign below using your finger or mouse
         </p>
       </div>
-      <div className="border-2 border-muted rounded-lg overflow-hidden bg-white touch-none">
-        <canvas ref={canvasRef} className="w-full" />
+      <div className="border-2 border-muted rounded-lg overflow-hidden bg-white" style={{ touchAction: 'none' }}>
+        <canvas ref={canvasRef} className="w-full" style={{ display: 'block' }} />
       </div>
       <div className="flex gap-2 justify-end flex-wrap">
         <Button variant="outline" size="default" onClick={handleClear} className="flex-1 sm:flex-none">
