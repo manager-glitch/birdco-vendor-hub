@@ -15,7 +15,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Menu, FileText, Calendar, MessageCircle, Phone, Users, CheckCircle, Clock, XCircle } from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { Loader2, Menu, FileText, Calendar, MessageCircle, Phone, Users, CheckCircle, Clock, XCircle, Mail } from "lucide-react";
 import logo from "@/assets/bird-co-logo.png";
 import { DEV_CONFIG } from "@/config/dev";
 const vendorNavigationCards = [{
@@ -74,6 +81,7 @@ const Dashboard = () => {
   const [showStickyBar, setShowStickyBar] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [showCallDialog, setShowCallDialog] = useState(false);
+  const [showContactSheet, setShowContactSheet] = useState(false);
   const [devRole, setDevRole] = useState<'vendor' | 'chef'>(() => {
     return DEV_CONFIG.getDevRole() || 'vendor';
   });
@@ -176,7 +184,7 @@ const Dashboard = () => {
   return <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="bg-black text-white px-6 py-4 flex items-center justify-between">
-        <button className="p-2">
+        <button className="p-2" onClick={() => setShowContactSheet(true)}>
           <Menu className="h-6 w-6" />
         </button>
         
@@ -306,6 +314,42 @@ const Dashboard = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Contact Info Sheet */}
+      <Sheet open={showContactSheet} onOpenChange={setShowContactSheet}>
+        <SheetContent side="left">
+          <SheetHeader>
+            <SheetTitle>Bird & Co Contact</SheetTitle>
+            <SheetDescription>Get in touch with us</SheetDescription>
+          </SheetHeader>
+          <div className="mt-6 space-y-6">
+            <div className="flex items-start gap-3">
+              <Mail className="h-5 w-5 text-muted-foreground mt-0.5" />
+              <div>
+                <p className="font-medium text-sm mb-1">Email</p>
+                <a 
+                  href="mailto:manager@birdandcoevents.co.uk"
+                  className="text-sm text-primary hover:underline"
+                >
+                  manager@birdandcoevents.co.uk
+                </a>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <Phone className="h-5 w-5 text-muted-foreground mt-0.5" />
+              <div>
+                <p className="font-medium text-sm mb-1">Phone</p>
+                <a 
+                  href="tel:07713665891"
+                  className="text-sm text-primary hover:underline"
+                >
+                  07713 665891
+                </a>
+              </div>
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>;
 };
 export default Dashboard;
