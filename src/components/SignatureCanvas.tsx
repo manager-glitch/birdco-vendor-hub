@@ -33,14 +33,35 @@ export const SignatureCanvas = ({ onSignatureComplete }: SignatureCanvasProps) =
         isDrawingMode: true,
       });
 
+      // Force brush settings
       if (canvas.freeDrawingBrush) {
         canvas.freeDrawingBrush.color = "#000000";
-        canvas.freeDrawingBrush.width = 3;
+        canvas.freeDrawingBrush.width = 4;
+        console.log("Brush configured:", {
+          color: canvas.freeDrawingBrush.color,
+          width: canvas.freeDrawingBrush.width
+        });
+      } else {
+        console.error("freeDrawingBrush is not available!");
       }
+
+      // Log drawing events
+      canvas.on('path:created', (e) => {
+        console.log("Path created event fired!", e);
+      });
+
+      canvas.on('mouse:down', (e) => {
+        console.log("Mouse down on canvas", e);
+      });
+
+      canvas.on('mouse:move', (e) => {
+        console.log("Mouse move on canvas");
+      });
 
       // Enable touch scrolling prevention only during drawing
       const canvasElement = canvasRef.current;
       const preventScroll = (e: TouchEvent) => {
+        console.log("Touch event:", e.type);
         if (canvas.isDrawingMode) {
           e.preventDefault();
         }
@@ -50,7 +71,12 @@ export const SignatureCanvas = ({ onSignatureComplete }: SignatureCanvasProps) =
       canvasElement.addEventListener('touchmove', preventScroll, { passive: false });
 
       setFabricCanvas(canvas);
-      console.log("Fabric canvas initialized successfully", { canvasWidth, canvasHeight });
+      console.log("Fabric canvas initialized successfully", { 
+        canvasWidth, 
+        canvasHeight,
+        isDrawingMode: canvas.isDrawingMode,
+        hasBrush: !!canvas.freeDrawingBrush
+      });
 
       // Handle window resize
       const handleResize = () => {
