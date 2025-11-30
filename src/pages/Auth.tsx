@@ -34,18 +34,30 @@ const Auth = () => {
 
     try {
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { error, data } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
 
         if (error) throw error;
 
+        // Check user role and redirect accordingly
+        const { data: userRole } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', data.user.id)
+          .single();
+
         toast({
           title: "Welcome back!",
           description: "You've successfully logged in.",
         });
-        navigate("/dashboard");
+        
+        if (userRole?.role === 'admin') {
+          navigate("/admin");
+        } else {
+          navigate("/dashboard");
+        }
       } else {
         const { error } = await supabase.auth.signUp({
           email,
@@ -65,7 +77,13 @@ const Auth = () => {
           title: "Account created!",
           description: "Welcome to Bird & Co Events.",
         });
-        navigate("/dashboard");
+        
+        // Redirect based on role
+        if (role === 'admin') {
+          navigate("/admin");
+        } else {
+          navigate("/dashboard");
+        }
       }
     } catch (error: any) {
       toast({
