@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Admin from "./pages/Admin";
+import AdminChat from "./pages/AdminChat";
 import AvailabilityShifts from "./pages/AvailabilityShifts";
 import Chat from "./pages/Chat";
 import Notifications from "./pages/Notifications";
@@ -32,6 +33,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/admin/chat" element={<AdminChat />} />
             <Route path="/availability-shifts" element={<AvailabilityShifts />} />
             <Route path="/chat" element={<Chat />} />
             <Route path="/notifications" element={<Notifications />} />
