@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import logo from "@/assets/bird-co-logo-cream.png";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -8,11 +9,13 @@ const Index = () => {
     <div className="min-h-screen bg-background flex flex-col items-center justify-between p-8">
       {/* Main Content */}
       <div className="flex-1 flex flex-col items-center justify-center w-full max-w-md space-y-12">
-        {/* Title */}
-        <div className="text-center space-y-2">
-          <h1 className="font-heading text-4xl font-black tracking-tight">
-            BIRD & CO EVENTS
-          </h1>
+        {/* Logo */}
+        <div className="text-center">
+          <img 
+            src={logo} 
+            alt="Bird & Co Events" 
+            className="w-64 h-auto mx-auto"
+          />
         </div>
 
         {/* Login Buttons */}
