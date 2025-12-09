@@ -2,10 +2,10 @@
 // Set to false before deploying to production
 export const DEV_CONFIG = {
   // Bypass registration and approval checks
-  bypassRegistrationChecks: true,
+  bypassRegistrationChecks: false,
   
   // Set this to false when going live
-  isDevelopment: true,
+  isDevelopment: false,
   
   // Get/Set dev role override (persisted in localStorage)
   getDevRole: (): 'vendor' | 'chef' | 'admin' | null => {
