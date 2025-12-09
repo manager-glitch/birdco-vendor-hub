@@ -123,6 +123,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return;
     }
 
+    // Check if user is admin first - admins don't need registration
+    const { data: roleData } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .maybeSingle();
+    
+    if (roleData?.role === 'admin') {
+      setRegistrationComplete(true);
+      setApprovalStatus("approved");
+      return;
+    }
+
     const { data } = await supabase
       .from("profiles")
       .select("registration_completed, approval_status")
