@@ -33,8 +33,22 @@ const Auth = () => {
     }
   }, [searchParams]);
 
+  // Admin signup is blocked - admins can only login
+  const isAdminMode = role === 'admin';
+  
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Block admin signup attempts
+    if (!isLogin && isAdminMode) {
+      toast({
+        title: "Access Denied",
+        description: "Admin accounts cannot be created through signup. Please contact an existing admin.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setLoading(true);
 
     try {
@@ -70,6 +84,7 @@ const Auth = () => {
           navigate("/dashboard");
         }
       } else {
+        // Only allow vendor/chef signup
         const { error } = await supabase.auth.signUp({
           email,
           password,
@@ -77,7 +92,7 @@ const Auth = () => {
             emailRedirectTo: `${window.location.origin}/dashboard`,
             data: {
               full_name: fullName,
-              role: role,
+              role: role, // Will only be 'vendor' or 'chef'
             },
           },
         });
@@ -89,12 +104,7 @@ const Auth = () => {
           description: "Welcome to Bird & Co Events.",
         });
         
-        // Redirect based on role
-        if (role === 'admin') {
-          navigate("/admin");
-        } else {
-          navigate("/dashboard");
-        }
+        navigate("/dashboard");
       }
     } catch (error: any) {
       toast({
@@ -228,17 +238,20 @@ const Auth = () => {
               </Button>
             </form>
 
-            <div className="mt-4 text-center">
-              <button
-                type="button"
-                onClick={() => setIsLogin(!isLogin)}
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                {isLogin
-                  ? "Don't have an account? Sign up"
-                  : "Already have an account? Sign in"}
-              </button>
-            </div>
+            {/* Hide signup option for admin mode */}
+            {!isAdminMode && (
+              <div className="mt-4 text-center">
+                <button
+                  type="button"
+                  onClick={() => setIsLogin(!isLogin)}
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {isLogin
+                    ? "Don't have an account? Sign up"
+                    : "Already have an account? Sign in"}
+                </button>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
