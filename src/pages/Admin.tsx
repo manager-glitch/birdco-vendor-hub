@@ -11,7 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, MapPin, Plus, Users, Edit, Eye, Phone, ArrowLeft } from "lucide-react";
+import { Calendar, MapPin, Plus, Users, Edit, Eye, Phone, ArrowLeft, Trash2 } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 interface Opportunity {
   id: string;
@@ -222,6 +223,30 @@ const Admin = () => {
     }
   };
 
+  const handleDelete = async (opportunityId: string) => {
+    try {
+      const { error } = await supabase
+        .from("opportunities")
+        .delete()
+        .eq("id", opportunityId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Opportunity deleted",
+        description: "The opportunity has been removed.",
+      });
+
+      fetchData();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleViewApplicants = async (opportunityId: string) => {
     try {
       const { data: applicationsData, error: appsError } = await supabase
@@ -404,6 +429,34 @@ const Admin = () => {
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Opportunity</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to delete "{opp.title}"? This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDelete(opp.id)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </div>
                   </CardHeader>
