@@ -138,6 +138,21 @@ const Admin = () => {
     }
   };
 
+  const sendPushNotification = async (title: string, body: string, role: "vendor" | "chef") => {
+    try {
+      const { error } = await supabase.functions.invoke("send-push-notification", {
+        body: { title, body, role },
+      });
+      if (error) {
+        console.error("Push notification error:", error);
+      } else {
+        console.log("Push notifications sent to", role, "users");
+      }
+    } catch (err) {
+      console.error("Failed to send push notification:", err);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -148,6 +163,13 @@ const Admin = () => {
       });
 
       if (error) throw error;
+
+      // Send push notification to relevant users
+      sendPushNotification(
+        "New Opportunity Available!",
+        `${formData.title} - ${formData.location}`,
+        formData.role
+      );
 
       toast({
         title: "Opportunity created!",
