@@ -218,7 +218,7 @@ const Admin = () => {
       description: opportunity.description || "",
       event_date: opportunity.event_date,
       location: opportunity.location || "",
-      guest_count: "",
+      guest_count: opportunity.guest_count?.toString() || "",
       details: opportunity.details || "",
       role: opportunity.role as "vendor" | "chef",
     });
@@ -236,6 +236,7 @@ const Admin = () => {
         description: formData.description,
         event_date: formData.event_date,
         location: formData.location,
+        guest_count: formData.guest_count ? parseInt(formData.guest_count) : null,
         details: formData.details,
         role: formData.role === "both" ? "vendor" : formData.role as "vendor" | "chef",
       };
@@ -663,6 +664,17 @@ const Admin = () => {
                   required
                 />
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-guest_count">Guest Count</Label>
+              <Input
+                id="edit-guest_count"
+                type="number"
+                value={formData.guest_count}
+                onChange={(e) => setFormData({ ...formData, guest_count: e.target.value })}
+                placeholder="e.g., 150"
+              />
             </div>
 
             <div className="space-y-2">
