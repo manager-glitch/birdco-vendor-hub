@@ -10,7 +10,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
-import { Upload, FileText, CheckCircle } from "lucide-react";
+import { Upload, FileText, CheckCircle, Pen } from "lucide-react";
+import { ContractSigningDialog } from "@/components/ContractSigningDialog";
 
 interface DocumentStatus {
   public_liability_insurance: boolean;
@@ -22,10 +23,11 @@ interface DocumentStatus {
 
 const CompleteRegistration = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, userRole } = useAuth();
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1);
   const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
+  const [showContractDialog, setShowContractDialog] = useState(false);
   
   const [profileData, setProfileData] = useState({
     full_name: "",
@@ -376,24 +378,35 @@ const CompleteRegistration = () => {
                       )}
                     </div>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      const input = document.createElement('input');
-                      input.type = 'file';
-                      input.accept = '.pdf,.jpg,.jpeg,.png';
-                      input.onchange = (e: any) => {
-                        const file = e.target.files?.[0];
-                        if (file) handleFileUpload(key as keyof DocumentStatus, file);
-                      };
-                      input.click();
-                    }}
-                    disabled={uploadProgress[key] !== undefined}
-                  >
-                    <Upload className="h-4 w-4 mr-2" />
-                    {documents[key as keyof DocumentStatus] ? "Replace" : "Upload"}
-                  </Button>
+                  {key === 'signed_contract' ? (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowContractDialog(true)}
+                    >
+                      <Pen className="h-4 w-4 mr-2" />
+                      {documents.signed_contract ? "Re-sign" : "Sign Contract"}
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const input = document.createElement('input');
+                        input.type = 'file';
+                        input.accept = '.pdf,.jpg,.jpeg,.png';
+                        input.onchange = (e: any) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleFileUpload(key as keyof DocumentStatus, file);
+                        };
+                        input.click();
+                      }}
+                      disabled={uploadProgress[key] !== undefined}
+                    >
+                      <Upload className="h-4 w-4 mr-2" />
+                      {documents[key as keyof DocumentStatus] ? "Replace" : "Upload"}
+                    </Button>
+                  )}
                 </div>
               ))}
 
@@ -415,6 +428,18 @@ const CompleteRegistration = () => {
               </div>
             </CardContent>
           </Card>
+        )}
+
+        {user && (
+          <ContractSigningDialog
+            open={showContractDialog}
+            onOpenChange={setShowContractDialog}
+            userId={user.id}
+            userRole={userRole || 'vendor'}
+            onContractSigned={() => {
+              setDocuments(prev => ({ ...prev, signed_contract: true }));
+            }}
+          />
         )}
       </div>
     </div>
