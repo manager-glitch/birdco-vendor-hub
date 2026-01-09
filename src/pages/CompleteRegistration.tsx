@@ -286,7 +286,7 @@ const CompleteRegistration = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="business_type">Business Type</Label>
+                    <Label htmlFor="business_type">Business Type *</Label>
                     <Select
                       value={profileData.business_type}
                       onValueChange={(value) => setProfileData({ ...profileData, business_type: value })}
@@ -305,7 +305,7 @@ const CompleteRegistration = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="service_category">Service Category</Label>
+                    <Label htmlFor="service_category">Service Category *</Label>
                     <Select
                       value={profileData.service_category}
                       onValueChange={(value) => setProfileData({ ...profileData, service_category: value })}
@@ -324,7 +324,7 @@ const CompleteRegistration = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="years_in_business">Years in Business</Label>
+                    <Label htmlFor="years_in_business">Years in Business *</Label>
                     <Input
                       id="years_in_business"
                       type="number"
@@ -336,7 +336,7 @@ const CompleteRegistration = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="bio">Business Description</Label>
+                  <Label htmlFor="bio">Business Description *</Label>
                   <Textarea
                     id="bio"
                     value={profileData.bio}
