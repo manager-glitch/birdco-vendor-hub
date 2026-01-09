@@ -120,10 +120,15 @@ const Dashboard = () => {
       return;
     }
     
+    // Admins don't need registration - skip the redirect
+    if (userRole === 'admin') {
+      return;
+    }
+    
     if (!authLoading && user && !registrationComplete) {
       navigate("/complete-registration");
     }
-  }, [user, authLoading, registrationComplete, navigate]);
+  }, [user, authLoading, registrationComplete, userRole, navigate]);
 
   // Scroll detection for sticky bar
   useEffect(() => {
