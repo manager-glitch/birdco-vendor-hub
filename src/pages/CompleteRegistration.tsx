@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
-import { Upload, FileText, CheckCircle, Pen } from "lucide-react";
+import { Upload, FileText, CheckCircle, Pen, ArrowLeft } from "lucide-react";
 import { ContractSigningDialog } from "@/components/ContractSigningDialog";
 
 interface DocumentStatus {
@@ -226,6 +226,16 @@ const CompleteRegistration = () => {
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-3xl mx-auto">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate("/dashboard")}
+          className="mb-4"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Dashboard
+        </Button>
+        
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Complete Your Registration</h1>
           <p className="text-muted-foreground">Step {step} of 2</p>
