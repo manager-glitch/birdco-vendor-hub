@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, MapPin, Plus, Users, Edit, Eye, Phone, ArrowLeft, Trash2 } from "lucide-react";
+import { Calendar, MapPin, Plus, Users, Edit, Eye, Phone, ArrowLeft, Trash2, Bell } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 interface Opportunity {
@@ -331,13 +331,22 @@ const Admin = () => {
             <h1 className="text-4xl font-bold mb-2">Opportunities Management</h1>
             <p className="text-muted-foreground">Create and manage event opportunities</p>
           </div>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="font-heading font-bold w-full sm:w-auto">
-                <Plus className="mr-2 h-4 w-4" />
-                New Opportunity
-              </Button>
-            </DialogTrigger>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Button
+              variant="outline"
+              onClick={() => navigate("/admin/notifications")}
+              className="font-heading font-bold w-full sm:w-auto"
+            >
+              <Bell className="mr-2 h-4 w-4" />
+              Send Notification
+            </Button>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="font-heading font-bold w-full sm:w-auto">
+                  <Plus className="mr-2 h-4 w-4" />
+                  New Opportunity
+                </Button>
+              </DialogTrigger>
             <DialogContent className="max-w-2xl">
               <DialogHeader>
                 <DialogTitle className="font-heading text-2xl">Create New Opportunity</DialogTitle>
@@ -423,6 +432,7 @@ const Admin = () => {
               </form>
             </DialogContent>
           </Dialog>
+          </div>
         </div>
 
         <div className="space-y-8">
