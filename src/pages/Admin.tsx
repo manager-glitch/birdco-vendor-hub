@@ -30,6 +30,7 @@ interface ApplicationWithProfile {
   status: string;
   message: string;
   created_at: string;
+  opportunity_id: string;
   profiles: {
     full_name: string;
     company_name: string;
@@ -448,8 +449,17 @@ const Admin = () => {
                           variant="ghost"
                           size="icon"
                           onClick={() => handleViewApplicants(opp.id)}
+                          className="relative"
                         >
                           <Eye className="h-4 w-4" />
+                          {applications.filter(a => a.opportunity_id === opp.id).length > 0 && (
+                            <Badge 
+                              variant="secondary" 
+                              className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs"
+                            >
+                              {applications.filter(a => a.opportunity_id === opp.id).length}
+                            </Badge>
+                          )}
                         </Button>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
