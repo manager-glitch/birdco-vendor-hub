@@ -184,6 +184,7 @@ export type Database = {
           description: string | null
           details: string | null
           event_date: string | null
+          guest_count: number | null
           id: string
           location: string | null
           role: Database["public"]["Enums"]["app_role"]
@@ -197,6 +198,7 @@ export type Database = {
           description?: string | null
           details?: string | null
           event_date?: string | null
+          guest_count?: number | null
           id?: string
           location?: string | null
           role: Database["public"]["Enums"]["app_role"]
@@ -210,6 +212,7 @@ export type Database = {
           description?: string | null
           details?: string | null
           event_date?: string | null
+          guest_count?: number | null
           id?: string
           location?: string | null
           role?: Database["public"]["Enums"]["app_role"]

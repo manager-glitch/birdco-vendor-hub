@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, MapPin, Plus, Users, Edit, Eye, Phone, ArrowLeft, Trash2, Bell } from "lucide-react";
+import { Calendar, MapPin, Plus, Users, Edit, Eye, Phone, ArrowLeft, Trash2, Bell, Users2 } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 interface Opportunity {
@@ -23,6 +23,7 @@ interface Opportunity {
   details: string;
   status: string;
   role: string;
+  guest_count: number | null;
 }
 
 interface ApplicationWithProfile {
@@ -166,6 +167,7 @@ const Admin = () => {
           description: formData.description,
           event_date: formData.event_date,
           location: formData.location,
+          guest_count: formData.guest_count ? parseInt(formData.guest_count) : null,
           details: formData.details,
           role: role as "vendor" | "chef",
           created_by: user!.id,
@@ -548,6 +550,12 @@ const Admin = () => {
                       <MapPin className="h-4 w-4" />
                       <span>{opp.location}</span>
                     </div>
+                    {opp.guest_count && (
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Users2 className="h-4 w-4" />
+                        <span>{opp.guest_count} guests</span>
+                      </div>
+                    )}
                     <div className="flex items-center gap-2">
                       <Badge variant={opp.status === "open" ? "default" : "secondary"}>{opp.status}</Badge>
                       <Badge variant="outline">{opp.role}</Badge>
