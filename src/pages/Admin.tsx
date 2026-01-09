@@ -436,7 +436,7 @@ const Admin = () => {
                       value={formData.location}
                       onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                       required
-                      placeholder="Central Park, NYC"
+                      placeholder="e.g., Hyde Park, London"
                     />
                   </div>
                 </div>
