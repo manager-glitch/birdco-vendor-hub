@@ -19,16 +19,19 @@ interface CompletedEvent {
   notes: string | null;
   event_type: string | null;
   created_at: string;
+  vendor_id: string;
+  vendor_name?: string;
 }
 
 export default function CompletedEvents() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, userRole } = useAuth();
   const [events, setEvents] = useState<CompletedEvent[]>([]);
   const [filteredEvents, setFilteredEvents] = useState<CompletedEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const isAdmin = userRole === 'admin';
 
   useEffect(() => {
     if (!user) {
@@ -66,14 +69,38 @@ export default function CompletedEvents() {
   const fetchCompletedEvents = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      
+      // Admins see all events, vendors see only their own
+      let query = supabase
         .from("completed_events")
         .select("*")
-        .eq("vendor_id", user?.id)
         .order("event_date", { ascending: false });
+      
+      if (!isAdmin) {
+        query = query.eq("vendor_id", user?.id);
+      }
+      
+      const { data, error } = await query;
 
       if (error) throw error;
-      setEvents(data || []);
+      
+      // For admins, fetch vendor names
+      if (isAdmin && data && data.length > 0) {
+        const vendorIds = [...new Set(data.map(e => e.vendor_id))];
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("id, full_name, company_name")
+          .in("id", vendorIds);
+        
+        const profileMap = new Map(profiles?.map(p => [p.id, p.full_name || p.company_name || 'Unknown Vendor']));
+        const eventsWithVendors = data.map(e => ({
+          ...e,
+          vendor_name: profileMap.get(e.vendor_id) || 'Unknown Vendor'
+        }));
+        setEvents(eventsWithVendors);
+      } else {
+        setEvents(data || []);
+      }
     } catch (error) {
       console.error("Error fetching completed events:", error);
       toast.error("Failed to load completed events");
@@ -185,7 +212,9 @@ export default function CompletedEvents() {
             <p className="text-muted-foreground mb-4">
               {searchTerm
                 ? "Try adjusting your search"
-                : "Your completed events will appear here once admin marks them as complete"}
+                : isAdmin 
+                  ? "No events have been marked as complete yet"
+                  : "Your completed events will appear here once admin marks them as complete"}
             </p>
           </CardContent>
         </Card>
@@ -206,6 +235,9 @@ export default function CompletedEvents() {
                         <Calendar className="h-4 w-4" />
                         {format(new Date(event.event_date), "MMMM d, yyyy")}
                       </span>
+                      {isAdmin && event.vendor_name && (
+                        <Badge variant="outline">{event.vendor_name}</Badge>
+                      )}
                     </CardDescription>
                   </div>
                   {event.event_type && (
