@@ -59,7 +59,7 @@ const Admin = () => {
     event_date: "",
     location: "",
     details: "",
-    role: "vendor" as "vendor" | "chef",
+    role: "vendor" as "vendor" | "chef" | "both",
   });
 
   useEffect(() => {
@@ -157,24 +157,35 @@ const Admin = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const { error } = await supabase.from("opportunities").insert({
-        ...formData,
-        created_by: user!.id,
-        status: "open",
-      });
+      const rolesToCreate = formData.role === "both" ? ["vendor", "chef"] : [formData.role];
+      
+      for (const role of rolesToCreate) {
+        const { error } = await supabase.from("opportunities").insert({
+          title: formData.title,
+          description: formData.description,
+          event_date: formData.event_date,
+          location: formData.location,
+          details: formData.details,
+          role: role as "vendor" | "chef",
+          created_by: user!.id,
+          status: "open",
+        });
 
-      if (error) throw error;
+        if (error) throw error;
 
-      // Send push notification to relevant users
-      sendPushNotification(
-        "New Opportunity Available!",
-        `${formData.title} - ${formData.location}`,
-        formData.role
-      );
+        // Send push notification to relevant users
+        sendPushNotification(
+          "New Opportunity Available!",
+          `${formData.title} - ${formData.location}`,
+          role as "vendor" | "chef"
+        );
+      }
 
       toast({
         title: "Opportunity created!",
-        description: "Vendors can now view and apply.",
+        description: formData.role === "both" 
+          ? "Vendors and chefs can now view and apply."
+          : "Users can now view and apply.",
       });
 
       setFormData({
@@ -214,9 +225,19 @@ const Admin = () => {
     if (!selectedOpportunity) return;
 
     try {
+      // For updates, don't allow "both" - only single role updates
+      const updateData = {
+        title: formData.title,
+        description: formData.description,
+        event_date: formData.event_date,
+        location: formData.location,
+        details: formData.details,
+        role: formData.role === "both" ? "vendor" : formData.role as "vendor" | "chef",
+      };
+      
       const { error } = await supabase
         .from("opportunities")
-        .update(formData)
+        .update(updateData)
         .eq("id", selectedOpportunity.id);
 
       if (error) throw error;
@@ -379,7 +400,7 @@ const Admin = () => {
                   <Label htmlFor="role">Opportunity Type</Label>
                   <Select
                     value={formData.role}
-                    onValueChange={(value: "vendor" | "chef") => setFormData({ ...formData, role: value })}
+                    onValueChange={(value: "vendor" | "chef" | "both") => setFormData({ ...formData, role: value })}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select type" />
@@ -387,6 +408,7 @@ const Admin = () => {
                     <SelectContent>
                       <SelectItem value="vendor">Vendor Opportunity</SelectItem>
                       <SelectItem value="chef">Chef Opportunity</SelectItem>
+                      <SelectItem value="both">Both (Vendors & Chefs)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
