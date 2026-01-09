@@ -58,6 +58,7 @@ const Admin = () => {
     description: "",
     event_date: "",
     location: "",
+    guest_count: "",
     details: "",
     role: "vendor" as "vendor" | "chef" | "both",
   });
@@ -193,6 +194,7 @@ const Admin = () => {
         description: "",
         event_date: "",
         location: "",
+        guest_count: "",
         details: "",
         role: "vendor",
       });
@@ -214,6 +216,7 @@ const Admin = () => {
       description: opportunity.description || "",
       event_date: opportunity.event_date,
       location: opportunity.location || "",
+      guest_count: "",
       details: opportunity.details || "",
       role: opportunity.role as "vendor" | "chef",
     });
@@ -252,6 +255,7 @@ const Admin = () => {
         description: "",
         event_date: "",
         location: "",
+        guest_count: "",
         details: "",
         role: "vendor",
       });
@@ -438,12 +442,23 @@ const Admin = () => {
                 </div>
 
                 <div className="space-y-2">
+                  <Label htmlFor="guest_count">Guest Count</Label>
+                  <Input
+                    id="guest_count"
+                    type="number"
+                    value={formData.guest_count}
+                    onChange={(e) => setFormData({ ...formData, guest_count: e.target.value })}
+                    placeholder="e.g., 150"
+                  />
+                </div>
+
+                <div className="space-y-2">
                   <Label htmlFor="details">Additional Details</Label>
                   <Textarea
                     id="details"
                     value={formData.details}
                     onChange={(e) => setFormData({ ...formData, details: e.target.value })}
-                    placeholder="e.g., Cuisine type required, dietary restrictions to accommodate, service style (buffet/plated), guest count..."
+                    placeholder="e.g., Dietary restrictions to accommodate, service style preferences..."
                     rows={4}
                   />
                 </div>
