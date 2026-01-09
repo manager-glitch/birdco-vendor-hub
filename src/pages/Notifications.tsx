@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, MessageCircle, Loader2, Send, Users, Megaphone, Bell } from "lucide-react";
+import { ArrowLeft, MessageCircle, Loader2, Send, Users, Megaphone, Bell, Truck, ChefHat } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 
@@ -324,7 +324,7 @@ const Notifications = () => {
                       }`}
                     >
                       <RadioGroupItem value="vendors" id="vendors" className="sr-only" />
-                      <span className="text-2xl mb-1">🚚</span>
+                      <Truck className="h-6 w-6 mb-2" />
                       <span className="font-medium text-sm">Vendors</span>
                     </Label>
                     
@@ -337,7 +337,7 @@ const Notifications = () => {
                       }`}
                     >
                       <RadioGroupItem value="chefs" id="chefs" className="sr-only" />
-                      <span className="text-2xl mb-1">👨‍🍳</span>
+                      <ChefHat className="h-6 w-6 mb-2" />
                       <span className="font-medium text-sm">Chefs</span>
                     </Label>
                   </RadioGroup>
