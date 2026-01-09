@@ -443,7 +443,7 @@ const Admin = () => {
                     id="details"
                     value={formData.details}
                     onChange={(e) => setFormData({ ...formData, details: e.target.value })}
-                    placeholder="Looking for catering vendors, photographers, and equipment rental..."
+                    placeholder="e.g., Cuisine type required, dietary restrictions to accommodate, service style (buffet/plated), guest count..."
                     rows={4}
                   />
                 </div>
