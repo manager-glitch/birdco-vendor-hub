@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Truck, ChefHat, Shield } from "lucide-react";
+import { Truck, ChefHat, ArrowLeft } from "lucide-react";
 
 const Auth = () => {
   const [searchParams] = useSearchParams();
@@ -120,13 +120,24 @@ const Auth = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-md space-y-8">
-        <div className="text-center">
-          <h1 className="font-heading text-3xl font-black mb-2">
-            BIRD & CO EVENTS
-          </h1>
-          <p className="text-muted-foreground">
-            {role === 'admin' ? 'Admin Portal' : 'Vendor Portal'}
-          </p>
+        <div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate("/")}
+            className="mb-4"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back
+          </Button>
+          <div className="text-center">
+            <h1 className="font-heading text-3xl font-black mb-2">
+              BIRD & CO EVENTS
+            </h1>
+            <p className="text-muted-foreground">
+              {role === 'admin' ? 'Admin Portal' : 'Vendor Portal'}
+            </p>
+          </div>
         </div>
 
         <Card className="border-2">

@@ -133,7 +133,7 @@ const CompleteRegistration = () => {
 
       if (error) throw error;
 
-      toast.success("Profile updated successfully!");
+      toast.success("Profile updated successfully!", { duration: 2000 });
       setStep(2);
     } catch (error: any) {
       console.error("Error updating profile:", error);
