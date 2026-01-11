@@ -25,7 +25,7 @@ export const ContractSigningDialog = ({
   const [step, setStep] = useState<"review" | "sign">("review");
   const [loading, setLoading] = useState(false);
 
-  const contractText = `Bird & Co Events Ltd Vendor Terms & Conditions
+  const vendorContractText = `Bird & Co Events Ltd Vendor Terms & Conditions
 
 Last Updated: 11 January 2026
 
@@ -193,8 +193,207 @@ By accepting these Terms electronically, you confirm that:
 • you agree to be legally bound by these Terms; and
 • electronic acceptance constitutes a valid and binding agreement under UK law.
 
-Date of Acceptance: ${new Date().toLocaleDateString()}
-  `.trim();
+Date of Acceptance: ${new Date().toLocaleDateString()}`;
+
+  const chefContractText = `Bird & Co Events Ltd
+
+Chef Vendor Terms & Conditions
+
+Last Updated: 11 January 2026
+
+These Chef Vendor Terms & Conditions ("Terms") govern the contractual relationship between Bird & Co Events Ltd, a company incorporated in England and Wales ("Bird & Co", "we", "us", "our"), and the chef, catering business or individual culinary professional accepting these Terms ("Chef", "you", "your").
+
+By electronically accepting these Terms via the Bird & Co platform or mobile application (the "Platform"), you confirm that you have read, understood and agree to be legally bound by them.
+
+1. About Bird & Co
+
+Bird & Co operates a curated events and hospitality platform connecting clients with approved private chefs and culinary professionals for private, public and corporate dining experiences and events.
+
+2. Eligibility & Registration
+
+2.1 You must be at least eighteen (18) years old and legally authorised to operate the culinary business or services you represent.
+
+2.2 You confirm that all information provided during registration is true, accurate and kept up to date.
+
+2.3 Bird & Co reserves the right, at its sole discretion, to approve, reject, suspend or remove any chef from the Platform.
+
+3. Term
+
+3.1 These Terms commence on the date of electronic acceptance and remain in force until terminated in accordance with Section 13.
+
+4. Chef Obligations
+
+You agree that you shall:
+
+4.1 Prepare and deliver all food, menus and culinary services to a professional standard consistent with Bird & Co's brand, event requirements and industry best practice.
+
+4.2 Comply with all applicable laws, regulations and licences, including food safety legislation, allergen regulations, hygiene requirements and local authority registrations.
+
+4.3 Hold and maintain all required food hygiene certifications and registrations applicable to your services.
+
+4.4 Ensure all assistants, kitchen staff or subcontractors engaged by you are properly trained and compliant with food safety and hygiene standards.
+
+4.5 Attend events punctually and comply with all instructions, schedules, dietary requirements and service standards communicated by Bird & Co.
+
+4.6 Supply all ingredients, equipment and utensils required to deliver your services unless otherwise expressly agreed in writing.
+
+4.7 Accurately disclose all allergens, dietary information and menu details and comply strictly with allergen legislation.
+
+4.8 Act at all times as an independent contractor. Nothing in these Terms creates any partnership, agency, joint venture or employment relationship between you and Bird & Co.
+
+4.9 All menus, pricing, portion sizes and service formats must be approved by Bird & Co in advance. No material changes may be made without Bird & Co's prior written consent.
+
+5. Fees, Commission & Payment
+
+5.1 Bird & Co will charge a commission, platform fee and/or service fee in respect of each booking or event.
+
+5.2 All applicable fees and commission rates shall be transparent, clearly communicated and agreed in advance of confirmation of any booking, either via the Platform or in writing.
+
+5.3 Subject to receipt of payment from the client, payments to chefs shall be processed within fourteen (14) days following completion of the relevant event.
+
+5.4 Bird & Co reserves the right to withhold, deduct or offset sums reasonably required to cover refunds, complaints, chargebacks, food waste, damages or losses arising from your services or breach of these Terms.
+
+5.5 Bird & Co shall not be liable for non-payment resulting from client default, cancellation or force majeure.
+
+5.6 Where applicable, you shall provide a valid VAT invoice prior to payment.
+
+5.7 Bird & Co acts as the contracting party with the client unless otherwise expressly agreed in writing.
+
+6. Self-Employment Status
+
+6.1 You acknowledge and agree that you operate as a self-employed independent contractor and are not an employee, worker, agent or partner of Bird & Co.
+
+6.2 Nothing in these Terms creates any obligation on Bird & Co to offer work, nor any obligation on you to accept work.
+
+6.3 You are solely responsible for all income tax, National Insurance contributions, VAT (if applicable) and any other taxes, charges or statutory obligations arising from payments made to you under these Terms.
+
+6.4 You are responsible for providing your own equipment, tools and ingredients and for bearing the financial risk of your business, including unused stock, staffing costs and expenses.
+
+6.5 You may, with Bird & Co's prior written approval, provide a suitably qualified substitute chef to perform the services on your behalf, provided all obligations under these Terms are met.
+
+6.6 You shall not hold yourself out as an employee or representative of Bird & Co and have no authority to bind Bird & Co in any way.
+
+7. Insurance, Indemnity & Liability
+
+7.1 You must maintain, throughout the Term:
+
+Public Liability Insurance of not less than £5,000,000 per claim, including food safety cover
+
+Employers' Liability Insurance where required by law
+
+7.2 Proof of current insurance must be uploaded to the Platform and kept up to date.
+
+7.3 You shall fully indemnify and hold harmless Bird & Co against all claims, losses, liabilities, damages, costs and expenses arising from:
+
+food prepared or supplied by you;
+
+allergen misrepresentation or contamination;
+
+your staff, assistants or subcontractors;
+
+your equipment or ingredients; or
+
+your breach of these Terms.
+
+7.4 To the fullest extent permitted by law, Bird & Co shall not be liable for indirect or consequential loss including loss of profit or reputation.
+
+7.5 Bird & Co's total liability arising out of any booking or event shall not exceed the total fees actually received by Bird & Co in respect of that booking.
+
+8. Health, Safety & Compliance
+
+8.1 You shall comply with all health, safety and food hygiene requirements at all times.
+
+8.2 You must follow all allergen, temperature control and food handling regulations.
+
+8.3 Bird & Co may remove or suspend you from an event for non-compliance without compensation.
+
+8.4 Where Bird & Co reasonably believes service delivery or food safety is at risk, it may appoint a replacement chef and recover associated costs from you.
+
+9. Chef Cancellation & Failure to Perform
+
+9.1 You must not cancel or materially alter agreed menus, staffing or services without Bird & Co's prior written consent.
+
+9.2 In the event of cancellation, no-show, late arrival or material failure to perform, Bird & Co may:
+
+withhold payment;
+
+recover replacement chef costs;
+
+recover refunds issued to clients; and
+
+suspend or remove you from the Platform.
+
+9.3 Where cancellation is unavoidable due to illness or emergency, you must notify Bird & Co immediately and take reasonable steps to assist with replacement arrangements.
+
+10. Branding, Content & Marketing
+
+10.1 You retain ownership of your intellectual property, including menus, recipes and brand assets.
+
+10.2 You grant Bird & Co a non-exclusive, royalty-free, worldwide licence to use your name, images, menus (excluding proprietary recipes), logo and descriptions for Platform display, marketing and promotional purposes.
+
+10.3 This licence shall survive termination in respect of materials already created or published.
+
+11. Data Protection
+
+11.1 Both parties shall comply with UK GDPR and the Data Protection Act 2018.
+
+11.2 You must not collect, store or use client or guest data except strictly as necessary to fulfil bookings.
+
+11.3 You must not use client data for marketing, remarketing or future bookings outside of Bird & Co.
+
+12. Non-Circumvention & Non-Solicitation
+
+12.1 Bird & Co introduces chefs to clients, venues and dining opportunities ("Introduced Parties").
+
+12.2 Bird & Co shall be deemed the introducing party for all business originating through the Platform or Bird & Co communications.
+
+12.3 During the Term and for twelve (12) months after termination, you shall not:
+
+solicit or contract directly with an Introduced Party outside Bird & Co;
+
+accept repeat bookings without Bird & Co's written consent;
+
+take any action intended to bypass Bird & Co's role or fees.
+
+12.4 Any enquiry or repeat booking must be referred back to Bird & Co.
+
+12.5 Breach entitles Bird & Co to recover commission, charge a circumvention fee and seek damages or injunctive relief.
+
+13. Suspension & Termination
+
+13.1 Bird & Co may suspend or terminate your account immediately for breach, food safety risk, legal non-compliance or reputational risk.
+
+13.2 You may terminate via the Platform subject to completion of existing bookings.
+
+13.3 Termination does not affect accrued rights or continuing obligations.
+
+13.4 Sections 6, 7, 10, 11 and 12 shall survive termination.
+
+14. Confidentiality
+
+You shall keep confidential all non-public commercial, pricing, menu, client and event information relating to Bird & Co. This obligation shall continue indefinitely.
+
+15. Force Majeure
+
+Neither party shall be liable for failure or delay caused by events beyond reasonable control, provided reasonable steps are taken to mitigate impact.
+
+16. Governing Law
+
+These Terms are governed by the laws of England and Wales. The courts of England and Wales shall have exclusive jurisdiction.
+
+17. Electronic Acceptance
+
+By accepting these Terms electronically, you confirm that:
+
+you have authority to bind the business you represent;
+
+you agree to be legally bound by these Terms; and
+
+electronic acceptance constitutes a valid and binding agreement under UK law.
+
+Date of Acceptance: ${new Date().toLocaleDateString()}`;
+
+  const contractText = userRole === "chef" ? chefContractText : vendorContractText;
 
   const handleSignatureComplete = async (signatureDataUrl: string) => {
     setLoading(true);
