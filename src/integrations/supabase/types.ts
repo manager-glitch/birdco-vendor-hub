@@ -222,6 +222,42 @@ export type Database = {
         }
         Relationships: []
       }
+      opportunity_tagged_profiles: {
+        Row: {
+          created_at: string
+          id: string
+          opportunity_id: string
+          profile_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          opportunity_id: string
+          profile_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          opportunity_id?: string
+          profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opportunity_tagged_profiles_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "opportunity_tagged_profiles_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           approval_status: string | null
