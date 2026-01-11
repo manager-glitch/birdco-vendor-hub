@@ -21,8 +21,69 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
+  const [isResettingPassword, setIsResettingPassword] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Check for password recovery session
+  useEffect(() => {
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setIsResettingPassword(true);
+      }
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
+
+  const handlePasswordReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (newPassword !== confirmPassword) {
+      toast({
+        title: "Passwords don't match",
+        description: "Please make sure both passwords are the same.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      toast({
+        title: "Password too short",
+        description: "Password must be at least 6 characters.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      
+      if (error) throw error;
+
+      toast({
+        title: "Password updated!",
+        description: "Your password has been successfully reset.",
+      });
+      
+      setIsResettingPassword(false);
+      navigate("/dashboard");
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleForgotPassword = async () => {
     if (!email) {
@@ -170,7 +231,7 @@ const Auth = () => {
               BIRD & CO EVENTS
             </h1>
             <p className="text-muted-foreground">
-              {role === 'admin' ? 'Admin Portal' : 'Vendor Portal'}
+              {isResettingPassword ? 'Password Reset' : role === 'admin' ? 'Admin Portal' : 'Vendor Portal'}
             </p>
           </div>
         </div>
@@ -178,147 +239,205 @@ const Auth = () => {
         <Card className="border-2">
           <CardHeader>
             <CardTitle className="font-heading text-2xl">
-              {isLogin ? "Welcome Back" : role === 'admin' ? "Admin Access" : "Join Our Network"}
+              {isResettingPassword 
+                ? "Reset Password" 
+                : isLogin 
+                  ? "Welcome Back" 
+                  : role === 'admin' 
+                    ? "Admin Access" 
+                    : "Join Our Network"}
             </CardTitle>
             <CardDescription>
-              {isLogin
-                ? role === 'admin' ? "Access administrative dashboard" : "Sign in to view new opportunities"
-                : role === 'admin' ? "Create administrator account" : "Create an account to access vendor opportunities"}
+              {isResettingPassword
+                ? "Enter your new password below"
+                : isLogin
+                  ? role === 'admin' ? "Access administrative dashboard" : "Sign in to view new opportunities"
+                  : role === 'admin' ? "Create administrator account" : "Create an account to access vendor opportunities"}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleAuth} className="space-y-4">
-              {!isLogin && (
-                <>
-                  {role !== 'admin' && (
-                    <div className="space-y-4">
-                      <Label>Join as</Label>
-                      <RadioGroup value={role} onValueChange={(value) => setRole(value as "vendor" | "chef" | "admin")} className="grid grid-cols-2 gap-4">
-                        <Label
-                          htmlFor="vendor"
-                          className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-all ${
-                            role === "vendor" 
-                              ? "border-primary bg-primary/5" 
-                              : "border-muted hover:border-primary/50"
-                          }`}
-                        >
-                          <RadioGroupItem value="vendor" id="vendor" className="sr-only" />
-                          <Truck className="h-8 w-8 mb-2" />
-                          <span className="font-heading font-bold text-sm">Vendor</span>
-                        </Label>
-                        <Label
-                          htmlFor="chef"
-                          className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-all ${
-                            role === "chef" 
-                              ? "border-primary bg-primary/5" 
-                              : "border-muted hover:border-primary/50"
-                          }`}
-                        >
-                          <RadioGroupItem value="chef" id="chef" className="sr-only" />
-                          <ChefHat className="h-8 w-8 mb-2" />
-                          <span className="font-heading font-bold text-sm">Chef</span>
-                        </Label>
-                      </RadioGroup>
-                    </div>
-                  )}
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="fullName">Full Name</Label>
+            {isResettingPassword ? (
+              <form onSubmit={handlePasswordReset} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="newPassword">New Password</Label>
+                  <div className="relative">
                     <Input
-                      id="fullName"
-                      type="text"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      required={!isLogin}
-                      placeholder="John Doe"
+                      id="newPassword"
+                      type={showPassword ? "text" : "password"}
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      required
+                      placeholder="••••••••"
+                      minLength={6}
+                      className="pr-10"
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
                   </div>
-                </>
-              )}
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  placeholder="vendor@example.com"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <div className="relative">
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">Confirm Password</Label>
                   <Input
-                    id="password"
+                    id="confirmPassword"
                     type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
                     required
                     placeholder="••••••••"
                     minLength={6}
-                    className="pr-10"
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
                 </div>
-              </div>
 
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="staySignedIn" 
-                    checked={staySignedIn}
-                    onCheckedChange={(checked) => setStaySignedIn(checked as boolean)}
-                  />
-                  <label
-                    htmlFor="staySignedIn"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                  >
-                    Stay signed in
-                  </label>
-                </div>
-                {isLogin && (
-                  <button
-                    type="button"
-                    onClick={handleForgotPassword}
-                    disabled={resetLoading}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {resetLoading ? "Sending..." : "Forgot password?"}
-                  </button>
-                )}
-              </div>
-
-              <Button
-                type="submit"
-                className="w-full font-heading font-bold"
-                disabled={loading}
-              >
-                {loading ? "Please wait..." : isLogin ? "Sign In" : "Sign Up"}
-              </Button>
-            </form>
-
-            {/* Hide signup option for admin mode */}
-            {!isAdminMode && (
-              <div className="mt-4 text-center">
-                <button
-                  type="button"
-                  onClick={() => setIsLogin(!isLogin)}
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                <Button
+                  type="submit"
+                  className="w-full font-heading font-bold"
+                  disabled={loading}
                 >
-                  {isLogin
-                    ? "Don't have an account? Sign up"
-                    : "Already have an account? Sign in"}
-                </button>
-              </div>
+                  {loading ? "Please wait..." : "Update Password"}
+                </Button>
+              </form>
+            ) : (
+              <>
+                <form onSubmit={handleAuth} className="space-y-4">
+                  {!isLogin && (
+                    <>
+                      {role !== 'admin' && (
+                        <div className="space-y-4">
+                          <Label>Join as</Label>
+                          <RadioGroup value={role} onValueChange={(value) => setRole(value as "vendor" | "chef" | "admin")} className="grid grid-cols-2 gap-4">
+                            <Label
+                              htmlFor="vendor"
+                              className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-all ${
+                                role === "vendor" 
+                                  ? "border-primary bg-primary/5" 
+                                  : "border-muted hover:border-primary/50"
+                              }`}
+                            >
+                              <RadioGroupItem value="vendor" id="vendor" className="sr-only" />
+                              <Truck className="h-8 w-8 mb-2" />
+                              <span className="font-heading font-bold text-sm">Vendor</span>
+                            </Label>
+                            <Label
+                              htmlFor="chef"
+                              className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-all ${
+                                role === "chef" 
+                                  ? "border-primary bg-primary/5" 
+                                  : "border-muted hover:border-primary/50"
+                              }`}
+                            >
+                              <RadioGroupItem value="chef" id="chef" className="sr-only" />
+                              <ChefHat className="h-8 w-8 mb-2" />
+                              <span className="font-heading font-bold text-sm">Chef</span>
+                            </Label>
+                          </RadioGroup>
+                        </div>
+                      )}
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="fullName">Full Name</Label>
+                        <Input
+                          id="fullName"
+                          type="text"
+                          value={fullName}
+                          onChange={(e) => setFullName(e.target.value)}
+                          required={!isLogin}
+                          placeholder="John Doe"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      placeholder="vendor@example.com"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Password</Label>
+                    <div className="relative">
+                      <Input
+                        id="password"
+                        type={showPassword ? "text" : "password"}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        placeholder="••••••••"
+                        minLength={6}
+                        className="pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox 
+                        id="staySignedIn" 
+                        checked={staySignedIn}
+                        onCheckedChange={(checked) => setStaySignedIn(checked as boolean)}
+                      />
+                      <label
+                        htmlFor="staySignedIn"
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                      >
+                        Stay signed in
+                      </label>
+                    </div>
+                    {isLogin && (
+                      <button
+                        type="button"
+                        onClick={handleForgotPassword}
+                        disabled={resetLoading}
+                        className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        {resetLoading ? "Sending..." : "Forgot password?"}
+                      </button>
+                    )}
+                  </div>
+
+                  <Button
+                    type="submit"
+                    className="w-full font-heading font-bold"
+                    disabled={loading}
+                  >
+                    {loading ? "Please wait..." : isLogin ? "Sign In" : "Sign Up"}
+                  </Button>
+                </form>
+
+                {/* Hide signup option for admin mode */}
+                {!isAdminMode && (
+                  <div className="mt-4 text-center">
+                    <button
+                      type="button"
+                      onClick={() => setIsLogin(!isLogin)}
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {isLogin
+                        ? "Don't have an account? Sign up"
+                        : "Already have an account? Sign in"}
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </CardContent>
         </Card>
