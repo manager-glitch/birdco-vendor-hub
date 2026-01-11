@@ -7,9 +7,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { ArrowLeft, Send, Loader2 } from "lucide-react";
+import { ArrowLeft, Send, Loader2, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
+interface VendorProfile {
+  id: string;
+  full_name: string | null;
+  company_name: string | null;
+}
 
 interface Message {
   id: string;
@@ -36,6 +48,10 @@ const AdminChat = () => {
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [showNewMessageDialog, setShowNewMessageDialog] = useState(false);
+  const [allVendors, setAllVendors] = useState<VendorProfile[]>([]);
+  const [vendorSearch, setVendorSearch] = useState("");
+  const [loadingVendors, setLoadingVendors] = useState(false);
 
   useEffect(() => {
     if (!user || !isAdmin) {
@@ -196,6 +212,64 @@ const AdminChat = () => {
     }
   };
 
+  const loadAllVendors = async () => {
+    setLoadingVendors(true);
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, full_name, company_name')
+        .order('full_name');
+
+      if (error) throw error;
+      setAllVendors(data || []);
+    } catch (error) {
+      console.error('Error loading vendors:', error);
+      toast.error('Failed to load vendors');
+    } finally {
+      setLoadingVendors(false);
+    }
+  };
+
+  const handleStartConversation = async (vendorId: string) => {
+    try {
+      // Check if conversation already exists
+      const existingConv = conversations.find(c => c.vendor_id === vendorId);
+      if (existingConv) {
+        setSelectedConversation(existingConv.id);
+        setShowNewMessageDialog(false);
+        setVendorSearch("");
+        return;
+      }
+
+      // Create new conversation
+      const { data, error } = await supabase
+        .from('conversations')
+        .insert({ vendor_id: vendorId })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Refresh conversations and select the new one
+      await loadConversations();
+      setSelectedConversation(data.id);
+      setShowNewMessageDialog(false);
+      setVendorSearch("");
+      toast.success('Conversation started');
+    } catch (error) {
+      console.error('Error starting conversation:', error);
+      toast.error('Failed to start conversation');
+    }
+  };
+
+  const filteredVendors = allVendors.filter(v => {
+    const searchLower = vendorSearch.toLowerCase();
+    return (
+      v.full_name?.toLowerCase().includes(searchLower) ||
+      v.company_name?.toLowerCase().includes(searchLower)
+    );
+  });
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -222,7 +296,19 @@ const AdminChat = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-[calc(100vh-120px)]">
           {/* Conversations List */}
           <Card className="p-4 col-span-1">
-            <h2 className="font-heading font-bold text-lg mb-4">Vendor Conversations</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-heading font-bold text-lg">Vendor Conversations</h2>
+              <Button
+                size="sm"
+                onClick={() => {
+                  setShowNewMessageDialog(true);
+                  loadAllVendors();
+                }}
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                New
+              </Button>
+            </div>
             <ScrollArea className="h-[calc(100%-3rem)]">
               <div className="space-y-2">
                 {conversations.length === 0 ? (
@@ -331,6 +417,64 @@ const AdminChat = () => {
             )}
           </Card>
         </div>
+
+        {/* New Message Dialog */}
+        <Dialog open={showNewMessageDialog} onOpenChange={(open) => {
+          setShowNewMessageDialog(open);
+          if (!open) setVendorSearch("");
+        }}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Start New Conversation</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <Input
+                placeholder="Search vendors..."
+                value={vendorSearch}
+                onChange={(e) => setVendorSearch(e.target.value)}
+              />
+              <ScrollArea className="h-[300px]">
+                {loadingVendors ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-6 w-6 animate-spin" />
+                  </div>
+                ) : filteredVendors.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-8">
+                    No vendors found
+                  </p>
+                ) : (
+                  <div className="space-y-2">
+                    {filteredVendors.map((vendor) => {
+                      const hasExisting = conversations.some(c => c.vendor_id === vendor.id);
+                      return (
+                        <button
+                          key={vendor.id}
+                          onClick={() => handleStartConversation(vendor.id)}
+                          className="w-full p-3 rounded-lg text-left hover:bg-muted transition-colors flex items-center gap-3"
+                        >
+                          <Avatar>
+                            <AvatarFallback>
+                              {(vendor.full_name || vendor.company_name || 'V').substring(0, 2).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1">
+                            <p className="font-medium">{vendor.full_name || 'No name'}</p>
+                            {vendor.company_name && (
+                              <p className="text-xs text-muted-foreground">{vendor.company_name}</p>
+                            )}
+                          </div>
+                          {hasExisting && (
+                            <span className="text-xs text-muted-foreground">Existing</span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </ScrollArea>
+            </div>
+          </DialogContent>
+        </Dialog>
       </main>
     </div>
   );
