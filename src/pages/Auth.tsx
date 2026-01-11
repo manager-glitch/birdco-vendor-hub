@@ -20,8 +20,42 @@ const Auth = () => {
   const [staySignedIn, setStaySignedIn] = useState(true);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      toast({
+        title: "Email required",
+        description: "Please enter your email address first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setResetLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth`,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Check your email",
+        description: "We've sent you a password reset link.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setResetLoading(false);
+    }
+  };
 
   useEffect(() => {
     const roleParam = searchParams.get('role');
@@ -237,18 +271,30 @@ const Auth = () => {
                 </div>
               </div>
 
-              <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="staySignedIn" 
-                  checked={staySignedIn}
-                  onCheckedChange={(checked) => setStaySignedIn(checked as boolean)}
-                />
-                <label
-                  htmlFor="staySignedIn"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                >
-                  Stay signed in
-                </label>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="staySignedIn" 
+                    checked={staySignedIn}
+                    onCheckedChange={(checked) => setStaySignedIn(checked as boolean)}
+                  />
+                  <label
+                    htmlFor="staySignedIn"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                  >
+                    Stay signed in
+                  </label>
+                </div>
+                {isLogin && (
+                  <button
+                    type="button"
+                    onClick={handleForgotPassword}
+                    disabled={resetLoading}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {resetLoading ? "Sending..." : "Forgot password?"}
+                  </button>
+                )}
               </div>
 
               <Button
