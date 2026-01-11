@@ -11,8 +11,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, MapPin, Plus, Users, Edit, Eye, Phone, ArrowLeft, Trash2, Bell, Users2 } from "lucide-react";
+import { Calendar, MapPin, Plus, Users, Edit, Eye, Phone, ArrowLeft, Trash2, Bell, Users2, Tag, X } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface Opportunity {
   id: string;
@@ -24,6 +25,20 @@ interface Opportunity {
   status: string;
   role: string;
   guest_count: number | null;
+  tagged_profiles?: TaggedProfile[];
+}
+
+interface TaggedProfile {
+  id: string;
+  profile_id: string;
+  full_name: string;
+  company_name: string;
+}
+
+interface Profile {
+  id: string;
+  full_name: string | null;
+  company_name: string | null;
 }
 
 interface ApplicationWithProfile {
@@ -48,12 +63,14 @@ const Admin = () => {
   const { toast } = useToast();
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
   const [applications, setApplications] = useState<ApplicationWithProfile[]>([]);
+  const [allProfiles, setAllProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isApplicantsDialogOpen, setIsApplicantsDialogOpen] = useState(false);
   const [selectedOpportunity, setSelectedOpportunity] = useState<Opportunity | null>(null);
   const [opportunityApplicants, setOpportunityApplicants] = useState<ApplicationWithProfile[]>([]);
+  const [selectedTaggedProfiles, setSelectedTaggedProfiles] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -99,22 +116,45 @@ const Admin = () => {
 
   const fetchData = async () => {
     try {
-      const [oppsResult, appsResult] = await Promise.all([
+      const [oppsResult, appsResult, profilesResult, taggedResult] = await Promise.all([
         supabase.from("opportunities").select("*").order("created_at", { ascending: false }),
         supabase
           .from("applications")
           .select("id, status, message, created_at, vendor_id, opportunity_id")
           .order("created_at", { ascending: false }),
+        supabase.from("profiles").select("id, full_name, company_name"),
+        supabase.from("opportunity_tagged_profiles").select("id, opportunity_id, profile_id"),
       ]);
 
-      if (oppsResult.data) setOpportunities(oppsResult.data);
+      // Set all profiles for the tagging dropdown
+      if (profilesResult.data) {
+        setAllProfiles(profilesResult.data);
+      }
+
+      // Combine opportunities with their tagged profiles
+      if (oppsResult.data) {
+        const oppsWithTags = oppsResult.data.map(opp => {
+          const tags = taggedResult.data?.filter(t => t.opportunity_id === opp.id) || [];
+          const taggedProfiles = tags.map(tag => {
+            const profile = profilesResult.data?.find(p => p.id === tag.profile_id);
+            return {
+              id: tag.id,
+              profile_id: tag.profile_id,
+              full_name: profile?.full_name || "Unknown",
+              company_name: profile?.company_name || "",
+            };
+          });
+          return { ...opp, tagged_profiles: taggedProfiles };
+        });
+        setOpportunities(oppsWithTags);
+      }
       
       // Fetch profiles for applications
       if (appsResult.data && appsResult.data.length > 0) {
         const vendorIds = appsResult.data.map(app => app.vendor_id);
         const oppIds = appsResult.data.map(app => app.opportunity_id);
         
-        const [profilesResult, oppsForAppsResult] = await Promise.all([
+        const [appProfilesResult, oppsForAppsResult] = await Promise.all([
           supabase.from("profiles").select("id, full_name, company_name, phone").in("id", vendorIds),
           supabase.from("opportunities").select("id, title").in("id", oppIds)
         ]);
@@ -122,7 +162,7 @@ const Admin = () => {
         // Combine the data
         const combinedApps = appsResult.data.map(app => ({
           ...app,
-          profiles: profilesResult.data?.find(p => p.id === app.vendor_id) || null,
+          profiles: appProfilesResult.data?.find(p => p.id === app.vendor_id) || null,
           opportunities: oppsForAppsResult.data?.find(o => o.id === app.opportunity_id) || null
         }));
 
@@ -162,7 +202,7 @@ const Admin = () => {
       const rolesToCreate = formData.role === "both" ? ["vendor", "chef"] : [formData.role];
       
       for (const role of rolesToCreate) {
-        const { error } = await supabase.from("opportunities").insert({
+        const { data: newOpp, error } = await supabase.from("opportunities").insert({
           title: formData.title,
           description: formData.description,
           event_date: formData.event_date,
@@ -172,9 +212,23 @@ const Admin = () => {
           role: role as "vendor" | "chef",
           created_by: user!.id,
           status: "open",
-        });
+        }).select().single();
 
         if (error) throw error;
+
+        // Insert tagged profiles if any selected
+        if (selectedTaggedProfiles.length > 0 && newOpp) {
+          const tagsToInsert = selectedTaggedProfiles.map(profileId => ({
+            opportunity_id: newOpp.id,
+            profile_id: profileId,
+          }));
+          
+          const { error: tagError } = await supabase
+            .from("opportunity_tagged_profiles")
+            .insert(tagsToInsert);
+          
+          if (tagError) console.error("Error tagging profiles:", tagError);
+        }
 
         // Send push notification to relevant users
         sendPushNotification(
@@ -200,6 +254,7 @@ const Admin = () => {
         details: "",
         role: "vendor",
       });
+      setSelectedTaggedProfiles([]);
       setIsDialogOpen(false);
       fetchData();
     } catch (error: any) {
@@ -222,6 +277,8 @@ const Admin = () => {
       details: opportunity.details || "",
       role: opportunity.role as "vendor" | "chef",
     });
+    // Set existing tagged profiles
+    setSelectedTaggedProfiles(opportunity.tagged_profiles?.map(tp => tp.profile_id) || []);
     setIsEditDialogOpen(true);
   };
 
@@ -248,6 +305,25 @@ const Admin = () => {
 
       if (error) throw error;
 
+      // Update tagged profiles: delete existing and insert new
+      await supabase
+        .from("opportunity_tagged_profiles")
+        .delete()
+        .eq("opportunity_id", selectedOpportunity.id);
+
+      if (selectedTaggedProfiles.length > 0) {
+        const tagsToInsert = selectedTaggedProfiles.map(profileId => ({
+          opportunity_id: selectedOpportunity.id,
+          profile_id: profileId,
+        }));
+        
+        const { error: tagError } = await supabase
+          .from("opportunity_tagged_profiles")
+          .insert(tagsToInsert);
+        
+        if (tagError) console.error("Error tagging profiles:", tagError);
+      }
+
       toast({
         title: "Opportunity updated!",
         description: "Changes have been saved.",
@@ -262,6 +338,7 @@ const Admin = () => {
         details: "",
         role: "vendor",
       });
+      setSelectedTaggedProfiles([]);
       setIsEditDialogOpen(false);
       setSelectedOpportunity(null);
       fetchData();
@@ -272,6 +349,14 @@ const Admin = () => {
         variant: "destructive",
       });
     }
+  };
+
+  const toggleProfileTag = (profileId: string) => {
+    setSelectedTaggedProfiles(prev => 
+      prev.includes(profileId)
+        ? prev.filter(id => id !== profileId)
+        : [...prev, profileId]
+    );
   };
 
   const handleDelete = async (opportunityId: string) => {
@@ -466,6 +551,49 @@ const Admin = () => {
                   />
                 </div>
 
+                <div className="space-y-2">
+                  <Label>Tag Specific Profiles (Optional)</Label>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    Select vendors/chefs that have been specifically requested for this event
+                  </p>
+                  {selectedTaggedProfiles.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {selectedTaggedProfiles.map(profileId => {
+                        const profile = allProfiles.find(p => p.id === profileId);
+                        return (
+                          <Badge key={profileId} variant="secondary" className="flex items-center gap-1">
+                            {profile?.full_name || profile?.company_name || "Unknown"}
+                            <X 
+                              className="h-3 w-3 cursor-pointer hover:text-destructive" 
+                              onClick={() => toggleProfileTag(profileId)} 
+                            />
+                          </Badge>
+                        );
+                      })}
+                    </div>
+                  )}
+                  <div className="max-h-40 overflow-y-auto border rounded-md p-2 space-y-1">
+                    {allProfiles.filter(p => p.full_name || p.company_name).map(profile => (
+                      <div key={profile.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`profile-${profile.id}`}
+                          checked={selectedTaggedProfiles.includes(profile.id)}
+                          onCheckedChange={() => toggleProfileTag(profile.id)}
+                        />
+                        <label
+                          htmlFor={`profile-${profile.id}`}
+                          className="text-sm cursor-pointer flex-1"
+                        >
+                          {profile.full_name}{profile.company_name && ` (${profile.company_name})`}
+                        </label>
+                      </div>
+                    ))}
+                    {allProfiles.filter(p => p.full_name || p.company_name).length === 0 && (
+                      <p className="text-sm text-muted-foreground text-center py-2">No profiles available</p>
+                    )}
+                  </div>
+                </div>
+
                 <Button type="submit" className="w-full font-heading font-bold">
                   Create Opportunity
                 </Button>
@@ -557,10 +685,22 @@ const Admin = () => {
                         <span>{opp.guest_count} guests</span>
                       </div>
                     )}
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <Badge variant={opp.status === "open" ? "default" : "secondary"}>{opp.status}</Badge>
                       <Badge variant="outline">{opp.role}</Badge>
                     </div>
+                    {opp.tagged_profiles && opp.tagged_profiles.length > 0 && (
+                      <div className="flex items-start gap-2 pt-2">
+                        <Tag className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
+                        <div className="flex flex-wrap gap-1">
+                          {opp.tagged_profiles.map(tp => (
+                            <Badge key={tp.id} variant="secondary" className="text-xs">
+                              {tp.full_name}{tp.company_name && ` (${tp.company_name})`}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               ))}
@@ -687,6 +827,49 @@ const Admin = () => {
               />
             </div>
 
+            <div className="space-y-2">
+              <Label>Tag Specific Profiles (Optional)</Label>
+              <p className="text-xs text-muted-foreground mb-2">
+                Select vendors/chefs that have been specifically requested for this event
+              </p>
+              {selectedTaggedProfiles.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {selectedTaggedProfiles.map(profileId => {
+                    const profile = allProfiles.find(p => p.id === profileId);
+                    return (
+                      <Badge key={profileId} variant="secondary" className="flex items-center gap-1">
+                        {profile?.full_name || profile?.company_name || "Unknown"}
+                        <X 
+                          className="h-3 w-3 cursor-pointer hover:text-destructive" 
+                          onClick={() => toggleProfileTag(profileId)} 
+                        />
+                      </Badge>
+                    );
+                  })}
+                </div>
+              )}
+              <div className="max-h-40 overflow-y-auto border rounded-md p-2 space-y-1">
+                {allProfiles.filter(p => p.full_name || p.company_name).map(profile => (
+                  <div key={profile.id} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`edit-profile-${profile.id}`}
+                      checked={selectedTaggedProfiles.includes(profile.id)}
+                      onCheckedChange={() => toggleProfileTag(profile.id)}
+                    />
+                    <label
+                      htmlFor={`edit-profile-${profile.id}`}
+                      className="text-sm cursor-pointer flex-1"
+                    >
+                      {profile.full_name}{profile.company_name && ` (${profile.company_name})`}
+                    </label>
+                  </div>
+                ))}
+                {allProfiles.filter(p => p.full_name || p.company_name).length === 0 && (
+                  <p className="text-sm text-muted-foreground text-center py-2">No profiles available</p>
+                )}
+              </div>
+            </div>
+
             <div className="flex gap-3">
               <Button type="submit" className="flex-1 font-heading font-bold">
                 Update Opportunity
@@ -697,6 +880,7 @@ const Admin = () => {
                 onClick={() => {
                   setIsEditDialogOpen(false);
                   setSelectedOpportunity(null);
+                  setSelectedTaggedProfiles([]);
                 }}
               >
                 Cancel
