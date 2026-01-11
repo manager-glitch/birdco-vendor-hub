@@ -196,6 +196,27 @@ const Admin = () => {
     }
   };
 
+  const sendTaggedProfileNotification = async (userIds: string[], opportunityTitle: string, location: string) => {
+    if (userIds.length === 0) return;
+    
+    try {
+      const { error } = await supabase.functions.invoke("send-push-notification", {
+        body: { 
+          title: "You've Been Requested!",
+          body: `You've been specifically requested for: ${opportunityTitle} - ${location}`,
+          user_ids: userIds,
+        },
+      });
+      if (error) {
+        console.error("Tagged profile notification error:", error);
+      } else {
+        console.log("Notifications sent to tagged profiles:", userIds.length);
+      }
+    } catch (err) {
+      console.error("Failed to send tagged profile notification:", err);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -228,6 +249,13 @@ const Admin = () => {
             .insert(tagsToInsert);
           
           if (tagError) console.error("Error tagging profiles:", tagError);
+
+          // Send notification to specifically tagged profiles
+          sendTaggedProfileNotification(
+            selectedTaggedProfiles,
+            formData.title,
+            formData.location
+          );
         }
 
         // Send push notification to relevant users
@@ -305,6 +333,10 @@ const Admin = () => {
 
       if (error) throw error;
 
+      // Get existing tagged profiles to determine newly added ones
+      const existingTaggedIds = selectedOpportunity.tagged_profiles?.map(tp => tp.profile_id) || [];
+      const newlyTaggedIds = selectedTaggedProfiles.filter(id => !existingTaggedIds.includes(id));
+
       // Update tagged profiles: delete existing and insert new
       await supabase
         .from("opportunity_tagged_profiles")
@@ -322,6 +354,15 @@ const Admin = () => {
           .insert(tagsToInsert);
         
         if (tagError) console.error("Error tagging profiles:", tagError);
+
+        // Send notification only to newly tagged profiles
+        if (newlyTaggedIds.length > 0) {
+          sendTaggedProfileNotification(
+            newlyTaggedIds,
+            formData.title,
+            formData.location
+          );
+        }
       }
 
       toast({
