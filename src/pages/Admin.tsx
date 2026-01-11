@@ -71,6 +71,7 @@ const Admin = () => {
   const [selectedOpportunity, setSelectedOpportunity] = useState<Opportunity | null>(null);
   const [opportunityApplicants, setOpportunityApplicants] = useState<ApplicationWithProfile[]>([]);
   const [selectedTaggedProfiles, setSelectedTaggedProfiles] = useState<string[]>([]);
+  const [profileSearch, setProfileSearch] = useState("");
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -283,6 +284,7 @@ const Admin = () => {
         role: "vendor",
       });
       setSelectedTaggedProfiles([]);
+      setProfileSearch("");
       setIsDialogOpen(false);
       fetchData();
     } catch (error: any) {
@@ -380,6 +382,7 @@ const Admin = () => {
         role: "vendor",
       });
       setSelectedTaggedProfiles([]);
+      setProfileSearch("");
       setIsEditDialogOpen(false);
       setSelectedOpportunity(null);
       fetchData();
@@ -613,24 +616,44 @@ const Admin = () => {
                       })}
                     </div>
                   )}
+                  <Input
+                    placeholder="Search profiles..."
+                    value={profileSearch}
+                    onChange={(e) => setProfileSearch(e.target.value)}
+                    className="mb-2"
+                  />
                   <div className="max-h-40 overflow-y-auto border rounded-md p-2 space-y-1">
-                    {allProfiles.filter(p => p.full_name || p.company_name).map(profile => (
-                      <div key={profile.id} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`profile-${profile.id}`}
-                          checked={selectedTaggedProfiles.includes(profile.id)}
-                          onCheckedChange={() => toggleProfileTag(profile.id)}
-                        />
-                        <label
-                          htmlFor={`profile-${profile.id}`}
-                          className="text-sm cursor-pointer flex-1"
-                        >
-                          {profile.full_name}{profile.company_name && ` (${profile.company_name})`}
-                        </label>
-                      </div>
-                    ))}
-                    {allProfiles.filter(p => p.full_name || p.company_name).length === 0 && (
-                      <p className="text-sm text-muted-foreground text-center py-2">No profiles available</p>
+                    {allProfiles
+                      .filter(p => p.full_name || p.company_name)
+                      .filter(p => {
+                        const searchLower = profileSearch.toLowerCase();
+                        return (
+                          p.full_name?.toLowerCase().includes(searchLower) ||
+                          p.company_name?.toLowerCase().includes(searchLower)
+                        );
+                      })
+                      .map(profile => (
+                        <div key={profile.id} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`profile-${profile.id}`}
+                            checked={selectedTaggedProfiles.includes(profile.id)}
+                            onCheckedChange={() => toggleProfileTag(profile.id)}
+                          />
+                          <label
+                            htmlFor={`profile-${profile.id}`}
+                            className="text-sm cursor-pointer flex-1"
+                          >
+                            {profile.full_name}{profile.company_name && ` (${profile.company_name})`}
+                          </label>
+                        </div>
+                      ))}
+                    {allProfiles.filter(p => p.full_name || p.company_name).filter(p => {
+                      const searchLower = profileSearch.toLowerCase();
+                      return p.full_name?.toLowerCase().includes(searchLower) || p.company_name?.toLowerCase().includes(searchLower);
+                    }).length === 0 && (
+                      <p className="text-sm text-muted-foreground text-center py-2">
+                        {profileSearch ? "No matching profiles" : "No profiles available"}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -889,24 +912,44 @@ const Admin = () => {
                   })}
                 </div>
               )}
+              <Input
+                placeholder="Search profiles..."
+                value={profileSearch}
+                onChange={(e) => setProfileSearch(e.target.value)}
+                className="mb-2"
+              />
               <div className="max-h-40 overflow-y-auto border rounded-md p-2 space-y-1">
-                {allProfiles.filter(p => p.full_name || p.company_name).map(profile => (
-                  <div key={profile.id} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`edit-profile-${profile.id}`}
-                      checked={selectedTaggedProfiles.includes(profile.id)}
-                      onCheckedChange={() => toggleProfileTag(profile.id)}
-                    />
-                    <label
-                      htmlFor={`edit-profile-${profile.id}`}
-                      className="text-sm cursor-pointer flex-1"
-                    >
-                      {profile.full_name}{profile.company_name && ` (${profile.company_name})`}
-                    </label>
-                  </div>
-                ))}
-                {allProfiles.filter(p => p.full_name || p.company_name).length === 0 && (
-                  <p className="text-sm text-muted-foreground text-center py-2">No profiles available</p>
+                {allProfiles
+                  .filter(p => p.full_name || p.company_name)
+                  .filter(p => {
+                    const searchLower = profileSearch.toLowerCase();
+                    return (
+                      p.full_name?.toLowerCase().includes(searchLower) ||
+                      p.company_name?.toLowerCase().includes(searchLower)
+                    );
+                  })
+                  .map(profile => (
+                    <div key={profile.id} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`edit-profile-${profile.id}`}
+                        checked={selectedTaggedProfiles.includes(profile.id)}
+                        onCheckedChange={() => toggleProfileTag(profile.id)}
+                      />
+                      <label
+                        htmlFor={`edit-profile-${profile.id}`}
+                        className="text-sm cursor-pointer flex-1"
+                      >
+                        {profile.full_name}{profile.company_name && ` (${profile.company_name})`}
+                      </label>
+                    </div>
+                  ))}
+                {allProfiles.filter(p => p.full_name || p.company_name).filter(p => {
+                  const searchLower = profileSearch.toLowerCase();
+                  return p.full_name?.toLowerCase().includes(searchLower) || p.company_name?.toLowerCase().includes(searchLower);
+                }).length === 0 && (
+                  <p className="text-sm text-muted-foreground text-center py-2">
+                    {profileSearch ? "No matching profiles" : "No profiles available"}
+                  </p>
                 )}
               </div>
             </div>
