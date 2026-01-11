@@ -501,7 +501,7 @@ const Admin = () => {
                   New Opportunity
                 </Button>
               </DialogTrigger>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle className="font-heading text-2xl">Create New Opportunity</DialogTitle>
                 <DialogDescription>Add a new event opportunity for vendors</DialogDescription>
