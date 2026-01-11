@@ -57,9 +57,15 @@ const CompleteRegistration = () => {
   };
 
   useEffect(() => {
+    // Admins don't need to complete registration
+    if (userRole === 'admin') {
+      navigate('/dashboard');
+      return;
+    }
+    
     if (!user) return;
     loadExistingData();
-  }, [user]);
+  }, [user, userRole, navigate]);
 
   const loadExistingData = async () => {
     if (!user) return;
