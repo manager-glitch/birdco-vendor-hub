@@ -56,14 +56,14 @@ const CompleteRegistration = () => {
     hygiene_rating: "Hygiene Rating Certificate",
     food_safety_certificate: "Food Safety Certificate",
     allergen_information: "Allergen Information",
-    signed_contract: "Signed Vendor Contract"
+    signed_contract: "Contract"
   };
 
   const chefDocumentLabels: Record<string, string> = {
     level_3_hygiene_cert: "Level 3 Hygiene Certificate",
     dbs_check: "DBS Check",
     public_liability_insurance: "Public Liability Insurance",
-    signed_contract: "Signed Chef Contract"
+    signed_contract: "Chef Contract"
   };
 
   const documentLabels = isChef ? chefDocumentLabels : vendorDocumentLabels;
