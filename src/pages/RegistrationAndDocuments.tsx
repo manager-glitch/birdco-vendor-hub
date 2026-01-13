@@ -43,11 +43,10 @@ const RegistrationAndDocuments = () => {
     signed_contract: "Signed Contract"
   };
   const chefDocumentLabels: Record<string, string> = {
-    food_safety_certificate: "Level 3 Hygiene Cert",
-    right_to_work: "Right to Work Documentation",
-    dbs_certificate: "DBS Certificate",
+    level_3_hygiene_cert: "Level 3 Hygiene Certificate",
+    dbs_check: "DBS Check",
     public_liability_insurance: "Public Liability Insurance",
-    signed_contract: "Signed Contract"
+    signed_contract: "Signed Chef Contract"
   };
   const documentLabels = userRole === 'chef' ? chefDocumentLabels : vendorDocumentLabels;
   useEffect(() => {

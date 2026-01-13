@@ -13,13 +13,22 @@ import { toast } from "sonner";
 import { Upload, FileText, CheckCircle, Pen, ArrowLeft } from "lucide-react";
 import { ContractSigningDialog } from "@/components/ContractSigningDialog";
 
-interface DocumentStatus {
+interface VendorDocumentStatus {
   public_liability_insurance: boolean;
   hygiene_rating: boolean;
   food_safety_certificate: boolean;
   allergen_information: boolean;
   signed_contract: boolean;
 }
+
+interface ChefDocumentStatus {
+  level_3_hygiene_cert: boolean;
+  dbs_check: boolean;
+  public_liability_insurance: boolean;
+  signed_contract: boolean;
+}
+
+type DocumentStatus = VendorDocumentStatus | ChefDocumentStatus;
 
 const CompleteRegistration = () => {
   const navigate = useNavigate();
@@ -40,21 +49,44 @@ const CompleteRegistration = () => {
     years_in_business: ""
   });
 
-  const [documents, setDocuments] = useState<DocumentStatus>({
-    public_liability_insurance: false,
-    hygiene_rating: false,
-    food_safety_certificate: false,
-    allergen_information: false,
-    signed_contract: false
-  });
+  const isChef = userRole === 'chef';
 
-  const documentLabels = {
+  const vendorDocumentLabels: Record<string, string> = {
     public_liability_insurance: "Public Liability Insurance",
     hygiene_rating: "Hygiene Rating Certificate",
     food_safety_certificate: "Food Safety Certificate",
     allergen_information: "Allergen Information",
-    signed_contract: "Signed Contract"
+    signed_contract: "Signed Vendor Contract"
   };
+
+  const chefDocumentLabels: Record<string, string> = {
+    level_3_hygiene_cert: "Level 3 Hygiene Certificate",
+    dbs_check: "DBS Check",
+    public_liability_insurance: "Public Liability Insurance",
+    signed_contract: "Signed Chef Contract"
+  };
+
+  const documentLabels = isChef ? chefDocumentLabels : vendorDocumentLabels;
+
+  const getInitialDocuments = () => {
+    if (isChef) {
+      return {
+        level_3_hygiene_cert: false,
+        dbs_check: false,
+        public_liability_insurance: false,
+        signed_contract: false
+      };
+    }
+    return {
+      public_liability_insurance: false,
+      hygiene_rating: false,
+      food_safety_certificate: false,
+      allergen_information: false,
+      signed_contract: false
+    };
+  };
+
+  const [documents, setDocuments] = useState<Record<string, boolean>>(getInitialDocuments());
 
   useEffect(() => {
     // Admins don't need to complete registration
@@ -95,16 +127,12 @@ const CompleteRegistration = () => {
       .eq("vendor_id", user.id);
 
     if (uploadedDocs) {
-      const docStatus: DocumentStatus = {
-        public_liability_insurance: false,
-        hygiene_rating: false,
-        food_safety_certificate: false,
-        allergen_information: false,
-        signed_contract: false
-      };
+      const docStatus = getInitialDocuments();
       
       uploadedDocs.forEach(doc => {
-        docStatus[doc.document_type as keyof DocumentStatus] = true;
+        if (doc.document_type in docStatus) {
+          docStatus[doc.document_type] = true;
+        }
       });
       
       setDocuments(docStatus);
@@ -149,7 +177,7 @@ const CompleteRegistration = () => {
     }
   };
 
-  const handleFileUpload = async (documentType: keyof DocumentStatus, file: File) => {
+  const handleFileUpload = async (documentType: string, file: File) => {
     if (!user) return;
 
     if (file.size > 10 * 1024 * 1024) {
@@ -251,9 +279,12 @@ const CompleteRegistration = () => {
         {step === 1 && (
           <Card>
             <CardHeader>
-              <CardTitle>Business Information</CardTitle>
+              <CardTitle>{isChef ? 'Chef Information' : 'Business Information'}</CardTitle>
               <CardDescription>
-                Tell us about your business. All fields marked with * are required.
+                {isChef 
+                  ? 'Tell us about yourself and your culinary experience. All fields marked with * are required.'
+                  : 'Tell us about your business. All fields marked with * are required.'
+                }
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -269,15 +300,17 @@ const CompleteRegistration = () => {
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="company_name">Business Name *</Label>
-                    <Input
-                      id="company_name"
-                      value={profileData.company_name}
-                      onChange={(e) => setProfileData({ ...profileData, company_name: e.target.value })}
-                      required
-                    />
-                  </div>
+                  {!isChef && (
+                    <div className="space-y-2">
+                      <Label htmlFor="company_name">Business Name *</Label>
+                      <Input
+                        id="company_name"
+                        value={profileData.company_name}
+                        onChange={(e) => setProfileData({ ...profileData, company_name: e.target.value })}
+                        required
+                      />
+                    </div>
+                  )}
 
                   <div className="space-y-2">
                     <Label htmlFor="phone">Phone Number *</Label>
@@ -302,7 +335,7 @@ const CompleteRegistration = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="business_type">Business Type *</Label>
+                    <Label htmlFor="business_type">{isChef ? 'Chef Type *' : 'Business Type *'}</Label>
                     <Select
                       value={profileData.business_type}
                       onValueChange={(value) => setProfileData({ ...profileData, business_type: value })}
@@ -311,17 +344,29 @@ const CompleteRegistration = () => {
                         <SelectValue placeholder="Select type" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="food_truck">Food Truck</SelectItem>
-                        <SelectItem value="catering">Catering Service</SelectItem>
-                        <SelectItem value="pop_up">Pop-up Restaurant</SelectItem>
-                        <SelectItem value="vendor_stall">Vendor Stall</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
+                        {isChef ? (
+                          <>
+                            <SelectItem value="private_chef">Private Chef</SelectItem>
+                            <SelectItem value="freelance_chef">Freelance Chef</SelectItem>
+                            <SelectItem value="catering_chef">Catering Chef</SelectItem>
+                            <SelectItem value="sous_chef">Sous Chef</SelectItem>
+                            <SelectItem value="other">Other</SelectItem>
+                          </>
+                        ) : (
+                          <>
+                            <SelectItem value="food_truck">Food Truck</SelectItem>
+                            <SelectItem value="catering">Catering Service</SelectItem>
+                            <SelectItem value="pop_up">Pop-up Restaurant</SelectItem>
+                            <SelectItem value="vendor_stall">Vendor Stall</SelectItem>
+                            <SelectItem value="other">Other</SelectItem>
+                          </>
+                        )}
                       </SelectContent>
                     </Select>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="service_category">Service Category *</Label>
+                    <Label htmlFor="service_category">{isChef ? 'Speciality *' : 'Service Category *'}</Label>
                     <Select
                       value={profileData.service_category}
                       onValueChange={(value) => setProfileData({ ...profileData, service_category: value })}
@@ -330,17 +375,31 @@ const CompleteRegistration = () => {
                         <SelectValue placeholder="Select category" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="street_food">Street Food</SelectItem>
-                        <SelectItem value="desserts">Desserts</SelectItem>
-                        <SelectItem value="beverages">Beverages</SelectItem>
-                        <SelectItem value="specialty">Specialty Cuisine</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
+                        {isChef ? (
+                          <>
+                            <SelectItem value="fine_dining">Fine Dining</SelectItem>
+                            <SelectItem value="home_cooking">Home Cooking</SelectItem>
+                            <SelectItem value="meal_prep">Meal Prep</SelectItem>
+                            <SelectItem value="dietary_specialist">Dietary Specialist</SelectItem>
+                            <SelectItem value="international">International Cuisine</SelectItem>
+                            <SelectItem value="pastry">Pastry & Desserts</SelectItem>
+                            <SelectItem value="other">Other</SelectItem>
+                          </>
+                        ) : (
+                          <>
+                            <SelectItem value="street_food">Street Food</SelectItem>
+                            <SelectItem value="desserts">Desserts</SelectItem>
+                            <SelectItem value="beverages">Beverages</SelectItem>
+                            <SelectItem value="specialty">Specialty Cuisine</SelectItem>
+                            <SelectItem value="other">Other</SelectItem>
+                          </>
+                        )}
                       </SelectContent>
                     </Select>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="years_in_business">Years in Business *</Label>
+                    <Label htmlFor="years_in_business">{isChef ? 'Years of Experience *' : 'Years in Business *'}</Label>
                     <Input
                       id="years_in_business"
                       type="number"
@@ -352,12 +411,12 @@ const CompleteRegistration = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="bio">Business Description *</Label>
+                  <Label htmlFor="bio">{isChef ? 'About You *' : 'Business Description *'}</Label>
                   <Textarea
                     id="bio"
                     value={profileData.bio}
                     onChange={(e) => setProfileData({ ...profileData, bio: e.target.value })}
-                    placeholder="Tell us about your business..."
+                    placeholder={isChef ? "Tell us about your culinary experience and specialities..." : "Tell us about your business..."}
                     rows={4}
                   />
                 </div>
@@ -382,7 +441,7 @@ const CompleteRegistration = () => {
               {Object.entries(documentLabels).map(([key, label]) => (
                 <div key={key} className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex items-center gap-3">
-                    {documents[key as keyof DocumentStatus] ? (
+                    {documents[key] ? (
                       <CheckCircle className="h-5 w-5 text-green-500" />
                     ) : (
                       <FileText className="h-5 w-5 text-muted-foreground" />
@@ -401,7 +460,7 @@ const CompleteRegistration = () => {
                       onClick={() => setShowContractDialog(true)}
                     >
                       <Pen className="h-4 w-4 mr-2" />
-                      {documents.signed_contract ? "Re-sign" : "Sign Contract"}
+                      {documents.signed_contract ? "Re-sign" : `Sign ${isChef ? 'Chef' : 'Vendor'} Contract`}
                     </Button>
                   ) : (
                     <Button
@@ -413,14 +472,14 @@ const CompleteRegistration = () => {
                         input.accept = '.pdf,.jpg,.jpeg,.png';
                         input.onchange = (e: any) => {
                           const file = e.target.files?.[0];
-                          if (file) handleFileUpload(key as keyof DocumentStatus, file);
+                          if (file) handleFileUpload(key, file);
                         };
                         input.click();
                       }}
                       disabled={uploadProgress[key] !== undefined}
                     >
                       <Upload className="h-4 w-4 mr-2" />
-                      {documents[key as keyof DocumentStatus] ? "Replace" : "Upload"}
+                      {documents[key] ? "Replace" : "Upload"}
                     </Button>
                   )}
                 </div>
