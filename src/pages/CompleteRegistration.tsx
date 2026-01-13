@@ -60,7 +60,7 @@ const CompleteRegistration = () => {
   };
 
   const chefDocumentLabels: Record<string, string> = {
-    level_3_hygiene_cert: "L3 Hygiene Cert",
+    level_3_hygiene_cert: "L3 Hygiene Certificate",
     dbs_check: "DBS Check",
     public_liability_insurance: "Public Liability Insurance",
     signed_contract: "Chef Contract"
