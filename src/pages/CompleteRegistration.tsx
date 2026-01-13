@@ -143,7 +143,13 @@ const CompleteRegistration = () => {
     e.preventDefault();
     if (!user) return;
 
-    if (!profileData.full_name || !profileData.company_name || !profileData.phone) {
+    // For chefs, company_name is optional; for vendors it's required
+    if (!profileData.full_name || !profileData.phone) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+    
+    if (!isChef && !profileData.company_name) {
       toast.error("Please fill in all required fields");
       return;
     }
