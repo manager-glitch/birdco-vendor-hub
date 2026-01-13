@@ -466,7 +466,7 @@ const CompleteRegistration = () => {
                       onClick={() => setShowContractDialog(true)}
                     >
                       <Pen className="h-4 w-4 mr-2" />
-                      {documents.signed_contract ? "Re-sign" : `Sign ${isChef ? 'Chef' : 'Vendor'} Contract`}
+                      {documents.signed_contract ? "Re-sign" : "Sign Contract"}
                     </Button>
                   ) : (
                     <Button
