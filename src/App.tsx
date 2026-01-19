@@ -22,6 +22,7 @@ import RegistrationAndDocuments from "./pages/RegistrationAndDocuments";
 import CompletedEvents from "./pages/CompletedEvents";
 import Settings from "./pages/Settings";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import AccountDeletion from "./pages/AccountDeletion";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -49,6 +50,7 @@ const AppContent = () => {
       <Route path="/completed-events" element={<CompletedEvents />} />
       <Route path="/settings" element={<Settings />} />
       <Route path="/privacy" element={<PrivacyPolicy />} />
+      <Route path="/account-deletion" element={<AccountDeletion />} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
     </Routes>
