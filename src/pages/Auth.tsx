@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Truck, ChefHat, ArrowLeft, Eye, EyeOff } from "lucide-react";
@@ -24,8 +23,9 @@ const Auth = () => {
   const [isResettingPassword, setIsResettingPassword] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   // Check for password recovery session
   useEffect(() => {
@@ -42,22 +42,16 @@ const Auth = () => {
 
   const handlePasswordReset = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage("");
+    setSuccessMessage("");
     
     if (newPassword !== confirmPassword) {
-      toast({
-        title: "Passwords don't match",
-        description: "Please make sure both passwords are the same.",
-        variant: "destructive",
-      });
+      setErrorMessage("Passwords don't match. Please make sure both passwords are the same.");
       return;
     }
 
     if (newPassword.length < 6) {
-      toast({
-        title: "Password too short",
-        description: "Password must be at least 6 characters.",
-        variant: "destructive",
-      });
+      setErrorMessage("Password must be at least 6 characters.");
       return;
     }
 
@@ -67,31 +61,21 @@ const Auth = () => {
       
       if (error) throw error;
 
-      toast({
-        title: "Password updated!",
-        description: "Your password has been successfully reset.",
-      });
-      
       setIsResettingPassword(false);
       navigate("/dashboard");
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      setErrorMessage(error.message);
     } finally {
       setLoading(false);
     }
   };
 
   const handleForgotPassword = async () => {
+    setErrorMessage("");
+    setSuccessMessage("");
+    
     if (!email) {
-      toast({
-        title: "Email required",
-        description: "Please enter your email address first.",
-        variant: "destructive",
-      });
+      setErrorMessage("Please enter your email address first.");
       return;
     }
 
@@ -103,16 +87,9 @@ const Auth = () => {
 
       if (error) throw error;
 
-      toast({
-        title: "Check your email",
-        description: "We've sent you a password reset link.",
-      });
+      setSuccessMessage("Check your email - we've sent you a password reset link.");
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      setErrorMessage(error.message);
     } finally {
       setResetLoading(false);
     }
@@ -134,14 +111,12 @@ const Auth = () => {
   
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage("");
+    setSuccessMessage("");
     
     // Block admin signup attempts
     if (!isLogin && isAdminMode) {
-      toast({
-        title: "Access Denied",
-        description: "Admin accounts cannot be created through signup. Please contact an existing admin.",
-        variant: "destructive",
-      });
+      setErrorMessage("Admin accounts cannot be created through signup. Please contact an existing admin.");
       return;
     }
     
@@ -169,11 +144,6 @@ const Auth = () => {
           .eq('user_id', data.user.id)
           .single();
 
-        toast({
-          title: "Welcome back!",
-          description: "You've successfully logged in.",
-        });
-        
         if (userRole?.role === 'admin') {
           navigate("/admin");
         } else {
@@ -195,19 +165,10 @@ const Auth = () => {
 
         if (error) throw error;
 
-        toast({
-          title: "Account created!",
-          description: "Welcome to Bird & Co Events.",
-        });
-        
         navigate("/dashboard");
       }
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      setErrorMessage(error.message);
     } finally {
       setLoading(false);
     }
@@ -256,6 +217,16 @@ const Auth = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            {errorMessage && (
+              <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-md text-destructive text-sm">
+                {errorMessage}
+              </div>
+            )}
+            {successMessage && (
+              <div className="mb-4 p-3 bg-green-500/10 border border-green-500/20 rounded-md text-green-600 text-sm">
+                {successMessage}
+              </div>
+            )}
             {isResettingPassword ? (
               <form onSubmit={handlePasswordReset} className="space-y-4">
                 <div className="space-y-2">

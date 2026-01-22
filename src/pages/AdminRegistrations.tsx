@@ -5,8 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, CheckCircle, XCircle, Eye, FileText, Phone, Mail, Calendar } from "lucide-react";
+import { ArrowLeft, CheckCircle, XCircle, Eye, FileText, Phone, Calendar } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -42,7 +41,6 @@ interface VendorDocument {
 const AdminRegistrations = () => {
   const { user, isAdmin, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
@@ -71,11 +69,7 @@ const AdminRegistrations = () => {
       if (error) throw error;
       setProfiles(data || []);
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      console.error("Error fetching profiles:", error);
     } finally {
       setLoading(false);
     }
@@ -92,11 +86,7 @@ const AdminRegistrations = () => {
       if (error) throw error;
       setDocuments(data || []);
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      console.error("Error fetching documents:", error);
     }
   };
 
@@ -119,21 +109,12 @@ const AdminRegistrations = () => {
 
       if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: `Profile ${newStatus}`,
-      });
-
       fetchProfiles();
       if (selectedProfile?.id === profileId) {
         setIsDialogOpen(false);
       }
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      console.error("Error updating approval status:", error);
     }
   };
 
@@ -154,11 +135,7 @@ const AdminRegistrations = () => {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      console.error("Error downloading document:", error);
     }
   };
 

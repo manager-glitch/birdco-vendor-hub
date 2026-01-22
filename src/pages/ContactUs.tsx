@@ -7,13 +7,14 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft } from "lucide-react";
-import { toast } from "sonner";
+import { ArrowLeft, CheckCircle } from "lucide-react";
 
 const ContactUs = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -22,21 +23,22 @@ const ContactUs = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage("");
     
     if (!user) {
-      toast.error("You must be logged in to send a message");
+      setErrorMessage("You must be logged in to send a message");
       return;
     }
 
     if (!formData.name || !formData.email || !formData.message) {
-      toast.error("Please fill in all fields");
+      setErrorMessage("Please fill in all fields");
       return;
     }
 
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      toast.error("Please enter a valid email address");
+      setErrorMessage("Please enter a valid email address");
       return;
     }
 
@@ -66,11 +68,9 @@ const ContactUs = () => {
 
       if (emailError) {
         console.error("Email sending error:", emailError);
-        toast.warning("Message saved, but email notification failed");
-      } else {
-        toast.success("Message sent successfully!");
       }
 
+      setSubmitted(true);
       setFormData({
         name: "",
         email: "",
@@ -78,7 +78,7 @@ const ContactUs = () => {
       });
     } catch (error: any) {
       console.error("Error submitting contact form:", error);
-      toast.error("Failed to send message. Please try again.");
+      setErrorMessage("Failed to send message. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -104,46 +104,64 @@ const ContactUs = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Name *</Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="Your name"
-                  required
-                />
+            {submitted ? (
+              <div className="text-center py-8">
+                <CheckCircle className="h-12 w-12 mx-auto text-green-500 mb-4" />
+                <h3 className="text-lg font-semibold mb-2">Message Sent!</h3>
+                <p className="text-muted-foreground mb-4">We'll get back to you as soon as possible.</p>
+                <Button onClick={() => setSubmitted(false)} variant="outline">
+                  Send Another Message
+                </Button>
               </div>
+            ) : (
+              <>
+                {errorMessage && (
+                  <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-md text-destructive text-sm">
+                    {errorMessage}
+                  </div>
+                )}
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Name *</Label>
+                    <Input
+                      id="name"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      placeholder="Your name"
+                      required
+                    />
+                  </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="email">Email *</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  placeholder="your.email@example.com"
-                  required
-                />
-              </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email *</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      placeholder="your.email@example.com"
+                      required
+                    />
+                  </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="message">Message *</Label>
-                <Textarea
-                  id="message"
-                  value={formData.message}
-                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  placeholder="How can we help you?"
-                  rows={6}
-                  required
-                />
-              </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="message">Message *</Label>
+                    <Textarea
+                      id="message"
+                      value={formData.message}
+                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                      placeholder="How can we help you?"
+                      rows={6}
+                      required
+                    />
+                  </div>
 
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Sending..." : "Send Message"}
-              </Button>
-            </form>
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading ? "Sending..." : "Send Message"}
+                  </Button>
+                </form>
+              </>
+            )}
           </CardContent>
         </Card>
       </div>
