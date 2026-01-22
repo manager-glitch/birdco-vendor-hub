@@ -173,7 +173,7 @@ const CompleteRegistration = () => {
 
       if (error) throw error;
 
-      toast.success("Profile updated successfully!", { duration: 2000 });
+      // Success - proceed without toast notification
       setStep(2);
     } catch (error: any) {
       console.error("Error updating profile:", error);
@@ -217,7 +217,7 @@ const CompleteRegistration = () => {
       if (dbError) throw dbError;
 
       setDocuments(prev => ({ ...prev, [documentType]: true }));
-      toast.success(`${documentLabels[documentType]} uploaded successfully!`);
+      // Success - proceed without toast notification
     } catch (error: any) {
       console.error("Error uploading file:", error);
       toast.error("Failed to upload file");
@@ -249,7 +249,7 @@ const CompleteRegistration = () => {
 
       if (error) throw error;
 
-      toast.success("Registration completed! Waiting for admin approval.");
+      // Success - proceed without toast notification
       navigate("/dashboard");
     } catch (error: any) {
       console.error("Error completing registration:", error);
