@@ -13,7 +13,6 @@ import logo from "@/assets/bird-co-logo.png";
 import { DEV_CONFIG } from "@/config/dev";
 import { format, parse, differenceInHours } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 
 interface Event {
   id: string;
@@ -201,7 +200,6 @@ const AvailabilityShifts = () => {
 
   const confirmCancelEvent = () => {
     // Implement actual cancel logic here
-    toast.success("Event cancelled successfully");
     setCancelDialogOpen(false);
     setSelectedEvent(null);
   };
@@ -221,10 +219,9 @@ const AvailabilityShifts = () => {
   const handleCopyAddress = async () => {
     try {
       await navigator.clipboard.writeText(selectedAddress);
-      toast.success("Address copied to clipboard!");
       setMapDialogOpen(false);
     } catch (err) {
-      toast.error("Failed to copy address");
+      console.error("Failed to copy address:", err);
     }
   };
 
@@ -244,12 +241,8 @@ const AvailabilityShifts = () => {
       if (error) throw error;
 
       setAppliedOpportunities(prev => new Set([...prev, opportunityId]));
-      toast.success("Your interest has been noted by the Bird & Co team! We'll be in touch soon.", {
-        duration: 5000,
-      });
     } catch (error: any) {
       console.error("Error applying to event:", error);
-      toast.error("Failed to apply to event. Please try again.");
     } finally {
       setLoading(false);
     }

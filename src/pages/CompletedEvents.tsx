@@ -7,9 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Calendar, Building2, FileText, Filter, Plus, ArrowLeft } from "lucide-react";
+import { Loader2, Calendar, Building2, FileText, Filter, ArrowLeft } from "lucide-react";
 import { format } from "date-fns";
-import { toast } from "sonner";
 
 interface CompletedEvent {
   id: string;
@@ -103,7 +102,6 @@ export default function CompletedEvents() {
       }
     } catch (error) {
       console.error("Error fetching completed events:", error);
-      toast.error("Failed to load completed events");
     } finally {
       setLoading(false);
     }

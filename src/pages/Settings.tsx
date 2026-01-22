@@ -8,7 +8,6 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { ArrowLeft, Key, Trash2, LogOut, Eye, EyeOff } from "lucide-react";
-import { toast } from "sonner";
 
 const Settings = () => {
   const navigate = useNavigate();
@@ -19,17 +18,21 @@ const Settings = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage("");
+    setSuccessMessage("");
 
     if (newPassword.length < 6) {
-      toast.error("Password must be at least 6 characters");
+      setErrorMessage("Password must be at least 6 characters");
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      toast.error("Passwords do not match");
+      setErrorMessage("Passwords do not match");
       return;
     }
 
@@ -41,12 +44,12 @@ const Settings = () => {
 
       if (error) throw error;
 
-      toast.success("Password changed successfully!");
+      setSuccessMessage("Password changed successfully!");
       setNewPassword("");
       setConfirmPassword("");
     } catch (error: any) {
       console.error("Error changing password:", error);
-      toast.error("Failed to change password. Please try again.");
+      setErrorMessage("Failed to change password. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -72,11 +75,10 @@ const Settings = () => {
 
       // Sign out and redirect
       await signOut();
-      toast.success("Your account has been deleted");
       navigate("/auth");
     } catch (error: any) {
       console.error("Error deleting account:", error);
-      toast.error("Failed to delete account. Please contact support.");
+      setErrorMessage("Failed to delete account. Please contact support.");
     } finally {
       setDeleteLoading(false);
     }
@@ -88,7 +90,6 @@ const Settings = () => {
       navigate("/auth");
     } catch (error) {
       console.error("Error logging out:", error);
-      toast.error("Failed to logout. Please try again.");
     }
   };
 
@@ -133,6 +134,16 @@ const Settings = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
+              {errorMessage && (
+                <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-md text-destructive text-sm">
+                  {errorMessage}
+                </div>
+              )}
+              {successMessage && (
+                <div className="mb-4 p-3 bg-green-500/10 border border-green-500/20 rounded-md text-green-600 text-sm">
+                  {successMessage}
+                </div>
+              )}
               <form onSubmit={handleChangePassword} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="new-password">New Password</Label>

@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, MapPin, Plus, Users, Edit, Eye, Phone, ArrowLeft, Trash2, Bell, Users2, Tag, X } from "lucide-react";
@@ -60,7 +59,7 @@ interface ApplicationWithProfile {
 const Admin = () => {
   const { user, isAdmin, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const [errorMessage, setErrorMessage] = useState("");
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
   const [applications, setApplications] = useState<ApplicationWithProfile[]>([]);
   const [allProfiles, setAllProfiles] = useState<Profile[]>([]);
@@ -172,11 +171,7 @@ const Admin = () => {
         setApplications([]);
       }
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
     }
@@ -267,13 +262,6 @@ const Admin = () => {
         );
       }
 
-      toast({
-        title: "Opportunity created!",
-        description: formData.role === "both" 
-          ? "Vendors and chefs can now view and apply."
-          : "Users can now view and apply.",
-      });
-
       setFormData({
         title: "",
         description: "",
@@ -288,11 +276,7 @@ const Admin = () => {
       setIsDialogOpen(false);
       fetchData();
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      console.error("Error creating opportunity:", error);
     }
   };
 
@@ -367,11 +351,6 @@ const Admin = () => {
         }
       }
 
-      toast({
-        title: "Opportunity updated!",
-        description: "Changes have been saved.",
-      });
-
       setFormData({
         title: "",
         description: "",
@@ -387,11 +366,7 @@ const Admin = () => {
       setSelectedOpportunity(null);
       fetchData();
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      console.error("Error updating opportunity:", error);
     }
   };
 
@@ -412,18 +387,9 @@ const Admin = () => {
 
       if (error) throw error;
 
-      toast({
-        title: "Opportunity deleted",
-        description: "The opportunity has been removed.",
-      });
-
       fetchData();
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      console.error("Error deleting opportunity:", error);
     }
   };
 
@@ -460,11 +426,7 @@ const Admin = () => {
 
       setIsApplicantsDialogOpen(true);
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      console.error("Error viewing applicants:", error);
     }
   };
 

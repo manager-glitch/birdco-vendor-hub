@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ArrowLeft, Send, Loader2 } from "lucide-react";
-import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 
 interface Message {
@@ -109,7 +108,6 @@ const Chat = () => {
       setConversations(data || []);
     } catch (error) {
       console.error('Error loading conversations:', error);
-      toast.error('Failed to load conversations');
     } finally {
       setLoading(false);
     }
@@ -117,7 +115,6 @@ const Chat = () => {
 
   const createNewConversation = async () => {
     if (!user) {
-      toast.error('Please log in to start a chat');
       navigate('/auth');
       return;
     }
@@ -141,11 +138,9 @@ const Chat = () => {
         setConversations(prev => [data, ...prev]);
         setSelectedConversation(data.id);
         console.log('Conversation selected:', data.id);
-        toast.success('Chat started with Bird & Co');
       }
     } catch (error) {
       console.error('Error creating conversation:', error);
-      toast.error('Failed to start conversation');
     }
   };
 
@@ -169,7 +164,6 @@ const Chat = () => {
       }
     } catch (error) {
       console.error('Error loading messages:', error);
-      toast.error('Failed to load messages');
     }
   };
 
@@ -191,7 +185,6 @@ const Chat = () => {
       setNewMessage("");
     } catch (error) {
       console.error('Error sending message:', error);
-      toast.error('Failed to send message');
     } finally {
       setSending(false);
     }

@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ArrowLeft, Send, Loader2, Plus } from "lucide-react";
-import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import {
   Dialog,
@@ -155,7 +154,6 @@ const AdminChat = () => {
       setConversations(conversationsWithDetails);
     } catch (error) {
       console.error('Error loading conversations:', error);
-      toast.error('Failed to load conversations');
     } finally {
       setLoading(false);
     }
@@ -184,7 +182,6 @@ const AdminChat = () => {
       loadConversations();
     } catch (error) {
       console.error('Error loading messages:', error);
-      toast.error('Failed to load messages');
     }
   };
 
@@ -206,7 +203,6 @@ const AdminChat = () => {
       setNewMessage("");
     } catch (error) {
       console.error('Error sending message:', error);
-      toast.error('Failed to send message');
     } finally {
       setSending(false);
     }
@@ -224,7 +220,6 @@ const AdminChat = () => {
       setAllVendors(data || []);
     } catch (error) {
       console.error('Error loading vendors:', error);
-      toast.error('Failed to load vendors');
     } finally {
       setLoadingVendors(false);
     }
@@ -255,10 +250,8 @@ const AdminChat = () => {
       setSelectedConversation(data.id);
       setShowNewMessageDialog(false);
       setVendorSearch("");
-      toast.success('Conversation started');
     } catch (error) {
       console.error('Error starting conversation:', error);
-      toast.error('Failed to start conversation');
     }
   };
 
