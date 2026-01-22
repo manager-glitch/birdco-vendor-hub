@@ -112,52 +112,8 @@ const AvailabilityShifts = () => {
       </div>;
   }
 
-  // Mock data - replace with actual data from Supabase
-  const confirmedEvents: Event[] = [
-    {
-      id: "1",
-      clientName: "Smith Wedding",
-      date: "2025-12-01",
-      time: "2:00 PM - 10:00 PM",
-      location: "Grand Hotel",
-      address: "1 landells road, east dulwich, Se22 9pg",
-      status: "Booked & Confirmed",
-      role: "Food Vendor",
-      payRate: "£500",
-      notes: "Setup at 1:00 PM. Client requests vegetarian options."
-    },
-    {
-      id: "2",
-      clientName: "Corporate Gala",
-      date: "2025-12-20",
-      time: "6:00 PM - 11:00 PM",
-      location: "Convention Center",
-      address: "1 landells road, east dulwich, Se22 9pg",
-      status: "Booked & Confirmed",
-      role: "Beverage Vendor",
-      payRate: "£600",
-      notes: "Black tie event. 200 guests expected."
-    }
-  ];
-
-  const availableEvents: Event[] = [
-    {
-      id: "3",
-      eventName: "Birthday Party",
-      date: "2025-12-18",
-      time: "3:00 PM - 7:00 PM",
-      location: "Private Residence",
-      status: "Open"
-    },
-    {
-      id: "4",
-      eventName: "Holiday Market",
-      date: "2025-12-22",
-      time: "10:00 AM - 6:00 PM",
-      location: "Downtown Square",
-      status: "Open"
-    }
-  ];
+  // Confirmed events will be populated from accepted applications in the future
+  const confirmedEvents: Event[] = [];
 
   const handleReadMore = (event: Event) => {
     setSelectedEvent(event);
