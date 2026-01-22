@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SignatureCanvas } from "./SignatureCanvas";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+
 import { CheckCircle, FileText } from "lucide-react";
 
 interface ContractSigningDialogProps {
@@ -476,7 +476,7 @@ Date of Acceptance: ${new Date().toLocaleDateString()}`;
       setStep("review");
     } catch (error: any) {
       console.error("Error signing contract:", error);
-      toast.error("Failed to sign contract");
+      // Error logged - user can retry
     } finally {
       setLoading(false);
     }
