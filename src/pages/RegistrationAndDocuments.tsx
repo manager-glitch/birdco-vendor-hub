@@ -105,7 +105,7 @@ const RegistrationAndDocuments = () => {
         years_in_business: profileData.years_in_business ? parseInt(profileData.years_in_business) : null
       }).eq("id", user.id);
       if (error) throw error;
-      toast.success("Profile updated successfully!");
+      // Success - proceed without toast notification
       await loadData();
     } catch (error: any) {
       console.error("Error updating profile:", error);
@@ -141,7 +141,7 @@ const RegistrationAndDocuments = () => {
         onConflict: 'vendor_id,document_type'
       });
       if (dbError) throw dbError;
-      toast.success("Document uploaded successfully!");
+      // Success - proceed without toast notification
       await loadData();
     } catch (error: any) {
       console.error("Error uploading file:", error);
@@ -199,7 +199,7 @@ const RegistrationAndDocuments = () => {
 
       if (dbError) throw dbError;
 
-      toast.success(`${files.length} image(s) uploaded successfully!`);
+      // Success - proceed without toast notification
       loadData();
     } catch (error: any) {
       console.error('Error uploading images:', error);
@@ -229,7 +229,7 @@ const RegistrationAndDocuments = () => {
 
       if (dbError) throw dbError;
 
-      toast.success("Image deleted successfully!");
+      // Success - proceed without toast notification
       loadData();
     } catch (error: any) {
       console.error('Error deleting image:', error);

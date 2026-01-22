@@ -470,7 +470,7 @@ Date of Acceptance: ${new Date().toLocaleDateString()}`;
 
       if (dbError) throw dbError;
 
-      toast.success("Contract signed successfully!");
+      // Success - proceed without toast notification
       onContractSigned();
       onOpenChange(false);
       setStep("review");
