@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, CheckCircle, XCircle, Eye, FileText, Phone, Calendar } from "lucide-react";
+import { ArrowLeft, CheckCircle, XCircle, Eye, FileText, Phone, Calendar, Mail } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -26,6 +26,7 @@ interface Profile {
   approval_status: string;
   registration_completed: boolean;
   created_at: string;
+  email?: string;
 }
 
 interface VendorDocument {
@@ -67,7 +68,18 @@ const AdminRegistrations = () => {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setProfiles(data || []);
+
+      // Fetch emails for each profile using the secure function
+      const profilesWithEmails = await Promise.all(
+        (data || []).map(async (profile) => {
+          const { data: emailData } = await supabase.rpc("get_user_email", {
+            user_uuid: profile.id,
+          });
+          return { ...profile, email: emailData || undefined };
+        })
+      );
+
+      setProfiles(profilesWithEmails);
     } catch (error: any) {
       console.error("Error fetching profiles:", error);
     } finally {
@@ -195,6 +207,14 @@ const AdminRegistrations = () => {
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="space-y-2 text-sm">
+                  {profile.email && (
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Mail className="h-4 w-4" />
+                      <a href={`mailto:${profile.email}`} className="hover:underline truncate">
+                        {profile.email}
+                      </a>
+                    </div>
+                  )}
                   {profile.phone && (
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <Phone className="h-4 w-4" />
@@ -252,12 +272,22 @@ const AdminRegistrations = () => {
                 <h3 className="font-semibold text-lg">Profile Information</h3>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <p className="text-muted-foreground">Company Name</p>
-                    <p className="font-medium">{selectedProfile.company_name || "N/A"}</p>
+                    <p className="text-muted-foreground">Email</p>
+                    <p className="font-medium">
+                      {selectedProfile.email ? (
+                        <a href={`mailto:${selectedProfile.email}`} className="text-primary hover:underline">
+                          {selectedProfile.email}
+                        </a>
+                      ) : "N/A"}
+                    </p>
                   </div>
                   <div>
                     <p className="text-muted-foreground">Phone</p>
                     <p className="font-medium">{selectedProfile.phone || "N/A"}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Company Name</p>
+                    <p className="font-medium">{selectedProfile.company_name || "N/A"}</p>
                   </div>
                   <div>
                     <p className="text-muted-foreground">Business Type</p>
