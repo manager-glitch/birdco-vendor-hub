@@ -46,6 +46,7 @@ interface ApplicationWithProfile {
   message: string;
   created_at: string;
   opportunity_id: string;
+  vendor_id: string;
   profiles: {
     full_name: string;
     company_name: string;
@@ -71,6 +72,7 @@ const Admin = () => {
   const [opportunityApplicants, setOpportunityApplicants] = useState<ApplicationWithProfile[]>([]);
   const [selectedTaggedProfiles, setSelectedTaggedProfiles] = useState<string[]>([]);
   const [profileSearch, setProfileSearch] = useState("");
+  const [selectedOpportunityId, setSelectedOpportunityId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -424,9 +426,86 @@ const Admin = () => {
         setOpportunityApplicants([]);
       }
 
+      setSelectedOpportunityId(opportunityId);
       setIsApplicantsDialogOpen(true);
     } catch (error: any) {
       console.error("Error viewing applicants:", error);
+    }
+  };
+
+  const handleAcceptApplication = async (applicationId: string, vendorId: string) => {
+    try {
+      // Update application status to accepted
+      const { error: updateError } = await supabase
+        .from("applications")
+        .update({ status: "accepted" })
+        .eq("id", applicationId);
+
+      if (updateError) throw updateError;
+
+      // Refresh the applicants list
+      if (selectedOpportunityId) {
+        handleViewApplicants(selectedOpportunityId);
+      }
+
+      // Send push notification to the vendor
+      try {
+        const opportunity = opportunities.find(o => o.id === selectedOpportunityId);
+        await supabase.functions.invoke('send-push-notification', {
+          body: {
+            user_ids: [vendorId],
+            title: "You're Booked!",
+            body: `You've been accepted for ${opportunity?.title || 'an event'}`,
+            data: { type: 'application_accepted', opportunity_id: selectedOpportunityId }
+          }
+        });
+      } catch (notifError) {
+        console.error("Failed to send notification:", notifError);
+      }
+
+      // Refresh main data
+      fetchData();
+    } catch (error: any) {
+      console.error("Error accepting application:", error);
+      setErrorMessage("Failed to accept application");
+    }
+  };
+
+  const handleDeclineApplication = async (applicationId: string, vendorId: string) => {
+    try {
+      // Update application status to declined
+      const { error: updateError } = await supabase
+        .from("applications")
+        .update({ status: "declined" })
+        .eq("id", applicationId);
+
+      if (updateError) throw updateError;
+
+      // Refresh the applicants list
+      if (selectedOpportunityId) {
+        handleViewApplicants(selectedOpportunityId);
+      }
+
+      // Send push notification to the vendor
+      try {
+        const opportunity = opportunities.find(o => o.id === selectedOpportunityId);
+        await supabase.functions.invoke('send-push-notification', {
+          body: {
+            user_ids: [vendorId],
+            title: "Application Update",
+            body: `Your application for ${opportunity?.title || 'an event'} was not selected`,
+            data: { type: 'application_declined', opportunity_id: selectedOpportunityId }
+          }
+        });
+      } catch (notifError) {
+        console.error("Failed to send notification:", notifError);
+      }
+
+      // Refresh main data
+      fetchData();
+    } catch (error: any) {
+      console.error("Error declining application:", error);
+      setErrorMessage("Failed to decline application");
     }
   };
 
@@ -957,7 +1036,7 @@ const Admin = () => {
                       <CardDescription>{app.profiles.company_name}</CardDescription>
                     )}
                   </CardHeader>
-                  <CardContent className="space-y-2 text-sm">
+                  <CardContent className="space-y-3 text-sm">
                     {app.profiles?.phone && (
                       <div className="flex items-center gap-2 text-muted-foreground">
                         <Phone className="h-4 w-4" />
@@ -974,8 +1053,31 @@ const Admin = () => {
                       <p className="text-xs text-muted-foreground">
                         Applied: {new Date(app.created_at).toLocaleDateString('en-GB')}
                       </p>
-                      <Badge variant="secondary">{app.status}</Badge>
+                      <Badge 
+                        variant={app.status === 'accepted' ? 'default' : app.status === 'declined' ? 'destructive' : 'secondary'}
+                      >
+                        {app.status}
+                      </Badge>
                     </div>
+                    {app.status === 'pending' && (
+                      <div className="flex gap-2 pt-2 border-t">
+                        <Button
+                          size="sm"
+                          className="flex-1"
+                          onClick={() => handleAcceptApplication(app.id, app.vendor_id)}
+                        >
+                          Accept
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="flex-1"
+                          onClick={() => handleDeclineApplication(app.id, app.vendor_id)}
+                        >
+                          Decline
+                        </Button>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               ))
