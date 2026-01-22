@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { toast } from "sonner";
+
 import { ArrowLeft, Upload, FileText, Download, CheckCircle, Clock, XCircle, PenTool, ImagePlus, Trash2 } from "lucide-react";
 import { ContractSigningDialog } from "@/components/ContractSigningDialog";
 const RegistrationAndDocuments = () => {
@@ -109,7 +109,7 @@ const RegistrationAndDocuments = () => {
       await loadData();
     } catch (error: any) {
       console.error("Error updating profile:", error);
-      toast.error("Failed to update profile");
+      // Error logged - user can retry
     } finally {
       setLoading(false);
     }
@@ -117,7 +117,7 @@ const RegistrationAndDocuments = () => {
   const handleFileUpload = async (documentType: string, file: File) => {
     if (!user) return;
     if (file.size > 10 * 1024 * 1024) {
-      toast.error("File size must be less than 10MB");
+      console.error("File size must be less than 10MB");
       return;
     }
     setLoading(true);
@@ -145,7 +145,7 @@ const RegistrationAndDocuments = () => {
       await loadData();
     } catch (error: any) {
       console.error("Error uploading file:", error);
-      toast.error("Failed to upload file");
+      // Error logged - user can retry
     } finally {
       setLoading(false);
     }
@@ -165,7 +165,7 @@ const RegistrationAndDocuments = () => {
       URL.revokeObjectURL(url);
     } catch (error: any) {
       console.error("Error downloading file:", error);
-      toast.error("Failed to download file");
+      // Error logged - user can retry
     }
   };
 
@@ -203,7 +203,7 @@ const RegistrationAndDocuments = () => {
       loadData();
     } catch (error: any) {
       console.error('Error uploading images:', error);
-      toast.error("Failed to upload images");
+      // Error logged - user can retry
     } finally {
       setLoading(false);
     }
@@ -233,7 +233,7 @@ const RegistrationAndDocuments = () => {
       loadData();
     } catch (error: any) {
       console.error('Error deleting image:', error);
-      toast.error("Failed to delete image");
+      // Error logged - user can retry
     } finally {
       setLoading(false);
     }

@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
-import { toast } from "sonner";
+
 import { Upload, FileText, CheckCircle, Pen, ArrowLeft } from "lucide-react";
 import { ContractSigningDialog } from "@/components/ContractSigningDialog";
 
@@ -145,12 +145,12 @@ const CompleteRegistration = () => {
 
     // For chefs, company_name is optional; for vendors it's required
     if (!profileData.full_name || !profileData.phone) {
-      toast.error("Please fill in all required fields");
+      // Form validation handled by required attributes
       return;
     }
     
     if (!isChef && !profileData.company_name) {
-      toast.error("Please fill in all required fields");
+      // Form validation handled by required attributes
       return;
     }
 
@@ -177,7 +177,7 @@ const CompleteRegistration = () => {
       setStep(2);
     } catch (error: any) {
       console.error("Error updating profile:", error);
-      toast.error("Failed to update profile");
+      // Error logged - user can retry
     } finally {
       setLoading(false);
     }
@@ -187,7 +187,7 @@ const CompleteRegistration = () => {
     if (!user) return;
 
     if (file.size > 10 * 1024 * 1024) {
-      toast.error("File size must be less than 10MB");
+      console.error("File size must be less than 10MB");
       return;
     }
 
@@ -220,7 +220,7 @@ const CompleteRegistration = () => {
       // Success - proceed without toast notification
     } catch (error: any) {
       console.error("Error uploading file:", error);
-      toast.error("Failed to upload file");
+      // Error logged - user can retry
     } finally {
       setUploadProgress(prev => {
         const newProgress = { ...prev };
@@ -235,7 +235,7 @@ const CompleteRegistration = () => {
 
     const allDocsUploaded = Object.values(documents).every(status => status);
     if (!allDocsUploaded) {
-      toast.error("Please upload all required documents");
+      // UI shows incomplete documents visually
       return;
     }
 
@@ -253,7 +253,7 @@ const CompleteRegistration = () => {
       navigate("/dashboard");
     } catch (error: any) {
       console.error("Error completing registration:", error);
-      toast.error("Failed to complete registration");
+      // Error logged - user can retry
     } finally {
       setLoading(false);
     }

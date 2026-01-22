@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { PushNotifications } from '@capacitor/push-notifications';
-import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/AuthContext';
 
@@ -65,11 +64,7 @@ export const usePushNotifications = () => {
     // Listen for push notifications received
     PushNotifications.addListener('pushNotificationReceived', (notification) => {
       console.log('Push notification received: ', notification);
-      
-      // Show a toast when notification is received while app is open
-      toast.info(notification.title || 'New Notification', {
-        description: notification.body
-      });
+      // Notification handled silently - user sees native notification
     });
 
     // Listen for notification actions (when user taps on notification)
