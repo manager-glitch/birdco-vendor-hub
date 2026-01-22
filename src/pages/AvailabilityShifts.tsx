@@ -36,6 +36,7 @@ const AvailabilityShifts = () => {
   const [availabilityNotes, setAvailabilityNotes] = useState("");
   const [availableOpportunities, setAvailableOpportunities] = useState<any[]>([]);
   const [appliedOpportunities, setAppliedOpportunities] = useState<Set<string>>(new Set());
+  const [confirmedEvents, setConfirmedEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(false);
   const [mapDialogOpen, setMapDialogOpen] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState("");
@@ -56,6 +57,7 @@ const AvailabilityShifts = () => {
     if (user && userRole) {
       loadOpportunities();
       loadUserApplications();
+      loadConfirmedEvents();
     }
   }, [user, userRole]);
 
@@ -95,6 +97,46 @@ const AvailabilityShifts = () => {
     }
   };
 
+  const loadConfirmedEvents = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from("applications")
+        .select(`
+          id,
+          opportunity_id,
+          opportunities (
+            id,
+            title,
+            event_date,
+            location,
+            details,
+            description
+          )
+        `)
+        .eq("vendor_id", user.id)
+        .eq("status", "accepted");
+
+      if (error) throw error;
+      
+      const events: Event[] = (data || []).map((app: any) => ({
+        id: app.id,
+        clientName: app.opportunities?.title || "Event",
+        date: app.opportunities?.event_date || "",
+        time: "TBC",
+        location: app.opportunities?.location || "TBC",
+        address: app.opportunities?.location || "",
+        status: "Booked & Confirmed",
+        notes: app.opportunities?.details || app.opportunities?.description || ""
+      }));
+      
+      setConfirmedEvents(events);
+    } catch (error) {
+      console.error("Error loading confirmed events:", error);
+    }
+  };
+
   useEffect(() => {
     // Skip registration checks in development mode
     if (DEV_CONFIG.bypassRegistrationChecks) {
@@ -112,8 +154,6 @@ const AvailabilityShifts = () => {
       </div>;
   }
 
-  // Confirmed events will be populated from accepted applications in the future
-  const confirmedEvents: Event[] = [];
 
   const handleReadMore = (event: Event) => {
     setSelectedEvent(event);
