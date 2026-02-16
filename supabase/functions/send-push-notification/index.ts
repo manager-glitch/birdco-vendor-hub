@@ -2,7 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 interface PushPayload {
@@ -14,7 +14,6 @@ interface PushPayload {
 }
 
 Deno.serve(async (req) => {
-  // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -22,12 +21,66 @@ Deno.serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const fcmServerKey = Deno.env.get("FCM_SERVER_KEY");
 
+    // --- Auth check: verify caller is admin ---
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const authClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsError } = await authClient.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const userId = claimsData.claims.sub;
+
+    // Check admin role using service client
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const { data: roleData } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .eq("role", "admin")
+      .maybeSingle();
+
+    if (!roleData) {
+      return new Response(JSON.stringify({ error: "Forbidden: admin only" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    // --- End auth check ---
 
     const payload: PushPayload = await req.json();
     const { title, body, data, user_ids, role } = payload;
+
+    // Input validation
+    if (!title || typeof title !== "string" || title.length > 200) {
+      return new Response(JSON.stringify({ error: "Invalid title" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    if (!body || typeof body !== "string" || body.length > 1000) {
+      return new Response(JSON.stringify({ error: "Invalid body" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     console.log("Received push notification request:", { title, body, role, user_ids_count: user_ids?.length });
 
@@ -37,7 +90,6 @@ Deno.serve(async (req) => {
     if (user_ids && user_ids.length > 0) {
       targetUserIds = user_ids;
     } else if (role) {
-      // Get all users with the specified role
       const { data: roleUsers, error: roleError } = await supabase
         .from("user_roles")
         .select("user_id")
@@ -52,7 +104,6 @@ Deno.serve(async (req) => {
     }
 
     if (targetUserIds.length === 0) {
-      console.log("No target users found");
       return new Response(
         JSON.stringify({ success: true, message: "No target users found", sent: 0 }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -61,7 +112,6 @@ Deno.serve(async (req) => {
 
     console.log(`Found ${targetUserIds.length} target users`);
 
-    // Get push tokens for target users
     const { data: tokens, error: tokensError } = await supabase
       .from("push_tokens")
       .select("token, platform, user_id")
@@ -73,7 +123,6 @@ Deno.serve(async (req) => {
     }
 
     if (!tokens || tokens.length === 0) {
-      console.log("No push tokens found for target users");
       return new Response(
         JSON.stringify({ success: true, message: "No push tokens found", sent: 0 }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -82,13 +131,11 @@ Deno.serve(async (req) => {
 
     console.log(`Found ${tokens.length} push tokens`);
 
-    // Separate tokens by platform
     const androidTokens = tokens.filter((t) => t.platform === "android").map((t) => t.token);
     const iosTokens = tokens.filter((t) => t.platform === "ios").map((t) => t.token);
 
     let sentCount = 0;
 
-    // Send to Android via FCM
     if (androidTokens.length > 0 && fcmServerKey) {
       console.log(`Sending to ${androidTokens.length} Android devices`);
       
@@ -100,11 +147,7 @@ Deno.serve(async (req) => {
         },
         body: JSON.stringify({
           registration_ids: androidTokens,
-          notification: {
-            title,
-            body,
-            sound: "default",
-          },
+          notification: { title, body, sound: "default" },
           data: data || {},
         }),
       });
@@ -114,11 +157,8 @@ Deno.serve(async (req) => {
       sentCount += fcmResult.success || 0;
     }
 
-    // For iOS, we'd use APNS - placeholder for now
-    // iOS push notifications require APNS setup with certificates
     if (iosTokens.length > 0) {
       console.log(`Found ${iosTokens.length} iOS devices - APNS not yet configured`);
-      // TODO: Implement APNS when credentials are available
     }
 
     return new Response(
@@ -137,7 +177,6 @@ Deno.serve(async (req) => {
     console.error("Error sending push notification:", errorMessage);
     return new Response(
       JSON.stringify({ success: false, error: errorMessage }),
-      
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
