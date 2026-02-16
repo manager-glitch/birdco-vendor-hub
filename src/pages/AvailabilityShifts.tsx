@@ -58,6 +58,28 @@ const AvailabilityShifts = () => {
       loadOpportunities();
       loadUserApplications();
       loadConfirmedEvents();
+
+      // Real-time subscription for new/updated opportunities
+      const oppChannel = supabase
+        .channel('opportunities-realtime')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'opportunities' }, () => {
+          loadOpportunities();
+        })
+        .subscribe();
+
+      // Real-time subscription for application status changes
+      const appChannel = supabase
+        .channel('applications-realtime')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'applications' }, () => {
+          loadUserApplications();
+          loadConfirmedEvents();
+        })
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(oppChannel);
+        supabase.removeChannel(appChannel);
+      };
     }
   }, [user, userRole]);
 
